@@ -16,7 +16,7 @@ public class Task extends Model {
     public Long id;
 
     @Required
-    public String label;
+    public String name;
 
     public static Finder<Long,Task> find = new Finder(
             Long.class, Task.class
