@@ -1,34 +1,20 @@
-@(tasks: List[Task], taskForm: Form[Task])
+@import com.feth.play.module.pa.views.html._
 
-@import helper._
 
-@main("Todo list") {
-
-    <h3>Number of tasks <span class="label label-default">@tasks.size()</span></h3>
-
-    <ul class="list-group">
-        @for(task <- tasks) {
-        <li class="list-group-item">
-            @form(routes.Application.deleteTask(task.id)) {
-            <span>@task.name</span>
-            <button type="submit" class="btn btn-danger btn-xs" value="Delete">
-                <span class="glyphicon glyphicon-remove-circle"></span> Delete
-            </button>
-            }
-        </li>
-        }
-    </ul>
-    <hr/>
-    <h3>Add a new task</h3>
-
-    @form(routes.Application.newTask()) {
-
-        <label for="name">name</label>
-        <input type="text" id="name" name="name" value="">
-        <button type="submit" class="btn btn-default btn-sm" value="Create">
-            <span class="glyphicon glyphicon-star"></span> Create
-        </button>
-
-    }
-
+@main("Index") {
+  <h1>Welcome</h1>
+  
+  @currentAuth() { auth =>
+      @if(auth == null) {
+          <a href="@controllers.routes.Application.login">Login</a><br/>
+          <a href="@controllers.routes.Application.signup">Signup</a>
+      }
+      @if(auth != null) {
+          <a href="@com.feth.play.module.pa.controllers.routes.Authenticate.logout">Logout</a>
+      }
+  }
+  
+  @forProviders() { p =>
+      <a href="@p.getUrl()">@p.getKey()</a>
+  }
 }

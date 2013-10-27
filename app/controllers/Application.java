@@ -1,43 +1,86 @@
 package controllers;
 
-import play.*;
-import play.data.Form;
-import play.mvc.*;
-import models.Task;
+import static play.data.Form.form;
 
-import views.html.*;
+import com.feth.play.module.pa.PlayAuthenticate;
+
+import play.Logger;
+import play.Play;
+import play.data.Form;
+import play.mvc.Controller;
+import play.mvc.Result;
+import providers.TestUsernamePasswordAuthProvider;
+import providers.TestUsernamePasswordAuthProvider.Login;
+import providers.TestUsernamePasswordAuthProvider.Signup;
 
 public class Application extends Controller {
 
-    static Form<Task> taskForm = Form.form(Task.class);
+	public static final String FLASH_ERROR_KEY = "error";
 
-    public static Result index() {
-        return redirect(routes.Application.tasks());
-        //return ok(index.render("Your new application is ready."));
-    }
+	public static Result index() {
+        return redirect(controllers.clustrino.routes.BasicFlow.index());
+		//return ok(views.html.index.render());
+	}
 
+	public static Result login() {
+		return ok(views.html.login.render(form(Login.class).bindFromRequest()));
+	}
 
-    public static Result tasks() {
-        return ok(
-                views.html.index.render(Task.all(), taskForm)
-        );
-    }
+	public static Result doLogin() {
+		com.feth.play.module.pa.controllers.Authenticate.noCache(response());
+		final Form<Login> filledForm = form(Login.class).bindFromRequest();
+		if (filledForm.hasErrors()) {
+			// User did not fill everything properly
+			return badRequest(views.html.login.render(filledForm));
+		} else {
+			// Everything was filled
+			return TestUsernamePasswordAuthProvider.handleLogin(ctx());
+		}
+	}
 
-    public static Result newTask() {
-        Form<Task> filledForm = taskForm.bindFromRequest();
-        if(filledForm.hasErrors()) {
-            return badRequest(
-                    views.html.index.render(Task.all(), filledForm)
-            );
-        } else {
-            Task.create(filledForm.get());
-            return redirect(routes.Application.tasks());
-        }
-    }
-    public static Result deleteTask(Long id) {
-        Task.delete(id);
-        return redirect(routes.Application.tasks());
-    }
+	public static Result signup() {
+		return ok(views.html.signup
+				.render(form(Signup.class).bindFromRequest()));
+	}
 
+	public static Result doSignup() {
+		com.feth.play.module.pa.controllers.Authenticate.noCache(response());
+		final Form<Signup> filledForm = form(Signup.class).bindFromRequest();
+		if (filledForm.hasErrors()) {
+			// User did not fill everything properly
+			return badRequest(views.html.signup.render(filledForm));
+		} else {
+			// Everything was filled
+			return TestUsernamePasswordAuthProvider.handleSignup(ctx());
+		}
+	}
+
+	public static Result userExists() {
+		return badRequest("User exists.");
+	}
+
+	public static Result userUnverified() {
+		return badRequest("User not yet verified.");
+	}
+
+	public static Result verify(String token) {
+		TestUsernamePasswordAuthProvider.LoginUser loginUser = upAuthProvider()
+				.verifyWithToken(token);
+		if (loginUser == null) {
+			return notFound();
+		}
+		return PlayAuthenticate.loginAndRedirect(ctx(), loginUser);
+	}
+
+	public static Result oAuthDenied(String providerKey) {
+		flash(FLASH_ERROR_KEY, "You need to accept the OAuth connection"
+				+ " in order to use this website!");
+		return redirect(routes.Application.index());
+	}
+
+	private static TestUsernamePasswordAuthProvider upAuthProvider() {
+		return Play.application()
+				.plugin(TestUsernamePasswordAuthProvider.class);
+	}
 
 }

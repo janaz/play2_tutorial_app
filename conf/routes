@@ -3,12 +3,34 @@
 # ~~~~
 
 # Home page
-GET     /                           controllers.Application.index()
+GET         /                                     controllers.Application.index()
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.at(path="/public", file)
+GET         /assets/*file                         controllers.Assets.at(path="/public", file)
 
 # Tasks
-GET     /tasks                  controllers.Application.tasks()
-POST    /tasks                  controllers.Application.newTask()
-POST    /tasks/:id/delete       controllers.Application.deleteTask(id: Long)
+GET         /tasks                                controllers.Tasks.tasks()
+POST        /tasks                                controllers.Tasks.newTask()
+POST        /tasks/:id/delete                     controllers.Tasks.deleteTask(id: Long)
+
+
+#auth
+GET         /login                                controllers.Application.login
+POST        /login                                controllers.Application.doLogin
+GET         /signup                               controllers.Application.signup
+POST        /signup                               controllers.Application.doSignup
+GET         /user-exists                          controllers.Application.userExists
+GET         /user-unverified                      controllers.Application.userUnverified
+GET         /verify/:token                        controllers.Application.verify(token: String)
+GET         /java                                 controllers.JavaController.index
+GET         /scala                                controllers.ScalaController.index
+GET         /logout                               com.feth.play.module.pa.controllers.Authenticate.logout
+GET         /authenticate/:provider               com.feth.play.module.pa.controllers.Authenticate.authenticate(provider: String)
+GET         /authenticate/:provider/denied        controllers.Application.oAuthDenied(provider: String)
+
+GET         /clustrino/login                      controllers.clustrino.BasicFlow.login()
+POST        /clustrino/login                      controllers.clustrino.BasicFlow.loginPost()
+
+GET         /clustrino/index                      controllers.clustrino.BasicFlow.index()
+POST        /clustrino/upload                     controllers.clustrino.BasicFlow.uploadFile()
+GET        /clustrino/upload                     controllers.clustrino.BasicFlow.upload()
