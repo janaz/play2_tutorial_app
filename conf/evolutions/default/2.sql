@@ -1,3 +1,8 @@
+# --- Created by Ebean DDL
+# To stop Ebean DDL generation, remove this comment and start using Evolutions
+
+# --- !Ups
+
 create table csv_file (
   id                        bigint not null,
   file_name                 varchar(255),
@@ -6,6 +11,11 @@ create table csv_file (
 ;
 
 create sequence csv_file_seq;
+
+
+
+
+# --- !Downs
 
 drop table if exists csv_file;
 
