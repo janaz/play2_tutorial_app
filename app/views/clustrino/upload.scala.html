@@ -43,7 +43,7 @@
                 var response = data.result;
                 console.log(response);
                 $('.progress').addClass('hidden');
-                $('.upload-alert' ).removeClass('hidden').html('File uploaded successfully' +response.message).slideDown();
+                $('.upload-alert' ).removeClass('hidden').html('File uploaded successfully' +response.message + '<a href="@controllers.clustrino.routes.BasicFlow.showFile()">Display the content</a>').slideDown();
             },
             progressall: function (e, data) {
                 var progress = parseInt(data.loaded / data.total * 100, 10);

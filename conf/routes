@@ -33,4 +33,5 @@ POST        /clustrino/login                      controllers.clustrino.BasicFlo
 
 GET         /clustrino/index                      controllers.clustrino.BasicFlow.index()
 POST        /clustrino/upload                     controllers.clustrino.BasicFlow.uploadFile()
-GET        /clustrino/upload                     controllers.clustrino.BasicFlow.upload()
+GET         /clustrino/upload                     controllers.clustrino.BasicFlow.upload()
+GET         /clustrino/show                       controllers.clustrino.BasicFlow.showFile()

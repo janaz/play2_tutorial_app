@@ -1,0 +1,25 @@
+@(data: List[Array[String]])
+
+@import helper._
+
+@import controllers.clustrino._
+@main("Clustrino") {
+    <h3>Welcome logged in user!</h3>
+    <div class="panel panel-default">
+            <!-- Default panel contents -->
+        <div class="panel-heading">CSV content</div>
+
+        <table class="table">
+
+    @for(row <- data) {
+
+        <tr>
+            @for(el <- row) {
+                <td>@el</td>
+            }
+        </tr>
+    }
+        </table>
+    </div>
+
+}
