@@ -1,25 +1,22 @@
 package controllers.clustrino;
 
+import au.com.bytecode.opencsv.CSVReader;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.S3Object;
 import com.fasterxml.jackson.databind.JsonNode;
-import models.clustrino.CsvFile;
-import play.api.mvc.MultipartFormData;
-import play.mvc.Http.MultipartFormData.FilePart;
-import play.mvc.BodyParser;
-import play.mvc.Controller;
-import play.mvc.Http;
-import play.mvc.Result;
-import play.libs.Json;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import au.com.bytecode.opencsv.CSVReader;
+import models.clustrino.CsvFile;
+import play.libs.Json;
+import play.mvc.Controller;
+import play.mvc.Http.MultipartFormData.FilePart;
+import play.mvc.Result;
 
-import java.util.*;
 import java.io.*;
-import java.security.MessageDigest;
+import java.util.Collections;
+import java.util.List;
 
 
 public class BasicFlow extends Controller {
@@ -80,28 +77,11 @@ public class BasicFlow extends Controller {
             return new FileReader(getFile());
         }
 
-        public List<Map<String,String>> getLines() {
+        public List<String[]> getLines() {
             CSVReader r = null;
             try {
                 r = new CSVReader(getReader());
-                List<Map<String,String>> retVal = new ArrayList<Map<String,String>>();
-                while (true) {
-                    String[] line = r.readNext();
-                    if (line == null) {
-                        break;
-                    }
-                    Map<String, String> map = new HashMap<String, String>();
-                    retVal.add(map);
-                    int i=0;
-                    for (String el:line) {
-                        i++;
-                        String key = "column" + i;
-
-                        map.put(key, el);
-                    }
-                }
-                return retVal;
-
+                return r.readAll();
             } catch (IOException e) {
                 return null;
             } finally {
@@ -127,10 +107,10 @@ public class BasicFlow extends Controller {
         ObjectNode result = Json.newObject();
 
         UploadedFile uf = new UploadedFile(request().body().asMultipartFormData().getFiles().iterator().next());
-        List<Map<String,String>> lines = uf.getLines();
+        List<String[]> lines = uf.getLines();
         uf.persist();
         result.put("status", "OK, Super");
-        result.put("message", "Hello " + lines.size()+" x "+lines.iterator().next().size());
+        result.put("message", "Hello " + lines.size()+" x "+lines.iterator().next().length);
         session().put("csv_filename", uf.getFileName());
         return ok(result);
 
@@ -138,28 +118,13 @@ public class BasicFlow extends Controller {
 
     public static Result showFile() {
         S3Object obj = s3Client().getObject("clustrino_csv_files", session().get("csv_filename"));
-        List<Map<String,String>> data = null;
         CSVReader r = null;
+        List<String[]> data = null;
         try {
             r = new CSVReader(new InputStreamReader(obj.getObjectContent()));
-            data = new ArrayList<Map<String,String>>();
-            while (true) {
-                String[] line = r.readNext();
-                if (line == null) {
-                    break;
-                }
-                Map<String, String> map = new HashMap<String, String>();
-                data.add(map);
-                int i=0;
-                for (String el:line) {
-                    i++;
-                    String key = "column" + i;
-
-                    map.put(key, el);
-                }
-            }
-
+            data = r.readAll();
         } catch (IOException e) {
+            data = Collections.EMPTY_LIST;
         } finally {
             try {
                 r.close();
@@ -168,7 +133,8 @@ public class BasicFlow extends Controller {
         }
         JsonNode json = Json.toJson(data);
 
-        return ok(views.html.clustrino.show_file.render(data, Json.stringify(json)));
+
+        return ok(views.html.clustrino.show_file.render(Json.stringify(json)));
 
     }
 

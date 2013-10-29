@@ -1,4 +1,4 @@
-@(data: List[Map[String,String]], jsonVal: String)
+@(jsonVal: String)
 
 @import helper._
 
@@ -14,9 +14,10 @@
     <link rel="stylesheet" media="screen" href="@controllers.routes.Assets.at("stylesheets/jquery.handsontable.removeRow.css")">
 
 
-
-    <div id="myGrid" style="width:100%;height:500px;"></div>
-
+    <div class="panel panel-default">
+        <div class="panel-heading">CSV content</div>
+        <div id="myGrid" style="width:100%;height:500px;"></div>
+    </div>
     <style type="text/css">
         .handsontable .currentRow {
             background-color: #E7E8EF;
