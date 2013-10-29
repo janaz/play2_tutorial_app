@@ -43,12 +43,12 @@ public class BasicFlow extends Controller {
     private static final AWSCredentials AWS_CREDS = new AWSCredentials() {
         @Override
         public String getAWSAccessKeyId() {
-            return "AKIAI2EWM5MYECY7GY3Q";
+            return play.Play.application().configuration().getConfig("aws").getString("access_key");
         }
 
         @Override
         public String getAWSSecretKey() {
-            return "8U4Lbqw+/hnUIsiHABfF/doE1JrqrPrjJRQjHyug";
+            return play.Play.application().configuration().getConfig("aws").getString("secret_key");
         }
     };
 
