@@ -15,6 +15,7 @@ import play.mvc.Http.MultipartFormData.FilePart;
 import play.mvc.Result;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -119,12 +120,21 @@ public class BasicFlow extends Controller {
     public static Result showFile() {
         S3Object obj = s3Client().getObject("clustrino_csv_files", session().get("csv_filename"));
         CSVReader r = null;
-        List<String[]> data = null;
+        List<String[]> data = new ArrayList();
         try {
             r = new CSVReader(new InputStreamReader(obj.getObjectContent()));
-            data = r.readAll();
+            do {
+                String[] line = r.readNext();
+                if (line != null) {
+                    data.add(line);
+                }
+                if (line == null || data.size() >= 1000) {
+                    break;
+                }
+            }while (true);
         } catch (IOException e) {
-            data = Collections.EMPTY_LIST;
+            System.out.println(e);
+            throw new RuntimeException(e);
         } finally {
             try {
                 r.close();
