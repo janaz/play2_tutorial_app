@@ -121,18 +121,17 @@ public class BasicFlow extends Controller {
         ObjectNode result = Json.newObject();
 
         UploadedFile uf = new UploadedFile(request().body().asMultipartFormData().getFiles().iterator().next());
-        List<String[]> lines = uf.getLines();
         uf.persist();
         result.put("status", "OK, Super");
-        result.put("message", "Hello " + lines.size()+" x "+lines.iterator().next().length);
+        result.put("message", "File has been uploaded successfully. ");
         session().put("csv_filename", uf.getFileName());
         return ok(result);
 
     }
 
     public static Result showFile() {
-        S3Object obj = s3Client().getObject("clustrino_csv_files", session().get("csv_filename"));
-        InputStream obj_stream = obj.getObjectContent();
+//        S3Object obj = s3Client().getObject("clustrino_csv_files", session().get("csv_filename"));
+//        InputStream obj_stream = obj.getObjectContent();
         String root="/tmp/uploaded_files";
 
         CSVReader r = null;
