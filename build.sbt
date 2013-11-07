@@ -15,6 +15,7 @@ libraryDependencies ++= Seq(
   "net.sf.opencsv" % "opencsv" % "2.3",
   "com.amazonaws" % "aws-java-sdk" % "1.6.2",
   "com.google.guava" % "guava" % "r09",
+  "mysql" % "mysql-connector-java" % "5.1.6",
   cache
 )     
 

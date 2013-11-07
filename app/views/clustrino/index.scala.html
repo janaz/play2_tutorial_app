@@ -2,8 +2,72 @@
 
 @import controllers.clustrino._
 @main("Clustrino") {
-    <h3>Welcome logged in user!</h3>
-    <div>
-        <a type="button" class="btn btn-primary btn-lg" href="@controllers.clustrino.routes.BasicFlow.upload">Upload File</a>
+    <div class="jumbotron">
+        <h1>Welcome!</h1>
+        <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat.</p>
+        <p><a class="btn btn-primary btn-lg" role="button">Learn more</a></p>
     </div>
+    <div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
+        <div class="fixed-background"></div>
+        <div class="fixed">
+            <div>
+                <a type="button" class="btn btn-primary btn-lg btn-success" href="@controllers.clustrino.routes.BasicFlow.login">Login</a>
+            </div>
+            <p>this is fixed and always there</p>
+            <p>this is fixed and always there</p>
+        </div>
+            <!-- Indicators -->
+        <ol class="carousel-indicators">
+            <li data-target="#carousel-example-generic" data-slide-to="0" class="active black-background"></li>
+            <li data-target="#carousel-example-generic" data-slide-to="1" class="black-background"></li>
+            <li data-target="#carousel-example-generic" data-slide-to="2" class="black-background"></li>
+        </ol>
+
+            <!-- Wrapper for slides -->
+        <div class="carousel-inner">
+            <div class="item active">
+                <img src="@controllers.routes.Assets.at("images/c1.jpg")" alt="x400">
+                <div class="carousel-caption">
+                    <h3 class="black-text">Heading</h3>
+                    <p class="black-text">lorem ipsum</p>
+
+                </div>
+            </div>
+            <div class="item ">
+                <img src="@controllers.routes.Assets.at("images/c2.jpg")" alt="x400">
+                <div class="carousel-caption">
+                    <h3 class="black-text">Heading 2</h3>
+                    <p class="black-text">lorem ipsum</p>
+
+                </div>
+            </div>
+            <div class="item ">
+                <img src="@controllers.routes.Assets.at("images/c3.jpg")" alt="x400">
+                <div class="carousel-caption">
+                    <h3 class="black-text">Heading 3</h3>
+                    <p class="black-text">lorem ipsum</p>
+
+                </div>
+            </div>
+        </div>
+
+            <!-- Controls -->
+        <a class="left carousel-control" href="#carousel-example-generic" data-slide="prev">
+            <span class="glyphicon glyphicon-chevron-left"></span>
+        </a>
+        <a class="right carousel-control" href="#carousel-example-generic" data-slide="next">
+            <span class="glyphicon glyphicon-chevron-right"></span>
+        </a>
+    </div>
+
+    <script>
+        $(function() {
+            $('.carousel').carousel({interval: 2000});
+        });
+    </script>
+
+    @test("Just testing something") {
+        it works!
+    }
+
 }

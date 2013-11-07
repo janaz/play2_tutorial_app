@@ -5,7 +5,7 @@
 <html>
     <head>
         <title>@title</title>
-        <link rel="stylesheet" media="screen" href="@controllers.routes.Assets.at("stylesheets/main.css")">
+        <link rel="stylesheet" media="screen" href="@controllers.routes.Assets.at("stylesheets/main.min.css")">
         <link rel="stylesheet" media="screen" href="@controllers.routes.Assets.at("stylesheets/bootstrap.min.css")">
         <link rel="stylesheet" media="screen" href="@controllers.routes.Assets.at("stylesheets/ui/jquery.ui.all.css")">
         <link rel="stylesheet" media="screen" href="@controllers.routes.Assets.at("stylesheets/jquery.fileupload.css")">
@@ -68,5 +68,11 @@
           </div><!-- /.navbar-collapse -->
         </nav>
         @content
+        <div >
+            <p class="footer">
+
+                Copyright 2013
+            </p>
+        </div>
     </body>
 </html>

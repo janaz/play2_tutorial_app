@@ -35,3 +35,4 @@ GET         /clustrino/index                      controllers.clustrino.BasicFlo
 POST        /clustrino/upload                     controllers.clustrino.BasicFlow.uploadFile()
 GET         /clustrino/upload                     controllers.clustrino.BasicFlow.upload()
 GET         /clustrino/show                       controllers.clustrino.BasicFlow.showFile()
+GET         /clustrino/dashboard                  controllers.clustrino.BasicFlow.dashboard()

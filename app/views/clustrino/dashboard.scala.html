@@ -1,0 +1,9 @@
+@import helper._
+
+@import controllers.clustrino._
+@main("Clustrino") {
+    <h3>Welcome logged in user!</h3>
+    <div>
+        <a type="button" class="btn btn-primary btn-lg" href="@controllers.clustrino.routes.BasicFlow.upload">Upload File</a>
+    </div>
+}

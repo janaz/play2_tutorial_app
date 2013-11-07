@@ -9,6 +9,7 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.clustrino.CsvFile;
+import org.springframework.util.FileCopyUtils;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http.MultipartFormData.FilePart;
@@ -23,14 +24,19 @@ import java.util.List;
 public class BasicFlow extends Controller {
 
 
-
     public static Result login() {
         return ok(views.html.clustrino.login.render());
     }
 
     public static Result loginPost() {
-        return redirect(controllers.clustrino.routes.BasicFlow.index());
+        return redirect(controllers.clustrino.routes.BasicFlow.dashboard());
     }
+
+    public static Result dashboard() {
+        return ok(views.html.clustrino.dashboard.render());
+    }
+
+
 
     public static Result index() {
         return ok(views.html.clustrino.index.render());
@@ -94,10 +100,17 @@ public class BasicFlow extends Controller {
         }
 
         public CsvFile persist() {
-            s3Client().putObject("clustrino_csv_files", getFileName(), getFile());
+            //move to background s3Client().putObject("clustrino_csv_files", getFileName(), getFile());
+            try {
+                String root = "/tmp/uploaded_files";
+                FileCopyUtils.copy(getFile(), new File(root+"/"+getFileName()));
+                getFile().delete();
+            } catch (IOException e) {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
             CsvFile fileModel = new CsvFile();
             fileModel.fileName = getFileName();
-            fileModel.ownerId = 1L;
+            fileModel.ownerId = 1L; //sessionLoggedUserId
             fileModel.save();
             getFile().delete();
             return fileModel;
@@ -119,10 +132,14 @@ public class BasicFlow extends Controller {
 
     public static Result showFile() {
         S3Object obj = s3Client().getObject("clustrino_csv_files", session().get("csv_filename"));
+        InputStream obj_stream = obj.getObjectContent();
+        String root="/tmp/uploaded_files";
+
         CSVReader r = null;
         List<String[]> data = new ArrayList();
         try {
-            r = new CSVReader(new InputStreamReader(obj.getObjectContent()));
+            InputStream file_stream = new FileInputStream(root+"/"+session().get("csv_filename"));
+            r = new CSVReader(new InputStreamReader(file_stream));
             do {
                 String[] line = r.readNext();
                 if (line != null) {
