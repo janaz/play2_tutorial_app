@@ -4,3 +4,6 @@
     <li class="disabled"><a href="#">Profile</a></li>
     <li @if(request.path.contains("/test_action")) {class="active"} ><a data-pjax href="@controllers.clustrino.routes.BasicFlow.testAction()">Test background uploading</a></li>
 </ul>
+<script>
+$(document).pjax('a[data-pjax]', '#pjax-container');
+</script>
