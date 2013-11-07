@@ -6,11 +6,14 @@ import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.S3Object;
+import com.clustrino.csv.CSVFile;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.clustrino.CsvFile;
 import org.springframework.util.FileCopyUtils;
+import play.api.templates.Html;
 import play.libs.Json;
+import play.mvc.Content;
 import play.mvc.Controller;
 import play.mvc.Http.MultipartFormData.FilePart;
 import play.mvc.Result;
@@ -42,9 +45,18 @@ public class BasicFlow extends Controller {
         return ok(views.html.clustrino.index.render());
     }
 
+    private static Result pjaxWrapper(Html c) {
+        if(request().getHeader("X-PJAX") != null) {
+            return ok(c);
+        } else {
+            return ok(views.html.clustrino.admin.apply(c));
+        }
+
+    }
+
     public static Result upload() {
         session().remove("csv_filename");
-        return ok(views.html.clustrino.upload.render());
+        return pjaxWrapper(views.html.clustrino.upload.render());
     }
 
     private static final AWSCredentials AWS_CREDS = new AWSCredentials() {
@@ -129,38 +141,26 @@ public class BasicFlow extends Controller {
 
     }
 
+    public static Result testAction() {
+        return pjaxWrapper(views.html.clustrino.test_action.render());
+    }
+
     public static Result showFile() {
 //        S3Object obj = s3Client().getObject("clustrino_csv_files", session().get("csv_filename"));
 //        InputStream obj_stream = obj.getObjectContent();
         String root="/tmp/uploaded_files";
+        String fileName = root+"/"+session().get("csv_filename");
+        CSVFile csvFile = new CSVFile(fileName);
+        JsonNode headers = Json.toJson(Collections.emptyList());
+        JsonNode sample = Json.toJson(Collections.emptyList());
+        try{
+            headers = Json.toJson(csvFile.headerNames());
+            sample = Json.toJson(csvFile.dataSample());
+        } catch (Exception e) {
 
-        CSVReader r = null;
-        List<String[]> data = new ArrayList();
-        try {
-            InputStream file_stream = new FileInputStream(root+"/"+session().get("csv_filename"));
-            r = new CSVReader(new InputStreamReader(file_stream));
-            do {
-                String[] line = r.readNext();
-                if (line != null) {
-                    data.add(line);
-                }
-                if (line == null || data.size() >= 1000) {
-                    break;
-                }
-            }while (true);
-        } catch (IOException e) {
-            System.out.println(e);
-            throw new RuntimeException(e);
-        } finally {
-            try {
-                r.close();
-            } catch (IOException e) {
-            }
         }
-        JsonNode json = Json.toJson(data);
 
-
-        return ok(views.html.clustrino.show_file.render(Json.stringify(json)));
+        return pjaxWrapper(views.html.clustrino.show_file.render(Json.stringify(headers), Json.stringify(sample)));
 
     }
 

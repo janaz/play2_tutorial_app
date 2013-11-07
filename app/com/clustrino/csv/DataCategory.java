@@ -35,16 +35,19 @@ public enum DataCategory {
     DATE_OF_BIRTH(Pattern.compile("(^dob)|(^(date|day).*?birth)|(birth.*?(day|date))", Pattern.CASE_INSENSITIVE), null),
     DATE_OF_DEATH(Pattern.compile("(^deceased)|(^(date|day).*?death)|(death.*?(day|date))", Pattern.CASE_INSENSITIVE), null),
     ADDRESS(Pattern.compile("(^home.*?address)|(^address$)", Pattern.CASE_INSENSITIVE), null),
-    ADDRESS_LINE_1(Pattern.compile("((line.*address.*)|(address.*line))1", Pattern.CASE_INSENSITIVE), null),
-    ADDRESS_LINE_2(Pattern.compile("((line.*address.*)|(address.*line))2", Pattern.CASE_INSENSITIVE), null),
-    ADDRESS_LINE_3(Pattern.compile("((line.*address.*)|(address.*line))3", Pattern.CASE_INSENSITIVE), null),
-    ADDRESS_LINE_4(Pattern.compile("((line.*address.*)|(address.*line))4", Pattern.CASE_INSENSITIVE), null),
-    ADDRESS_LINE_5(Pattern.compile("((line.*address.*)|(address.*line))5", Pattern.CASE_INSENSITIVE), null),
+    ADDRESS_TYPE(Pattern.compile("address.*type", Pattern.CASE_INSENSITIVE), null),
+    ADDRESS_LINE_1(Pattern.compile("address.*1", Pattern.CASE_INSENSITIVE), null),
+    ADDRESS_LINE_2(Pattern.compile("address.*2", Pattern.CASE_INSENSITIVE), null),
+    ADDRESS_LINE_3(Pattern.compile("address.*3", Pattern.CASE_INSENSITIVE), null),
+    ADDRESS_LINE_4(Pattern.compile("address.*4", Pattern.CASE_INSENSITIVE), null),
+    ADDRESS_LINE_5(Pattern.compile("address.*5", Pattern.CASE_INSENSITIVE), null),
+    ADDRESS_LINE_6(Pattern.compile("address.*6", Pattern.CASE_INSENSITIVE), null),
     SUBURB(Pattern.compile("suburb", Pattern.CASE_INSENSITIVE), null),
     DISTRICT(Pattern.compile("district", Pattern.CASE_INSENSITIVE), null),
     PROVINCE(Pattern.compile("province", Pattern.CASE_INSENSITIVE), null),
     COUNTY(Pattern.compile("county", Pattern.CASE_INSENSITIVE), null),
     CITY(Pattern.compile("city", Pattern.CASE_INSENSITIVE), null),
+    STATE(Pattern.compile("state", Pattern.CASE_INSENSITIVE), null),
     COUNTRY(Pattern.compile("country", Pattern.CASE_INSENSITIVE), null),
     POSTCODE(Pattern.compile("(^zip)|(^p.*code)", Pattern.CASE_INSENSITIVE), null),
     STREET_NAME(Pattern.compile("(^street$)|(^str.*name)", Pattern.CASE_INSENSITIVE), null),
@@ -53,6 +56,7 @@ public enum DataCategory {
     APPARTMENT_NUMBER(Pattern.compile("^(appart|apt|door).*(no|num)", Pattern.CASE_INSENSITIVE), null),
     DRIVERS_LICENSE_NUMBER(Pattern.compile("^(driv.*lic.*)", Pattern.CASE_INSENSITIVE), null),
     PASSPORT_NUMBER(Pattern.compile("passport", Pattern.CASE_INSENSITIVE), null),
+    ARNO(Pattern.compile("^arno$", Pattern.CASE_INSENSITIVE), null),
     UNKNOWN(null,null);
 
     private final Pattern namePattern;
@@ -64,13 +68,19 @@ public enum DataCategory {
     }
 
     private boolean isHeaderMatching(String header) {
-        return namePattern.matcher(header).matches();
+        if (namePattern == null) {
+            return true;
+        }
+        return namePattern.matcher(header).find();
     }
 
     private boolean isDataMatching(Collection<String> dataSample) {
+        if (dataSample == null || dataPattern == null) {
+            return true;
+        }
         int matching = 0;
         for (String s : dataSample) {
-                if (dataPattern.matcher(s).matches()){
+                if (dataPattern.matcher(s).find()){
                     matching++;
                 }
         }

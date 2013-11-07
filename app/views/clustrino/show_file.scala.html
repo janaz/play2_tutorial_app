@@ -1,10 +1,7 @@
-@(jsonVal: String)
+@(jsonHeaders:String, jsonVal: String)
 
-@import helper._
+@_navbar()
 
-@import controllers.clustrino._
-@main("Clustrino") {
-    <h3>Welcome logged in user!</h3>
     <script src="@controllers.routes.Assets.at("javascripts/ui/jquery-ui.js")"></script>
     <script src="@controllers.routes.Assets.at("javascripts/jquery.handsontable.full.js")"></script>
     <script src="@controllers.routes.Assets.at("javascripts/jquery.handsontable.removeRow.js")"></script>
@@ -13,34 +10,29 @@
     <link rel="stylesheet" media="screen" href="@controllers.routes.Assets.at("stylesheets/jquery.handsontable.bootstrap.css")">
     <link rel="stylesheet" media="screen" href="@controllers.routes.Assets.at("stylesheets/jquery.handsontable.removeRow.css")">
 
-    <ul class="nav nav-tabs">
-        <li class="disabled"><a href="#">Upload CSV</a></li>
-        <li class="active"><a href="#">View data</a></li>
-        <li class="disabled"><a href="#">Profile</a></li>
-    </ul>
-
     <div class="panel panel-default">
         <div class="panel-heading">CSV content</div>
         <div id="myGrid" style="width:100%;height:500px;"></div>
     </div>
     <style type="text/css">
-        .handsontable .currentRow {
-            background-color: #E7E8EF;
-        }
+    .handsontable .currentRow {
+    background-color: #E7E8EF;
+    }
 
-        .handsontable .currentCol {
-            background-color: #F9F9FB;
-        }
+    .handsontable .currentCol {
+    background-color: #F9F9FB;
+    }
     </style>
     <script>
     var myData=@Html(jsonVal);
+    var myHeaders=@Html(jsonHeaders);
 
-//      var grid = new Slick.Grid("#myGrid", myData, columns, options);
+    //      var grid = new Slick.Grid("#myGrid", myData, columns, options);
     $("#myGrid").handsontable({
     data: myData,
     startRows: 6,
     startCols: 8,
-    colHeaders: true,
+    colHeaders: myHeaders,
     rowHeaders: true,
     manualColumnResize: true,
     manualColumnMove: false,
@@ -50,5 +42,3 @@
     removeRowPlugin: false
     });
     </script>
-
-}
