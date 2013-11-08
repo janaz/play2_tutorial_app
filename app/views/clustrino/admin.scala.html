@@ -17,6 +17,13 @@
     <script src="@controllers.routes.Assets.at("javascripts/ui/jquery-ui.js")"></script>
     <script src="@controllers.routes.Assets.at("javascripts/jquery.iframe-transport.js")"></script>
     <script src="@controllers.routes.Assets.at("javascripts/jquery.fileupload.js")"></script>
+    <script src="@controllers.routes.Assets.at("javascripts/jquery.handsontable.full.js")"></script>
+    <script src="@controllers.routes.Assets.at("javascripts/jquery.handsontable.removeRow.js")"></script>
+
+    <link rel="stylesheet" media="screen" href="@controllers.routes.Assets.at("stylesheets/jquery.handsontable.full.css")">
+    <link rel="stylesheet" media="screen" href="@controllers.routes.Assets.at("stylesheets/jquery.handsontable.bootstrap.css")">
+    <link rel="stylesheet" media="screen" href="@controllers.routes.Assets.at("stylesheets/jquery.handsontable.removeRow.css")">
+
     <script>
     var initUpload = function () {
         $('#fileupload').fileupload({
@@ -61,5 +68,13 @@
     <div id="pjax-container">
         @content
     </div>
+
+    <script>
+    $(document).pjax('a[data-pjax]', '#pjax-container');
+    $(document).on('pjax:complete', function() {
+        console.log('pjax complete');
+        $(document).pjax('a[data-pjax]', '#pjax-container');
+    });
+    </script>
 
 }
