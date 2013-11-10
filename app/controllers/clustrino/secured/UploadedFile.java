@@ -20,6 +20,12 @@ public class UploadedFile extends Secured {
         return ok(views.html.clustrino.upload.render());
     }
 
+    public static Result myFiles() {
+        final User localUser = Application.getLocalUser(session());
+        return ok(views.html.clustrino.my_files.render(localUser.files));
+    }
+
+
     public static Result uploadFile() {
         final ObjectNode result = Json.newObject();
         final User localUser = Application.getLocalUser(session());
@@ -32,7 +38,7 @@ public class UploadedFile extends Secured {
             CsvFile fileModel = new CsvFile();
             fileModel.fileName = uploadedFile.getFileName();
             fileModel.uploadedAt = Calendar.getInstance().getTimeInMillis();
-            fileModel.ownerId = localUser.id;
+            fileModel.user = localUser;
             fileModel.save();
             result.put("status", "OK, Super");
             result.put("message", "File has been uploaded successfully.");

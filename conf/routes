@@ -20,6 +20,7 @@ GET         /clustrino/index                      controllers.clustrino.BasicFlo
 POST        /clustrino/upload                     controllers.clustrino.secured.UploadedFile.uploadFile()
 GET         /clustrino/upload                     controllers.clustrino.secured.UploadedFile.upload()
 GET         /clustrino/show                       controllers.clustrino.secured.UploadedFile.showFile()
+GET         /clustrino/my_files                   controllers.clustrino.secured.UploadedFile.myFiles()
 GET         /clustrino/dashboard                  controllers.clustrino.secured.Dashboard.dashboard()
 GET         /clustrino/test_action                controllers.clustrino.BasicFlow.testAction()
 

@@ -2,6 +2,8 @@ package models.clustrino;
 
 
 import java.util.List;
+
+import models.User;
 import play.data.validation.Constraints.*;
 
 import play.db.ebean.*;
@@ -20,8 +22,9 @@ public class CsvFile extends Model {
     @Required
     public Long uploadedAt;
 
-    @Required
-    public Long ownerId;
+    @ManyToOne
+    @JoinColumn(name="owner_id")
+    public User user;
 
     public static Finder<Long,CsvFile> find = new Finder(
             Long.class, CsvFile.class

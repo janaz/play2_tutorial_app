@@ -12,6 +12,7 @@ import com.feth.play.module.pa.user.EmailIdentity;
 import com.feth.play.module.pa.user.NameIdentity;
 import com.feth.play.module.pa.user.FirstLastNameIdentity;
 import models.TokenAction.Type;
+import models.clustrino.CsvFile;
 import org.hibernate.validator.constraints.Email;
 import play.data.format.Formats;
 import play.db.ebean.Model;
@@ -47,6 +48,9 @@ public class User extends Model implements Subject {
     public String firstName;
 	
 	public String lastName;
+
+    @OneToMany(mappedBy="user")
+    public List<CsvFile> files;
 
 	@Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
 	public Date lastLogin;

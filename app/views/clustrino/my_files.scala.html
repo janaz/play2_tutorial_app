@@ -1,0 +1,12 @@
+@(files: List[models.clustrino.CsvFile])
+@import org.joda.time.format.ISODateTimeFormat
+@import org.joda.time.DateTime
+
+@admin {
+    @_navbar()
+    <ul>
+    @for(file <- files) {
+        <li>@file.fileName uploaded:<span>@{new DateTime(file.uploadedAt).toString(ISODateTimeFormat.dateTime())}</span></li>
+    }
+    </ul>
+}
