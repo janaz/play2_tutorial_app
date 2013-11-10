@@ -52,7 +52,6 @@ public class Application extends Controller {
 
     @Restrict(@Group(Application.USER_ROLE))
     public static Result restricted() {
-        System.out.println("HI");
         final User localUser = getLocalUser(session());
         return ok(views.html.restricted.render(localUser));
     }
