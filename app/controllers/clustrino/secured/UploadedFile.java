@@ -20,7 +20,6 @@ import java.util.Collections;
 
 public class UploadedFile extends Secured {
     public static Result upload() {
-        session().remove("csv_filename");
         return ok(views.html.clustrino.upload.render());
     }
 
@@ -46,13 +45,11 @@ public class UploadedFile extends Secured {
             fileModel.save();
             result.put("status", "OK, Super");
             result.put("message", "File has been uploaded successfully.");
-            result.put("id", fileModel.id);
-            session().put("csv_filename", uploadedFile.getFileName());
+            result.put("view_url", controllers.clustrino.secured.routes.UploadedFile.showFile(fileModel.id).url());
             return ok(result);
         } catch (PersistException e) {
             result.put("status", "Failure: " + e.getMessage());
             result.put("message", "An error occurred while uploading the file.");
-            session().remove("csv_filename");
             return internalServerError(result);
         }
     }
