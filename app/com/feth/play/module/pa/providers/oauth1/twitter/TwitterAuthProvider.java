@@ -2,12 +2,15 @@ package com.feth.play.module.pa.providers.oauth1.twitter;
 
 import java.util.List;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
 import play.Application;
 import play.api.libs.oauth.OAuthCalculator;
 import play.api.libs.oauth.RequestToken;
+import play.mvc.Http;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
+import com.feth.play.module.pa.controllers.Authenticate;
+import com.feth.play.module.pa.exceptions.AccessDeniedException;
 import com.feth.play.module.pa.exceptions.AccessTokenException;
 import com.feth.play.module.pa.exceptions.AuthException;
 import com.feth.play.module.pa.providers.oauth1.OAuth1AuthProvider;
@@ -18,6 +21,7 @@ public class TwitterAuthProvider extends
 	static final String PROVIDER_KEY = "twitter";
 
 	private static final String USER_INFO_URL_SETTING_KEY = "userInfoUrl";
+    private static final String DENIED_KEY = "denied";
 
 	public TwitterAuthProvider(final Application app) {
 		super(app);
@@ -53,5 +57,15 @@ public class TwitterAuthProvider extends
 			throws AccessTokenException {
 		return new TwitterAuthInfo(rtoken.token(), rtoken.secret());
 	}
+
+    @Override
+    protected void checkError(Http.Request request) throws AuthException {
+        final String error = Authenticate.getQueryString(request,
+                DENIED_KEY);
+
+        if (error != null) {
+            throw new AccessDeniedException(getKey());
+        }
+    }
 
 }

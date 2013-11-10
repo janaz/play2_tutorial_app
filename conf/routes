@@ -13,21 +13,6 @@ GET         /tasks                                controllers.Tasks.tasks()
 POST        /tasks                                controllers.Tasks.newTask()
 POST        /tasks/:id/delete                     controllers.Tasks.deleteTask(id: Long)
 
-
-#auth
-GET         /login                                controllers.Application.login
-POST        /login                                controllers.Application.doLogin
-GET         /signup                               controllers.Application.signup
-POST        /signup                               controllers.Application.doSignup
-GET         /user-exists                          controllers.Application.userExists
-GET         /user-unverified                      controllers.Application.userUnverified
-GET         /verify/:token                        controllers.Application.verify(token: String)
-GET         /java                                 controllers.JavaController.index
-GET         /scala                                controllers.ScalaController.index
-GET         /logout                               com.feth.play.module.pa.controllers.Authenticate.logout
-GET         /authenticate/:provider               com.feth.play.module.pa.controllers.Authenticate.authenticate(provider: String)
-GET         /authenticate/:provider/denied        controllers.Application.oAuthDenied(provider: String)
-
 GET         /clustrino/login                      controllers.clustrino.BasicFlow.login()
 POST        /clustrino/login                      controllers.clustrino.BasicFlow.loginPost()
 
@@ -37,3 +22,42 @@ GET         /clustrino/upload                     controllers.clustrino.BasicFlo
 GET         /clustrino/show                       controllers.clustrino.BasicFlow.showFile()
 GET         /clustrino/dashboard                  controllers.clustrino.BasicFlow.dashboard()
 GET         /clustrino/test_action                  controllers.clustrino.BasicFlow.testAction()
+
+GET     /restricted                 controllers.Application.restricted
+GET     /assets/javascript/routes.js    controllers.Application.jsRoutes
+
+GET     /profile                    controllers.Application.profile
+
+GET     /login                      controllers.Application.login
+POST    /login                      controllers.Application.doLogin
+
+GET     /logout                     com.feth.play.module.pa.controllers.Authenticate.logout
+GET     /authenticate/:provider     com.feth.play.module.pa.controllers.Authenticate.authenticate(provider: String)
+
+GET     /signup                     controllers.Application.signup
+POST    /signup                     controllers.Application.doSignup
+
+GET     /accounts/unverified        controllers.Signup.unverified
+GET     /authenticate/:provider/denied     controllers.Signup.oAuthDenied(provider: String)
+
+GET     /accounts/verify/:token     controllers.Signup.verify(token: String)
+GET     /accounts/exists            controllers.Signup.exists
+
+GET     /accounts/password/reset/:token     controllers.Signup.resetPassword(token: String)
+POST    /accounts/password/reset            controllers.Signup.doResetPassword
+
+GET    /accounts/password/change    controllers.Account.changePassword
+POST   /accounts/password/change    controllers.Account.doChangePassword
+
+GET     /accounts/verify            controllers.Account.verifyEmail
+
+GET     /accounts/add               controllers.Account.link
+
+GET     /accounts/link              controllers.Account.askLink
+POST    /accounts/link              controllers.Account.doLink
+
+GET     /accounts/merge             controllers.Account.askMerge
+POST    /accounts/merge             controllers.Account.doMerge
+
+GET     /login/password/forgot     controllers.Signup.forgotPassword(email: String ?= "")
+POST    /login/password/forgot     controllers.Signup.doForgotPassword

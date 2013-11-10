@@ -91,10 +91,9 @@ public class FoursquareAuthUser extends BasicOAuth2AuthUser implements
 
 		final JsonNode contactNode = node.get(Constants.CONTACT);
 		if (contactNode != null) {
-			final Map<String, String> m = new HashMap<String, String>(
-					contactNode.size());
-			final Iterator<Entry<String, JsonNode>> fieldIterator = contactNode.fields();
+			final Map<String, String> m = new HashMap<String, String>(contactNode.size());
 
+            final Iterator<Entry<String, JsonNode>> fieldIterator = contactNode.fields();
 			while (fieldIterator.hasNext()) {
 				final Map.Entry<String, JsonNode> entry = fieldIterator.next();
 				m.put(entry.getKey(), entry.getValue().asText());
