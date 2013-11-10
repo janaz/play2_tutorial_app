@@ -23,11 +23,11 @@ import java.util.Date;
 
 public class Application extends Controller {
     public static Result index() {
-        return redirect(controllers.clustrino.routes.BasicFlow.index());
+        return ok(views.html.index.render());
     }
 
     public static Result start() {
-        return ok(views.html.index.render());
+        return redirect(controllers.clustrino.routes.BasicFlow.index());
 
     }
 

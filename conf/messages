@@ -5,3 +5,5 @@ playauthenticate.core.exception.merge.controller_undefined=Merge Call in resolve
 playauthenticate.core.exception.link.controller_undefined=Link Call in resolver not defined, even though setting '{0}' is set to false!
 
 playauthenticate.core.exception.general=Something went wrong
+
+playauthenticate.navigation.profile=Your profile
