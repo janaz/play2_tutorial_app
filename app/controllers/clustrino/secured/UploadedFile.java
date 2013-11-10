@@ -1,26 +1,18 @@
 package controllers.clustrino.secured;
 
-import au.com.bytecode.opencsv.CSVReader;
 import com.clustrino.csv.CSVFile;
 import com.clustrino.csv.PersistException;
-import com.clustrino.csv.UploadedFilePersistService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.Application;
 import models.User;
 import models.clustrino.CsvFile;
-import org.springframework.util.FileCopyUtils;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.Reader;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.List;
 
 public class UploadedFile extends Secured {
     public static Result upload() {

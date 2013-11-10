@@ -67,7 +67,9 @@
             });
         };
         </script>
-        <h3>Hello logged in user!</h3>
+        @defining(Application.getLocalUser(session())) { user =>
+            <h3>Welcome @{user.name}!</h3>
+        }
         <div id="pjax-container">
             @content
         </div>

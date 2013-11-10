@@ -4,6 +4,9 @@
 @import helper.twitterBootstrap._
 
 @main(Messages("playauthenticate.login.title"),"login") {
+        <div class="alert alert-warning">
+            @flash().get("message")
+        </div>
         <h1>@Messages("playauthenticate.login.title")</h1>
         <div id="login">
 
@@ -25,20 +28,12 @@
 
             <button class="btn btn-primary" type="submit">@Messages("playauthenticate.login.now") <span class="glyphicon glyphicon-log-in"></span> </button>
 
-            <input type="submit" value="@Messages("playauthenticate.login.now")" class="btn btn-primary"><br/>
+            <br/>
             <br/>
 
             <a href="@controllers.routes.Signup.forgotPassword("")">@Messages("playauthenticate.login.forgot.password")</a>
 
         }
         </div>
-
-        <div>
-            @Messages("playauthenticate.login.oauth")
-            @* Display list of available providers *@
-            @_providerPartial(skipCurrent=false)
-        </div>
-
-
 
 }

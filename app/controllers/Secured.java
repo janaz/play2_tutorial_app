@@ -13,11 +13,8 @@ public class Secured extends Security.Authenticator {
 	public String getUsername(final Context ctx) {
 		final AuthUser u = PlayAuthenticate.getUser(ctx.session());
 		if (u != null) {
-            System.out.println(u.getId());
 			return u.getId();
 		} else {
-            System.out.println("No user!!!!!!!!!!!");
-
             return null;
 		}
 	}
@@ -25,6 +22,6 @@ public class Secured extends Security.Authenticator {
 	@Override
 	public Result onUnauthorized(final Context ctx) {
 		ctx.flash().put(Application.FLASH_MESSAGE_KEY, "Nice try, but you need to log in first!");
-		return redirect(routes.Application.index());
+		return redirect(routes.Application.login());
 	}
 }

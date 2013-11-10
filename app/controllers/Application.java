@@ -26,11 +26,6 @@ public class Application extends Controller {
         return redirect(controllers.clustrino.routes.BasicFlow.index());
     }
 
-    public static Result start() {
-        return redirect(controllers.clustrino.routes.BasicFlow.index());
-
-    }
-
     public static final String FLASH_MESSAGE_KEY = "message";
     public static final String FLASH_ERROR_KEY = "error";
     public static final String USER_ROLE = "user";
