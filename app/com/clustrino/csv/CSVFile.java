@@ -20,17 +20,17 @@ public class CSVFile {
     }
 
     private Reader getReader() throws IOException {
-        return new FileReader(filename);
+        UploadedFilePersistService persistService = UploadedFilePersistService.getService();
+        return persistService.getReader(filename);
     }
 
     private char getSeparator() throws IOException {
-        BufferedReader reader = null;
+        BufferedReader reader = new BufferedReader(getReader());
         try {
-            reader = new BufferedReader(getReader());
             String firstLine = reader.readLine();
             int maxFieldsNumber = 0;
             char separator = ',';
-            for (char c : new char[] {',','|','\t'}) {
+            for (char c : new char[]{',', '|', '\t'}) {
                 CSVParser parser = new CSVParser(c);
                 int fieldsNumber = parser.parseLine(firstLine).length;
                 if (fieldsNumber > maxFieldsNumber) {
@@ -41,12 +41,9 @@ public class CSVFile {
             return separator;
 
         } finally {
-            if (reader != null) {
-                reader.close();
-            }
+            reader.close();
         }
     }
-
 
     private boolean dataIncludesHeader() {
         String[] firstLine = getDataSample().iterator().next();
@@ -64,7 +61,7 @@ public class CSVFile {
     }
 
     public String[] headerNames() {
-        return columnNames(getDataSample().iterator().next());
+        return columnNames(header());
     }
 
     private String[] columnNames(String[] columns) {
@@ -73,10 +70,6 @@ public class CSVFile {
             out.add(DataCategory.detect(s, null).name());
         }
         return out.toArray(new String[]{});
-    }
-
-    private String[] madeUpHeader() {
-        return new String[]{"a", "b", "C"};
     }
 
     private int maxCols() {
@@ -90,11 +83,7 @@ public class CSVFile {
     }
 
     private String[] header() {
-        if (this.dataIncludesHeader()) {
-            return getDataSample().iterator().next();
-        } else {
-            return this.madeUpHeader();
-        }
+        return getDataSample().iterator().next();
     }
 
     public List<String[]> dataSample() {
@@ -106,19 +95,21 @@ public class CSVFile {
     }
 
     private List<String[]> _getDataSample(int howMany) throws IOException {
+        final CSVReader reader = new CSVReader(getReader(), getSeparator());
+        try {
+            List<String[]> out = new ArrayList<>();
+            do {
+                String[] next = reader.readNext();
+                if (next == null || out.size() >= howMany) {
+                    break;
+                }
+                out.add(next);
 
-        char separator = getSeparator();
-        CSVReader reader = new CSVReader(getReader(), separator);
-        List<String[]> out = new ArrayList<>();
-        do {
-            String[] next = reader.readNext();
-            if (next == null || out.size() >= howMany) {
-                break;
-            }
-            out.add(next);
-
-        } while (true);
-        return out;
+            } while (true);
+            return out;
+        } finally {
+            reader.close();
+        }
     }
 
     private List<String[]> getDataSample() {

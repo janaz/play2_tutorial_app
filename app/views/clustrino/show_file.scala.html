@@ -1,36 +1,39 @@
 @(jsonHeaders:String, jsonVal: String)
 
-@_navbar()
+@admin {
 
-    <div class="panel panel-default">
-        <div class="panel-heading">CSV content</div>
-        <div id="myGrid" style="width:100%;height:500px;"></div>
-    </div>
-    <style type="text/css">
-    .handsontable .currentRow {
-    background-color: #E7E8EF;
-    }
+    @_navbar()
 
-    .handsontable .currentCol {
-    background-color: #F9F9FB;
-    }
-    </style>
-    <script>
-    var myData=@Html(jsonVal);
-    var myHeaders=@Html(jsonHeaders);
+        <div class="panel panel-default">
+            <div class="panel-heading">CSV content</div>
+            <div id="myGrid" style="width:100%;height:500px;"></div>
+        </div>
+        <style type="text/css">
+        .handsontable .currentRow {
+        background-color: #E7E8EF;
+        }
 
-    //      var grid = new Slick.Grid("#myGrid", myData, columns, options);
-    $("#myGrid").handsontable({
-    data: myData,
-    startRows: 6,
-    startCols: 8,
-    colHeaders: myHeaders,
-    rowHeaders: true,
-    manualColumnResize: true,
-    manualColumnMove: false,
-    persistentState: true,
-    currentRowClassName: 'currentRow',
-    outsideClickDeselects: false,
-    removeRowPlugin: false
-    });
-    </script>
+        .handsontable .currentCol {
+        background-color: #F9F9FB;
+        }
+        </style>
+        <script>
+        var myData=@Html(jsonVal);
+        var myHeaders=@Html(jsonHeaders);
+
+        //      var grid = new Slick.Grid("#myGrid", myData, columns, options);
+        $("#myGrid").handsontable({
+        data: myData,
+        startRows: 6,
+        startCols: 8,
+        colHeaders: myHeaders,
+        rowHeaders: true,
+        manualColumnResize: true,
+        manualColumnMove: false,
+        persistentState: true,
+        currentRowClassName: 'currentRow',
+        outsideClickDeselects: false,
+        removeRowPlugin: false
+        });
+        </script>
+}

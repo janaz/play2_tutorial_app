@@ -23,7 +23,7 @@ import java.util.Date;
 
 public class Application extends Controller {
     public static Result index() {
-        return ok(views.html.index.render());
+        return redirect(controllers.clustrino.routes.BasicFlow.index());
     }
 
     public static Result start() {
@@ -70,6 +70,8 @@ public class Application extends Controller {
         com.feth.play.module.pa.controllers.Authenticate.noCache(response());
         final Form<MyUsernamePasswordAuthProvider.MyLogin> filledForm = MyUsernamePasswordAuthProvider.LOGIN_FORM
                 .bindFromRequest();
+
+        System.out.println(ctx().request().body());
         if (filledForm.hasErrors()) {
             // User did not fill everything properly
             return badRequest(views.html.login.render(filledForm));

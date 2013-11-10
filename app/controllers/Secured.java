@@ -12,11 +12,13 @@ public class Secured extends Security.Authenticator {
 	@Override
 	public String getUsername(final Context ctx) {
 		final AuthUser u = PlayAuthenticate.getUser(ctx.session());
-
 		if (u != null) {
+            System.out.println(u.getId());
 			return u.getId();
 		} else {
-			return null;
+            System.out.println("No user!!!!!!!!!!!");
+
+            return null;
 		}
 	}
 

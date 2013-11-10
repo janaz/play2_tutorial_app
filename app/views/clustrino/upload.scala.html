@@ -1,15 +1,17 @@
-@_navbar()
-<span class="btn btn-success fileinput-button">
-    <i class="glyphicon glyphicon-plus"></i>
-    <span>Add files</span>
-    <input id="fileupload" type="file" name="files[]" data-url="@controllers.clustrino.routes.BasicFlow.uploadFile()" multiple="">
-</span>
+@admin {
+    @_navbar()
+    <span class="btn btn-success fileinput-button">
+        <i class="glyphicon glyphicon-plus"></i>
+        <span>Add files</span>
+        <input id="fileupload" type="file" name="files[]" data-url="@controllers.clustrino.secured.routes.UploadedFile.uploadFile()" multiple="">
+    </span>
 
-<div class="data-context hidden">
-    <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-upload"></span> Upload</button>
-    <span>Choosen File: </span><span class="filename"></span>
-</div>
+    <div class="data-context hidden">
+        <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-upload"></span> Upload</button>
+        <span>Choosen File: </span><span class="filename"></span>
+    </div>
 
-<script>
-$(initUpload);
-</script>
+    <script>
+    $(initUpload);
+    </script>
+}

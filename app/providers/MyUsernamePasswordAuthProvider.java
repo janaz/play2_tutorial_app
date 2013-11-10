@@ -98,7 +98,6 @@ public class MyUsernamePasswordAuthProvider
         @Required
         public String name;
 
-        @Required
         public String extraInfo;
 
         public String validate() {

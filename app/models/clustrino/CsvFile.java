@@ -18,6 +18,9 @@ public class CsvFile extends Model {
     public String fileName;
 
     @Required
+    public Long uploadedAt;
+
+    @Required
     public Long ownerId;
 
     public static Finder<Long,CsvFile> find = new Finder(

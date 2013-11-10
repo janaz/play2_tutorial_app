@@ -14,26 +14,25 @@ GET         /tasks                                controllers.Tasks.tasks()
 POST        /tasks                                controllers.Tasks.newTask()
 POST        /tasks/:id/delete                     controllers.Tasks.deleteTask(id: Long)
 
-GET         /clustrino/login                      controllers.clustrino.BasicFlow.login()
-POST        /clustrino/login                      controllers.clustrino.BasicFlow.loginPost()
+#GET         /clustrino/login                      controllers.clustrino.BasicFlow.login()
+#POST        /clustrino/login                      controllers.clustrino.BasicFlow.loginPost()
 
 GET         /clustrino/index                      controllers.clustrino.BasicFlow.index()
-POST        /clustrino/upload                     controllers.clustrino.BasicFlow.uploadFile()
-GET         /clustrino/upload                     controllers.clustrino.BasicFlow.upload()
-GET         /clustrino/show                       controllers.clustrino.BasicFlow.showFile()
-GET         /clustrino/dashboard                  controllers.clustrino.BasicFlow.dashboard()
-GET         /clustrino/test_action                  controllers.clustrino.BasicFlow.testAction()
+POST        /clustrino/upload                     controllers.clustrino.secured.UploadedFile.uploadFile()
+GET         /clustrino/upload                     controllers.clustrino.secured.UploadedFile.upload()
+GET         /clustrino/show                       controllers.clustrino.secured.UploadedFile.showFile()
+GET         /clustrino/dashboard                  controllers.clustrino.secured.Dashboard.dashboard()
+GET         /clustrino/test_action                controllers.clustrino.BasicFlow.testAction()
 
 GET     /restricted                 controllers.Application.restricted
-GET     /assets/javascript/routes.js    controllers.Application.jsRoutes
+#GET     /assets/javascript/routes.js    controllers.Application.jsRoutes
 
 GET     /profile                    controllers.Application.profile
-
 GET     /login                      controllers.Application.login
 POST    /login                      controllers.Application.doLogin
-
 GET     /logout                     com.feth.play.module.pa.controllers.Authenticate.logout
 GET     /authenticate/:provider     com.feth.play.module.pa.controllers.Authenticate.authenticate(provider: String)
+
 
 GET     /signup                     controllers.Application.signup
 POST    /signup                     controllers.Application.doSignup
