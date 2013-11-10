@@ -1,11 +1,11 @@
-@(jsonHeaders:String, jsonVal: String)
+@(fileName:String, jsonHeaders:String, jsonVal: String)
 
 @admin {
 
     @_navbar()
 
         <div class="panel panel-default">
-            <div class="panel-heading">CSV content</div>
+            <div class="panel-heading">@fileName</div>
             <div id="myGrid" style="width:100%;height:500px;"></div>
         </div>
         <style type="text/css">

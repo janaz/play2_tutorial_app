@@ -4,6 +4,8 @@ import com.clustrino.csv.CSVFile;
 import com.clustrino.csv.PersistException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
 import controllers.Application;
 import models.User;
 import models.clustrino.CsvFile;
@@ -11,7 +13,9 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 
+import javax.annotation.Nullable;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Collections;
 
 public class UploadedFile extends Secured {
@@ -42,6 +46,7 @@ public class UploadedFile extends Secured {
             fileModel.save();
             result.put("status", "OK, Super");
             result.put("message", "File has been uploaded successfully.");
+            result.put("id", fileModel.id);
             session().put("csv_filename", uploadedFile.getFileName());
             return ok(result);
         } catch (PersistException e) {
@@ -53,8 +58,16 @@ public class UploadedFile extends Secured {
     }
 
 
-    public static Result showFile() {
-        CSVFile csvFile = new CSVFile(session().get("csv_filename"));
+    public static Result showFile(final Long id) {
+        final User localUser = Application.getLocalUser(session());
+        Collection<CsvFile> filtered = Collections2.filter(localUser.files, new Predicate<CsvFile>() {
+            @Override
+            public boolean apply(@Nullable CsvFile csvFile) {
+                return csvFile.id == id;
+            }
+        });
+        String fileName = filtered.iterator().next().fileName;
+        CSVFile csvFile = new CSVFile(fileName);
         JsonNode headers = Json.toJson(Collections.emptyList());
         JsonNode sample = Json.toJson(Collections.emptyList());
         try{
@@ -64,7 +77,7 @@ public class UploadedFile extends Secured {
 
         }
 
-        return ok(views.html.clustrino.show_file.render(Json.stringify(headers), Json.stringify(sample)));
+        return ok(views.html.clustrino.show_file.render(fileName, Json.stringify(headers), Json.stringify(sample)));
 
     }
 

@@ -6,7 +6,7 @@
     @_navbar()
     <ul>
     @for(file <- files) {
-        <li>@file.fileName uploaded:<span>@{new DateTime(file.uploadedAt).toString(ISODateTimeFormat.dateTime())}</span></li>
+        <li>@file.fileName uploaded:<span>@{new DateTime(file.uploadedAt).toString(ISODateTimeFormat.dateTime())}</span> <a data-pjax href="@controllers.clustrino.secured.routes.UploadedFile.showFile(file.id)">Show</a></li>
     }
     </ul>
 }
