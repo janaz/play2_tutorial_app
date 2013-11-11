@@ -5,6 +5,8 @@
 @admin {
     @_navbar()
         <h4>@Messages("clustrino.my_files.header.page_header")</h4>
+
+
         <table class="table table-striped">
             <thead>
                 <tr>
@@ -15,6 +17,35 @@
                 </tr>
             </thead>
             <tbody>
+                <tr class="warning upload-add-file">
+                    <td>
+                    </td>
+                    <td>
+                    </td>
+                    <td>
+                    </td>
+                    <td>
+                        <span class="btn btn-success fileinput-button">
+
+                            <span class="glyphicon glyphicon-plus"></span>
+                            <span>@Messages("clustrino.upload.add_files")</span>
+                            <input id="fileupload" type="file" name="files[]" data-url="@controllers.clustrino.secured.routes.UploadedFile.uploadFile()">
+                        </span>
+                    </td>
+                </tr>
+
+                <tr class="warning upload-data-context hidden">
+                    <td>
+                    </td>
+                    <td>
+                        <strong class="upload-filename"></strong>
+                    </td>
+                    <td>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-primary upload-action-start"><span class="glyphicon glyphicon-upload"></span> Upload</button>
+                    </td>
+                </tr>
             @for((file, idx) <- files.sortBy(_.uploadedAt).reverse.zipWithIndex) {
                 <tr>
                     <td>
@@ -27,7 +58,7 @@
                         @{new DateTime(file.uploadedAt).toString(DateTimeFormat.mediumDateTime())}
                     </td>
                     <td>
-                        <a data-pjax href="@controllers.clustrino.secured.routes.UploadedFile.showFile(file.id)">@Messages("clustrino.my_files.action.view")</a>
+                        <a data-pjax type="button" class="btn btn-default" href="@controllers.clustrino.secured.routes.UploadedFile.showFile(file.id)">@Messages("clustrino.my_files.action.view")</a>
 
                     </td>
                 </tr>
@@ -35,5 +66,8 @@
 
             </tbody>
         </table>
+    <script>
+    $(initUpload);
+    </script>
 
 }
