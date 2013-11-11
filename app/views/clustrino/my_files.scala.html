@@ -43,6 +43,8 @@
                     <td>
                     </td>
                     <td>
+                        <a data-pjax type="button" class="btn btn-success upload-view-file hidden" href="#"><span class="glyphicon glyphicon-expand"></span> @Messages("clustrino.my_files.action.view")</a>
+
                         <button type="button" class="btn btn-primary upload-action-start"><span class="glyphicon glyphicon-upload"></span> Upload</button>
                     </td>
                 </tr>
@@ -58,7 +60,7 @@
                         @{new DateTime(file.uploadedAt).toString(DateTimeFormat.mediumDateTime())}
                     </td>
                     <td>
-                        <a data-pjax type="button" class="btn btn-default" href="@controllers.clustrino.secured.routes.UploadedFile.showFile(file.id)">@Messages("clustrino.my_files.action.view")</a>
+                        <a data-pjax type="button" class="btn btn-default" href="@controllers.clustrino.secured.routes.UploadedFile.showFile(file.id)"><span class="glyphicon glyphicon-expand"></span> @Messages("clustrino.my_files.action.view")</a>
 
                     </td>
                 </tr>

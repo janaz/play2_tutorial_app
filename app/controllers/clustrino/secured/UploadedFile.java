@@ -40,6 +40,7 @@ public class UploadedFile extends Secured {
             uploadedFile.getFile().delete();
             fileModel.save();
             result.put("status", "OK, Super");
+            result.put("id", fileModel.id);
             result.put("message", "File has been uploaded successfully.");
             result.put("view_url", controllers.clustrino.secured.routes.UploadedFile.showFile(fileModel.id).url());
             return ok(result);
@@ -50,8 +51,7 @@ public class UploadedFile extends Secured {
         }
     }
 
-
-    public static Result showFile(final Long id) {
+    private static CsvFile getLoggedinUserFile(final Long id) {
         final User localUser = Application.getLocalUser(session());
         Collection<CsvFile> filtered = Collections2.filter(localUser.files, new Predicate<CsvFile>() {
             @Override
@@ -59,7 +59,11 @@ public class UploadedFile extends Secured {
                 return csvFile.id == id;
             }
         });
-        CsvFile fileModel = filtered.iterator().next();
+        return filtered.iterator().next();
+    }
+
+    public static Result showFile(final Long id) {
+        final CsvFile fileModel = getLoggedinUserFile(id);
         CSVFile csvFile = new CSVFile(fileModel);
         JsonNode headers = Json.toJson(Collections.emptyList());
         JsonNode sample = Json.toJson(Collections.emptyList());

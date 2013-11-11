@@ -49,13 +49,14 @@
                                 //$('.upload-data-context' ).addClass('hidden');
                                 $('.upload-progress').removeClass('hidden');
                                 $('.upload-progress .progress-bar').css('width', '0');
-                                button.addClass('disabled');
+                                button.addClass('hidden');
                                 that.fileName = data.originalFiles[0].name;
                                 data.submit();
                             });
                 },
                 done: function (e, data) {
                     var response = data.result;
+                    $('.upload-data-context .upload-view-file' ).removeClass('hidden' ).attr('href', response.view_url);
                     $('.upload-progress').addClass('hidden');
                     $('.upload-alert' ).removeClass('hidden').html('@Messages("clustrino.upload.file_uploaded_successfully") ' +response.message + ' <a href="'+response.view_url+'">Display the content</a>').slideDown();
                 },
