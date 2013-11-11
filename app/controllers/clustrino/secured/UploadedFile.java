@@ -19,10 +19,6 @@ import java.util.Collection;
 import java.util.Collections;
 
 public class UploadedFile extends Secured {
-    public static Result upload() {
-        return ok(views.html.clustrino.upload.render());
-    }
-
     public static Result myFiles() {
         final User localUser = Application.getLocalUser(session());
         return ok(views.html.clustrino.my_files.render(localUser.files));

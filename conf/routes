@@ -18,7 +18,6 @@ POST        /tasks/:id/delete                     controllers.Tasks.deleteTask(i
 
 GET         /clustrino/index                      controllers.clustrino.BasicFlow.index()
 POST        /clustrino/upload                     controllers.clustrino.secured.UploadedFile.uploadFile()
-GET         /clustrino/upload                     controllers.clustrino.secured.UploadedFile.upload()
 GET         /clustrino/show/:id                       controllers.clustrino.secured.UploadedFile.showFile(id: Long)
 GET         /clustrino/my_files                   controllers.clustrino.secured.UploadedFile.myFiles()
 GET         /clustrino/dashboard                  controllers.clustrino.secured.Dashboard.dashboard()
