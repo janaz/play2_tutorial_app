@@ -33,15 +33,15 @@ public class UploadedFile extends Secured {
         final ObjectNode result = Json.newObject();
         final User localUser = Application.getLocalUser(session());
         final Http.MultipartFormData.FilePart part = request().body().asMultipartFormData().getFiles().iterator().next();
-        final com.clustrino.csv.UploadedFile uploadedFile = new com.clustrino.csv.UploadedFile(part.getFile(), part.getFilename());
 
         try {
-            uploadedFile.persist();
-            uploadedFile.getFile().delete();
             CsvFile fileModel = new CsvFile();
-            fileModel.fileName = uploadedFile.getFileName();
+            fileModel.fileName = part.getFilename();
             fileModel.uploadedAt = Calendar.getInstance().getTimeInMillis();
             fileModel.user = localUser;
+            final com.clustrino.csv.UploadedFile uploadedFile = com.clustrino.csv.UploadedFile.fromUpload(fileModel, part.getFile());
+            uploadedFile.persist();
+            uploadedFile.getFile().delete();
             fileModel.save();
             result.put("status", "OK, Super");
             result.put("message", "File has been uploaded successfully.");
@@ -63,8 +63,8 @@ public class UploadedFile extends Secured {
                 return csvFile.id == id;
             }
         });
-        String fileName = filtered.iterator().next().fileName;
-        CSVFile csvFile = new CSVFile(fileName);
+        CsvFile fileModel = filtered.iterator().next();
+        CSVFile csvFile = new CSVFile(fileModel);
         JsonNode headers = Json.toJson(Collections.emptyList());
         JsonNode sample = Json.toJson(Collections.emptyList());
         try{
@@ -74,7 +74,7 @@ public class UploadedFile extends Secured {
 
         }
 
-        return ok(views.html.clustrino.show_file.render(fileName, Json.stringify(headers), Json.stringify(sample)));
+        return ok(views.html.clustrino.show_file.render(fileModel.fileName, Json.stringify(headers), Json.stringify(sample)));
 
     }
 

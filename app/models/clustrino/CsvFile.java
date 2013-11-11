@@ -1,9 +1,12 @@
 package models.clustrino;
 
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 import models.User;
+import org.apache.commons.codec.binary.Hex;
 import play.data.validation.Constraints.*;
 
 import play.db.ebean.*;
@@ -40,5 +43,16 @@ public class CsvFile extends Model {
 
     public static void delete(Long id) {
         find.ref(id).delete();
+    }
+
+    public String getSavedFileName() {
+        MessageDigest md = null;
+        try {
+            md = MessageDigest.getInstance("SHA-256");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("I can haz a SHA256 algorithm?", e);
+        }
+        md.update(fileName.getBytes());
+        return Hex.encodeHexString(md.digest()) + "_" + user.id + "_" + uploadedAt;
     }
 }

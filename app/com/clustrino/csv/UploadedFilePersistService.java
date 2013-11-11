@@ -1,16 +1,11 @@
 package com.clustrino.csv;
 
+import models.clustrino.CsvFile;
 import org.springframework.util.FileCopyUtils;
 
 import java.io.*;
 
-/**
- * Created with IntelliJ IDEA.
- * User: tomasz.janowski
- * Date: 10/11/13
- * Time: 9:49 PM
- * To change this template use File | Settings | File Templates.
- */
+
 public abstract class UploadedFilePersistService {
     public abstract void persist(UploadedFile uploadedFile) throws PersistException;
 
@@ -18,7 +13,7 @@ public abstract class UploadedFilePersistService {
         return new FileSystemPersistService("/tmp/uploaded_files");
     }
 
-    public abstract Reader getReader(String filename) throws IOException;
+    public abstract Reader getReader(CsvFile model) throws IOException;
 
     private static class FileSystemPersistService extends UploadedFilePersistService {
         private final String root;
@@ -27,7 +22,7 @@ public abstract class UploadedFilePersistService {
         }
 
         private String fullPath(String fileName) {
-            return root +File.pathSeparator + fileName;
+            return root + File.separator + fileName;
         }
 
         @Override
@@ -42,8 +37,8 @@ public abstract class UploadedFilePersistService {
         }
 
         @Override
-        public Reader getReader(String filename) throws FileNotFoundException {
-            return new FileReader(fullPath(filename));
+        public Reader getReader(CsvFile model) throws FileNotFoundException {
+            return new FileReader(fullPath(model.getSavedFileName()));
         }
     }
 }

@@ -4,8 +4,11 @@ import au.com.bytecode.opencsv.CSVParser;
 import au.com.bytecode.opencsv.CSVReader;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+import models.clustrino.CsvFile;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -13,15 +16,15 @@ import java.util.List;
 public class CSVFile {
     List<String[]> data;
 
-    private String filename;
+    private CsvFile model;
 
-    public CSVFile(String filename) {
-        this.filename = filename;
+    public CSVFile(CsvFile model) {
+        this.model = model;
     }
 
     private Reader getReader() throws IOException {
         UploadedFilePersistService persistService = UploadedFilePersistService.getService();
-        return persistService.getReader(filename);
+        return persistService.getReader(model);
     }
 
     private char getSeparator() throws IOException {

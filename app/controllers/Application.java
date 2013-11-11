@@ -66,7 +66,6 @@ public class Application extends Controller {
         final Form<MyUsernamePasswordAuthProvider.MyLogin> filledForm = MyUsernamePasswordAuthProvider.LOGIN_FORM
                 .bindFromRequest();
 
-        System.out.println(ctx().request().body());
         if (filledForm.hasErrors()) {
             // User did not fill everything properly
             return badRequest(views.html.login.render(filledForm));
