@@ -1,6 +1,8 @@
 package com.clustrino.csv;
 
+import com.amazonaws.services.s3.model.S3Object;
 import com.clustrino.AppConfiguration;
+import com.clustrino.aws.S3Client;
 import models.clustrino.CsvFile;
 import org.springframework.util.FileCopyUtils;
 
@@ -11,7 +13,14 @@ public abstract class UploadedFilePersistService {
     public abstract void persist(UploadedFile uploadedFile) throws PersistException;
 
     public static UploadedFilePersistService getService() {
-        return new FileSystemPersistService(AppConfiguration.get().getString("uploaded_files_root"));
+        final String store = AppConfiguration.get().getString("uploaded_files_store");
+        if (store.equals("filesystem")) {
+            return new FileSystemPersistService(AppConfiguration.get().getString("uploaded_files_root"));
+        } else if (store.equals("s3")) {
+            return new S3PersistService(AppConfiguration.get().getString("uploaded_files_s3_bucket"));
+        }else {
+            throw new UnsupportedOperationException("uploaded_files store is not configured properly");
+        }
     }
 
     public abstract Reader getReader(CsvFile model) throws IOException;
@@ -42,4 +51,26 @@ public abstract class UploadedFilePersistService {
             return new FileReader(fullPath(model.getSavedFileName()));
         }
     }
+
+    private static class S3PersistService extends UploadedFilePersistService {
+        private final S3Client s3client;
+
+        public S3PersistService(String bucket) {
+            this.s3client = S3Client.inDefaultRegion(bucket);
+        }
+
+        @Override
+        public void persist(UploadedFile uploadedFile) throws PersistException {
+            if (!s3client.put(uploadedFile.getFileName(),uploadedFile.getFile())) {
+                throw new PersistException("failed to put object in s3");
+            }
+        }
+
+        @Override
+        public Reader getReader(CsvFile model) throws FileNotFoundException {
+            S3Object object = s3client.get(model.getSavedFileName());
+            return new InputStreamReader(object.getObjectContent());
+        }
+    }
+
 }

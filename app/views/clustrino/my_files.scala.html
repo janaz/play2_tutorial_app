@@ -4,14 +4,14 @@
 
 @admin {
     @_navbar()
-        <h4>My files</h4>
+        <h4>@Messages("clustrino.my_files.header.page_header")</h4>
         <table class="table table-striped">
             <thead>
                 <tr>
                     <th>#</th>
-                    <th>Name</th>
-                    <th>Uploaded</th>
-                    <th>Action</th>
+                    <th>@Messages("clustrino.my_files.header.name")</th>
+                    <th>@Messages("clustrino.my_files.header.uploaded_at")</th>
+                    <th>@Messages("clustrino.my_files.header.action")</th>
                 </tr>
             </thead>
             <tbody>
@@ -27,7 +27,7 @@
                         @{new DateTime(file.uploadedAt).toString(DateTimeFormat.mediumDateTime())}
                     </td>
                     <td>
-                        <a data-pjax href="@controllers.clustrino.secured.routes.UploadedFile.showFile(file.id)">View</a>
+                        <a data-pjax href="@controllers.clustrino.secured.routes.UploadedFile.showFile(file.id)">@Messages("clustrino.my_files.action.view")</a>
 
                     </td>
                 </tr>

@@ -167,3 +167,17 @@ clustrino.navbar.test=Test
 clustrino.navbar.my_files=My files
 
 clustrino.footer=Copyright 2013
+
+
+clustrino.my_files.header.page_header=My Files
+clustrino.my_files.header.name=Name
+clustrino.my_files.header.uploaded_at=Uploaded
+clustrino.my_files.header.action=Action
+clustrino.my_files.action.view=View
+
+clustrino.upload.add_files=Add Files
+clustrino.upload.chosen_file=Selected file
+clustrino.upload.bytes=bytes
+clustrino.upload.file_uploaded_successfully=File uploaded successfully
+clustrino.upload.uploading=Uploading
+clustrino.upload.complete=complete

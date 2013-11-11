@@ -40,7 +40,7 @@
                     console.log("ADD");
                     console.log(data);
                     $('.data-context').removeClass('hidden');
-                    $('.data-context .filename').html(data.files[0].name + "("+data.files[0].size+ "bytes)");
+                    $('.data-context .filename').html(data.files[0].name + "("+data.files[0].size+ " @Messages("clustrino.upload.bytes"))");
                     var that = this;
                     $('.data-context .btn' ).click(function () {
                                 $('.data-context' ).addClass('hidden');
@@ -52,9 +52,8 @@
                 },
                 done: function (e, data) {
                     var response = data.result;
-                    console.log(response);
                     $('.progress').addClass('hidden');
-                    $('.upload-alert' ).removeClass('hidden').html('File uploaded successfully' +response.message + '<a href="'+response.view_url+'">Display the content</a>').slideDown();
+                    $('.upload-alert' ).removeClass('hidden').html('@Messages("clustrino.upload.file_uploaded_successfully") ' +response.message + ' <a href="'+response.view_url+'">Display the content</a>').slideDown();
                 },
                 progressall: function (e, data) {
                     var progress = parseInt(data.loaded / data.total * 100, 10);
@@ -62,11 +61,12 @@
                         'width',
                         progress + '%'
                         ).attr('aria-valuenow', progress);
-                    $('.progress .progress-bar .progress-percentage' ).html('Uploading ' + this.fileName +' '+ progress + '% complete');
+                    $('.progress .progress-bar .progress-percentage' ).html('@Messages("clustrino.upload.uploading") ' + this.fileName +' '+ progress + '% @Messages("clustrino.upload.complete")');
                 }
             });
         };
         </script>
+
         @defining(Application.getLocalUser(session())) { user =>
             <h3>@Messages("clustrino.header.welcome", user.name)</h3>
         }
