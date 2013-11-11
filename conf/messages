@@ -175,7 +175,7 @@ clustrino.my_files.header.uploaded_at=Uploaded
 clustrino.my_files.header.action=Action
 clustrino.my_files.action.view=View
 
-clustrino.upload.add_files=Add Files
+clustrino.upload.add_files=Add File
 clustrino.upload.chosen_file=Selected file
 clustrino.upload.bytes=bytes
 clustrino.upload.file_uploaded_successfully=File uploaded successfully
