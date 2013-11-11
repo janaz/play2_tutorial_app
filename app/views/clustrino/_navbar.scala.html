@@ -1,7 +1,7 @@
 <ul class="nav nav-tabs">
-    <li @if(request.path.contains("/upload")) {class="active"} ><a data-pjax href="@controllers.clustrino.secured.routes.UploadedFile.upload()">Upload CSV</a></li>
-    <li @if(request.path.contains("/show")) {class="active"} ><a href="#">View File</a></li>
-    <li class="disabled"><a href="#">Profile</a></li>
-    <li @if(request.path.contains("/test_action")) {class="active"} ><a data-pjax href="@controllers.clustrino.routes.BasicFlow.testAction()">Test background uploading</a></li>
-    <li @if(request.path.contains("/my_files")) {class="active"} ><a data-pjax href="@controllers.clustrino.secured.routes.UploadedFile.myFiles()">My files</a></li>
+    <li @if(request.path.contains("/upload")) {class="active"} ><a data-pjax href="@controllers.clustrino.secured.routes.UploadedFile.upload()">@Messages("clustrino.navbar.upload")</a></li>
+    <li @if(request.path.contains("/show")) {class="active"} ><a href="#">@Messages("clustrino.navbar.view")</a></li>
+    <li class="disabled"><a href="#">@Messages("clustrino.navbar.profile")</a></li>
+    <li @if(request.path.contains("/test_action")) {class="active"} ><a data-pjax href="@controllers.clustrino.routes.BasicFlow.testAction()">@Messages("clustrino.navbar.test")</a></li>
+    <li @if(request.path.contains("/my_files")) {class="active"} ><a data-pjax href="@controllers.clustrino.secured.routes.UploadedFile.myFiles()">@Messages("clustrino.navbar.my_files")</a></li>
 </ul>

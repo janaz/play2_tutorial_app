@@ -3,15 +3,16 @@
 @import controllers.clustrino._
 @main("Clustrino") {
     <div class="jumbotron">
-        <h1>Welcome!</h1>
-        <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat.</p>
-        <p><a class="btn btn-primary btn-lg" role="button">Learn more</a></p>
+        <h1>@Messages("clustrino.index.welcome.title")</h1>
+        <p>@Messages("clustrino.index.welcome.message")</p>
+
+        <p><a class="btn btn-primary btn-lg" role="button">@Messages("clustrino.index.welcome.learn_more")</a></p>
     </div>
     <div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
         <div class="fixed-background"></div>
         <div class="fixed">
             <div>
-                <a type="button" class="btn btn-primary btn-lg btn-success" href="@controllers.clustrino.secured.routes.Dashboard.dashboard"> Dashboard<span class="glyphicon glyphicon-log-in"></span></a>
+                <a type="button" class="btn btn-primary btn-lg btn-success" href="@controllers.clustrino.secured.routes.Dashboard.dashboard">@Messages("clustrino.index.dashboard_link") <span class="glyphicon glyphicon-log-in"></span></a>
             </div>
             <p>this is fixed and always there</p>
             <p>this is fixed and always there</p>
@@ -65,9 +66,4 @@
             $('.carousel').carousel({interval: 2000});
         });
     </script>
-
-    @test("Just testing something") {
-        it works!
-    }
-
 }

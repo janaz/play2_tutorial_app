@@ -1,5 +1,6 @@
 package com.clustrino.csv;
 
+import com.clustrino.AppConfiguration;
 import models.clustrino.CsvFile;
 import org.springframework.util.FileCopyUtils;
 
@@ -10,7 +11,7 @@ public abstract class UploadedFilePersistService {
     public abstract void persist(UploadedFile uploadedFile) throws PersistException;
 
     public static UploadedFilePersistService getService() {
-        return new FileSystemPersistService("/tmp/uploaded_files");
+        return new FileSystemPersistService(AppConfiguration.get().getString("uploaded_files_root"));
     }
 
     public abstract Reader getReader(CsvFile model) throws IOException;

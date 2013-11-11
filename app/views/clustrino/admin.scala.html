@@ -68,7 +68,7 @@
         };
         </script>
         @defining(Application.getLocalUser(session())) { user =>
-            <h3>Welcome @{user.name}!</h3>
+            <h3>@Messages("clustrino.header.welcome", user.name)</h3>
         }
         <div id="pjax-container">
             @content

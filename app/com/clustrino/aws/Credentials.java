@@ -1,6 +1,7 @@
 package com.clustrino.aws;
 
 import com.amazonaws.auth.AWSCredentials;
+import com.clustrino.AppConfiguration;
 
 public class Credentials {
     private static final AWSCredentials credentials;
@@ -9,12 +10,12 @@ public class Credentials {
         credentials = new AWSCredentials() {
             @Override
             public String getAWSAccessKeyId() {
-                return play.Play.application().configuration().getConfig("aws").getString("access_key");
+                return AppConfiguration.get().getConfig("aws").getString("access_key");
             }
 
             @Override
             public String getAWSSecretKey() {
-                return play.Play.application().configuration().getConfig("aws").getString("secret_key");
+                return AppConfiguration.get().getConfig("aws").getString("secret_key");
             }
         };
     }

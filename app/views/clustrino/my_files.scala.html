@@ -1,12 +1,39 @@
 @(files: List[models.clustrino.CsvFile])
-@import org.joda.time.format.ISODateTimeFormat
+@import org.joda.time.format.DateTimeFormat
 @import org.joda.time.DateTime
 
 @admin {
     @_navbar()
-    <ul>
-    @for(file <- files) {
-        <li>@file.fileName uploaded:<span>@{new DateTime(file.uploadedAt).toString(ISODateTimeFormat.dateTime())}</span> <a data-pjax href="@controllers.clustrino.secured.routes.UploadedFile.showFile(file.id)">Show</a></li>
-    }
-    </ul>
+        <h4>My files</h4>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Uploaded</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+            @for((file, idx) <- files.sortBy(_.uploadedAt).reverse.zipWithIndex) {
+                <tr>
+                    <td>
+                       @{idx + 1}
+                    </td>
+                    <td>
+                        @file.fileName
+                    </td>
+                    <td>
+                        @{new DateTime(file.uploadedAt).toString(DateTimeFormat.mediumDateTime())}
+                    </td>
+                    <td>
+                        <a data-pjax href="@controllers.clustrino.secured.routes.UploadedFile.showFile(file.id)">View</a>
+
+                    </td>
+                </tr>
+            }
+
+            </tbody>
+        </table>
+
 }
