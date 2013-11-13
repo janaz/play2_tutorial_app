@@ -1,6 +1,7 @@
 package controllers.clustrino.secured;
 
 import com.clustrino.csv.CSVFile;
+import com.clustrino.csv.DataCategory;
 import com.clustrino.csv.PersistException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -74,7 +75,11 @@ public class UploadedFile extends Secured {
 
         }
 
-        return ok(views.html.clustrino.show_file.render(fileModel.fileName, Json.stringify(headers), Json.stringify(sample)));
+        return ok(views.html.clustrino.show_file.render(fileModel.fileName,
+                Json.stringify(headers),
+                Json.stringify(sample),
+                Json.stringify(Json.toJson(DataCategory.names()))
+        ));
 
     }
 

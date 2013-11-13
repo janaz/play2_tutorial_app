@@ -1,11 +1,11 @@
-@(fileName:String, jsonHeaders:String, jsonVal: String)
+@(fileName:String, jsonHeaders:String, jsonVal: String, colNames:String)
 
 @admin {
 
     @_navbar()
 
         <div class="panel panel-default">
-            <div class="panel-heading">@fileName</div>
+            <div class="panel-heading"><span>@fileName</span> <span class="save-update"></span></div>
             <div id="myGrid" style="width:100%;height:500px;"></div>
         </div>
         <style type="text/css">
@@ -20,21 +20,7 @@
         <script>
         var myData=@Html(jsonVal);
         var myHeaders=@Html(jsonHeaders);
-
-        //      var grid = new Slick.Grid("#myGrid", myData, columns, options);
-        $("#myGrid").handsontable({
-        data: myData,
-        startRows: 6,
-        startCols: 8,
-        colHeaders: myHeaders,
-        rowHeaders: true,
-        manualColumnResize: true,
-        manualColumnMove: false,
-        persistentState: true,
-        currentRowClassName: 'currentRow',
-        outsideClickDeselects: false,
-        removeRowPlugin: false,
-        readOnly: true
-        });
+        var myNames=@Html(colNames);
+        new ShowFile(myData, myHeaders, myNames);
         </script>
 }

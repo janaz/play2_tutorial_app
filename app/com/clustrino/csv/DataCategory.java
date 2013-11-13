@@ -5,8 +5,8 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 
 import javax.annotation.Nullable;
+import java.util.*;
 import java.util.regex.Pattern;
-import java.util.Collection;
 
 /**
  * Created with IntelliJ IDEA.
@@ -61,6 +61,19 @@ public enum DataCategory {
 
     private final Pattern namePattern;
     private final Pattern dataPattern;
+
+    public static List<String> names() {
+       Collection<String> n = Collections2.transform(Arrays.asList(values()), new Function<DataCategory, String>() {
+           @Nullable
+           @Override
+           public String apply(@Nullable DataCategory dataCategory) {
+               return dataCategory.name();
+           }
+       });
+       List<String> listNames = Lists.newArrayList(n);
+       Collections.sort(listNames);
+       return listNames;
+    }
 
     DataCategory(Pattern namePattern, Pattern dataPatten) {
         this.namePattern = namePattern;
