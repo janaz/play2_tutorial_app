@@ -1,4 +1,4 @@
-@(fileName:String, jsonHeaders:String, jsonVal: String, colNames:String)
+@(fileName:String, jsonHeaders:String, jsonVal: String, jsonPopulation:String, colNames:String)
 
 @admin {
 
@@ -20,7 +20,8 @@
         <script>
         var myData=@Html(jsonVal);
         var myHeaders=@Html(jsonHeaders);
+        var myPopulation=@Html(jsonPopulation);
         var myNames=@Html(colNames);
-        new ShowFile(myData, myHeaders, myNames);
+        new ShowFile(myData, myHeaders, myPopulation, myNames);
         </script>
 }

@@ -25,6 +25,7 @@ libraryDependencies ++= Seq(
   "com.google.guava" % "guava" % "r09",
   "mysql" % "mysql-connector-java" % "5.1.6",
   "be.objectify" %% "deadbolt-java" % "2.2-RC2",
+  "net.sf.supercsv" % "super-csv" % "2.1.0",
   cache
 )     
 

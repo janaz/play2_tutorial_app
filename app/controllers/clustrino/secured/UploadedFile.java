@@ -1,6 +1,7 @@
 package controllers.clustrino.secured;
 
 import com.clustrino.csv.CSVFile;
+import com.clustrino.csv.CSVFile2;
 import com.clustrino.csv.DataCategory;
 import com.clustrino.csv.PersistException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -68,16 +69,20 @@ public class UploadedFile extends Secured {
         CSVFile csvFile = new CSVFile(fileModel);
         JsonNode headers = Json.toJson(Collections.emptyList());
         JsonNode sample = Json.toJson(Collections.emptyList());
+        JsonNode population = Json.toJson(Collections.emptyList());
         try{
             headers = Json.toJson(csvFile.headerNames());
             sample = Json.toJson(csvFile.dataSample());
+            population = Json.toJson(csvFile.getPopulationInfo());
         } catch (Exception e) {
 
+           throw new RuntimeException(e);
         }
 
         return ok(views.html.clustrino.show_file.render(fileModel.fileName,
                 Json.stringify(headers),
                 Json.stringify(sample),
+                Json.stringify(population),
                 Json.stringify(Json.toJson(DataCategory.names()))
         ));
 

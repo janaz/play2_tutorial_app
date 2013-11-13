@@ -10,6 +10,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -33,7 +34,7 @@ public class CSVFile {
             String firstLine = reader.readLine();
             int maxFieldsNumber = 0;
             char separator = ',';
-            for (char c : new char[]{',', '|', '\t'}) {
+            for (char c : new char[]{',', ';', '|', '\t'}) {
                 CSVParser parser = new CSVParser(c);
                 int fieldsNumber = parser.parseLine(firstLine).length;
                 if (fieldsNumber > maxFieldsNumber) {
@@ -46,6 +47,44 @@ public class CSVFile {
         } finally {
             reader.close();
         }
+    }
+
+    public List<Float> getPopulationInfo() throws IOException {
+        List<Float> retVal = new ArrayList<>();
+        List<Integer> populated = new ArrayList<>();
+        final CSVReader reader = new CSVReader(getReader(), getSeparator());
+        try {
+            int lines = 0;
+            do {
+                String[] next = reader.readNext();
+                if (next == null) {
+                    break;
+                }
+                lines++;
+//                int len = populated.size();
+                while (populated.size() < next.length) {
+                    populated.add(0);
+                }
+//                if (populated.size() != len) {
+//                    System.out.println("Line " + lines + " Changed size from " + len + " to " + populated.size() + " xxx " + Arrays.toString(next));
+//                }
+                for (int idx = 0; idx < next.length; idx++) {
+                    String s = next[idx];
+                    if (s != null && !s.trim().isEmpty()) {
+                        populated.set(idx, populated.get(idx).intValue() + 1);
+                    }
+                }
+            } while (true);
+            if (lines != 0) {
+                for (int i : populated) {
+                    retVal.add((float) i / lines);
+                }
+            }
+            return retVal;
+        } finally {
+            reader.close();
+        }
+
     }
 
     private boolean dataIncludesHeader() {

@@ -6,7 +6,7 @@ Renderer = function (color, bgcolor, fontStyle) {
     };
 };
 
-ShowFile = function (myData, myHeaders, myNames) {
+ShowFile = function (myData, myHeaders, myPopulation, myNames) {
     var OPTIONS = myNames;
 
     var UNKNOWN_RENDERER = new Renderer('white', '#FF5C5C', 'italic').getRenderer;
@@ -34,7 +34,7 @@ ShowFile = function (myData, myHeaders, myNames) {
         afterGetColHeader: function (col, TH) {
             var that = this;
             $('select', TH).select2({
-                width: 'resolve'
+                width: 'copy'
             }).on("change", function (e) {
                     myHeaders[col] = e.val;
                     var el = $('.save-update');
@@ -65,19 +65,18 @@ ShowFile = function (myData, myHeaders, myNames) {
             if (myHeaders[col] == 'UNKNOWN') {
                 cellProperties.renderer = UNKNOWN_RENDERER;
             } else {
-                var rand = col % 5;
-                if (rand == 0) {
+                var pop = myPopulation[col];
+                if (pop > 0.9) {
                     cellProperties.renderer = FULL_POPULATION_RENDERER;
-                } else if (rand == 1) {
+                } else if (pop > 0.7) {
                     cellProperties.renderer = HIGH_POPULATION_RENDERER;
-                } else if (rand == 2) {
+                } else if (pop > 0.5) {
                     cellProperties.renderer = MEDIUM_POPULATION_RENDERER;
-                } else if (rand == 3) {
+                } else if (pop > 0.2) {
                     cellProperties.renderer = LOW_POPULATION_RENDERER;
-                } else if (rand == 4) {
+                } else {
                     cellProperties.renderer = NO_POPULATION_RENDERER;
                 }
-                cellProperties.renderer = FULL_POPULATION_RENDERER;
             }
             return cellProperties;
         },
@@ -88,15 +87,17 @@ ShowFile = function (myData, myHeaders, myNames) {
 //                return {};
 //            }
 //        }),
-        autoWrapRow: true,
+        autoWrapRow: false,
+        columnWidth: 80,
         rowHeaders: true,
         manualColumnResize: true,
         manualColumnMove: false,
-        persistentState: true,
-        currentRowClassName: 'currentRow',
+        persistentState: false,
+        currentRowClassName: null,
         outsideClickDeselects: false,
         removeRowPlugin: false,
-        readOnly: false
+        readOnly: true
+
     });
 };
 
