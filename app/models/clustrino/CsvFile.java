@@ -29,6 +29,9 @@ public class CsvFile extends Model {
     @JoinColumn(name="owner_id")
     public User user;
 
+    @OneToOne
+    public CsvMetadata metadata;
+
     public static Finder<Long,CsvFile> find = new Finder(
             Long.class, CsvFile.class
     );

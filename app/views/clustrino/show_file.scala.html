@@ -1,4 +1,4 @@
-@(fileName:String, jsonHeaders:String, jsonVal: String, jsonPopulation:String, colNames:String)
+@(fileName:String, jsonHeaders:String, jsonVal: String, jsonPopulation:String, colNames:String, fileModel:models.clustrino.CsvFile)
 
 @admin {
 
@@ -22,6 +22,7 @@
         var myHeaders=@Html(jsonHeaders);
         var myPopulation=@Html(jsonPopulation);
         var myNames=@Html(colNames);
-        new ShowFile(myData, myHeaders, myPopulation, myNames);
+        var fileId=@fileModel.id;
+        new ShowFile(myData, myHeaders, myPopulation, myNames, fileId);
         </script>
 }

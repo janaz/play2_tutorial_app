@@ -1,24 +1,23 @@
 package controllers.clustrino.secured;
 
 import com.clustrino.csv.CSVFile;
-import com.clustrino.csv.CSVFile2;
 import com.clustrino.csv.DataCategory;
 import com.clustrino.csv.PersistException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import controllers.Application;
 import models.User;
 import models.clustrino.CsvFile;
+import models.clustrino.CsvMetadata;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 
 import javax.annotation.Nullable;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.*;
 
 public class UploadedFile extends Secured {
     public static Result myFiles() {
@@ -64,6 +63,28 @@ public class UploadedFile extends Secured {
         return filtered.iterator().next();
     }
 
+    public static Result updateColumns(final Long id) {
+        final ObjectNode result = Json.newObject();
+        JsonNode reqNode = request().body().asJson();
+
+        List<String> data = Json.fromJson(reqNode, List.class);
+
+        final CsvFile fileModel = getLoggedinUserFile(id);
+        try {
+            if (fileModel.metadata == null) {
+                fileModel.metadata = new CsvMetadata();
+            }
+            fileModel.metadata.setColumnNames(Joiner.on(',').join(data));
+            fileModel.metadata.save();
+            result.put("status", "OK, Super");
+            return ok(result);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+//            result.put("status", "Error "+e.getMessage());
+//            return internalServerError(result);
+        }
+    }
+
     public static Result showFile(final Long id) {
         final CsvFile fileModel = getLoggedinUserFile(id);
         CSVFile csvFile = new CSVFile(fileModel);
@@ -83,7 +104,8 @@ public class UploadedFile extends Secured {
                 Json.stringify(headers),
                 Json.stringify(sample),
                 Json.stringify(population),
-                Json.stringify(Json.toJson(DataCategory.names()))
+                Json.stringify(Json.toJson(DataCategory.names())),
+                fileModel
         ));
 
     }

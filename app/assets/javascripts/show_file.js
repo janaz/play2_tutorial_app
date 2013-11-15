@@ -6,7 +6,7 @@ Renderer = function (color, bgcolor, fontStyle) {
     };
 };
 
-ShowFile = function (myData, myHeaders, myPopulation, myNames) {
+ShowFile = function (myData, myHeaders, myPopulation, myNames, csvId) {
     var OPTIONS = myNames;
 
     var UNKNOWN_RENDERER = new Renderer('white', '#FF5C5C', 'italic').getRenderer;
@@ -37,14 +37,33 @@ ShowFile = function (myData, myHeaders, myPopulation, myNames) {
                 width: 'copy'
             }).on("change", function (e) {
                     myHeaders[col] = e.val;
-                    var el = $('.save-update');
-                    el.fadeOut(1, function () {
-                        el.html('Changes saved').css('color', 'green');
-                        el.fadeIn(500, function () {
-                            el.fadeOut(1000, function () {
-                                el.html('');
+                    $.ajax({
+                        type: "POST",
+                        url: "/clustrino/update_columns/"+csvId,
+                        data: JSON.stringify(myHeaders),
+                        contentType: "application/json; charset=utf-8",
+                        success: function() {
+                            var el = $('.save-update');
+                            el.fadeOut(1, function () {
+                                el.html('Changes saved').css('color', 'green');
+                                el.fadeIn(500, function () {
+                                    el.fadeOut(1000, function () {
+                                        el.html('');
+                                    });
+                                });
                             });
-                        });
+                        },
+                        error: function() {
+                            var el = $('.save-update');
+                            el.fadeOut(1, function () {
+                                el.html('Error saving changes').css('color', 'red');
+                                el.fadeIn(500, function () {
+                                    el.fadeOut(1000, function () {
+                                        el.html('');
+                                    });
+                                });
+                            });
+                        }
                     });
 //                    console.log(this.columns);
 //                    that.columns = _(myHeaders).map(function (el) {
