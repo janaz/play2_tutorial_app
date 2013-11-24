@@ -1,4 +1,4 @@
-name := "todolist"
+name := "neutrino"
 
 version := "1.0-SNAPSHOT"
 
@@ -26,6 +26,7 @@ libraryDependencies ++= Seq(
   "mysql" % "mysql-connector-java" % "5.1.6",
   "be.objectify" %% "deadbolt-java" % "2.2-RC2",
   "net.sf.supercsv" % "super-csv" % "2.1.0",
+  "org.pojava" % "pojava" % "2.9.0",
   cache
 )     
 

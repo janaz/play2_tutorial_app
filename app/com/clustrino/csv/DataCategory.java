@@ -1,5 +1,6 @@
 package com.clustrino.csv;
 
+import com.clustrino.csv.parsers.*;
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
@@ -8,13 +9,6 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.regex.Pattern;
 
-/**
- * Created with IntelliJ IDEA.
- * User: tomasz.janowski
- * Date: 2/11/13
- * Time: 11:37 PM
- * To change this template use File | Settings | File Templates.
- */
 public enum DataCategory {
     SOURCE(Pattern.compile("source", Pattern.CASE_INSENSITIVE), null),
     FULL_NAME(Pattern.compile("^(full)?name$", Pattern.CASE_INSENSITIVE), null),
@@ -22,18 +16,18 @@ public enum DataCategory {
     LAST_NAME(Pattern.compile("(^(last|sur|family).*name)|(^l[_\\s]*name)|(^(last|family)[_\\s]*n)", Pattern.CASE_INSENSITIVE), null),
     MIDDLE_NAME(Pattern.compile("(^mid.*name)|(^m[_\\s]*name)|(^mid(dle)?[_\\s]*n)", Pattern.CASE_INSENSITIVE), null),
     AKA_NAME(Pattern.compile("(^aka.*name)|(^aka[_\\s]*n)", Pattern.CASE_INSENSITIVE), null),
-    GENDER(Pattern.compile("^(gender|sex)$", Pattern.CASE_INSENSITIVE), null),
+    GENDER(Pattern.compile("^(gender|sex)$", Pattern.CASE_INSENSITIVE), null, new GenderParser()),
     TITLE(Pattern.compile("(^title$)|(salutation)", Pattern.CASE_INSENSITIVE), null),
-    PHONE(Pattern.compile("^phone.*?(no|number|num)?$", Pattern.CASE_INSENSITIVE), null),
-    HOME_PHONE(Pattern.compile("^(home|landline).*?(phone|no|\\s*number|\\s+num)$", Pattern.CASE_INSENSITIVE), null),
-    WORK_PHONE(Pattern.compile("^work.*?(phone|no|number|num)$", Pattern.CASE_INSENSITIVE), null),
-    MOBILE_PHONE(Pattern.compile("^mobile.*?(phone|no|number|num)?$", Pattern.CASE_INSENSITIVE), null),
+    PHONE(Pattern.compile("^phone.*?(no|number|num)?$", Pattern.CASE_INSENSITIVE), null, new PhoneNumberParser()),
+    HOME_PHONE(Pattern.compile("^(home|landline).*?(phone|no|\\s*number|\\s+num)$", Pattern.CASE_INSENSITIVE), null, new PhoneNumberParser()),
+    WORK_PHONE(Pattern.compile("^work.*?(phone|no|number|num)$", Pattern.CASE_INSENSITIVE), null, new PhoneNumberParser()),
+    MOBILE_PHONE(Pattern.compile("^mobile.*?(phone|no|number|num)?$", Pattern.CASE_INSENSITIVE), null, new PhoneNumberParser()),
     EMAIL(Pattern.compile("^e.?mail", Pattern.CASE_INSENSITIVE), null),
     WWW(Pattern.compile("(^www)|(^web)", Pattern.CASE_INSENSITIVE), null),
     TWITTER(Pattern.compile("^twitter", Pattern.CASE_INSENSITIVE), null),
     SKYPE(Pattern.compile("^skype", Pattern.CASE_INSENSITIVE), null),
-    DATE_OF_BIRTH(Pattern.compile("(^dob)|(^(date|day).*?birth)|(birth.*?(day|date))", Pattern.CASE_INSENSITIVE), null),
-    DATE_OF_DEATH(Pattern.compile("(^deceased)|(^(date|day).*?death)|(death.*?(day|date))", Pattern.CASE_INSENSITIVE), null),
+    DATE_OF_BIRTH(Pattern.compile("(^dob)|(^(date|day).*?birth)|(birth.*?(day|date))", Pattern.CASE_INSENSITIVE), null, new DateTimeParser()),
+    DATE_OF_DEATH(Pattern.compile("(^deceased)|(^(date|day).*?death)|(death.*?(day|date))", Pattern.CASE_INSENSITIVE), null, new DateTimeParser()),
     ADDRESS(Pattern.compile("(^home.*?address)|(^address$)", Pattern.CASE_INSENSITIVE), null),
     ADDRESS_TYPE(Pattern.compile("address.*type", Pattern.CASE_INSENSITIVE), null),
     ADDRESS_LINE_1(Pattern.compile("address.*1", Pattern.CASE_INSENSITIVE), null),
@@ -53,7 +47,7 @@ public enum DataCategory {
     STREET_NAME(Pattern.compile("(^street$)|(^str.*name)", Pattern.CASE_INSENSITIVE), null),
     STREET_TYPE(Pattern.compile("(^str.*type)", Pattern.CASE_INSENSITIVE), null),
     BUILDING_NUMBER(Pattern.compile("^(build|hous|premis).*(no|num)", Pattern.CASE_INSENSITIVE), null),
-    APPARTMENT_NUMBER(Pattern.compile("^(appart|apt|door).*(no|num)", Pattern.CASE_INSENSITIVE), null),
+    APARTMENT_NUMBER(Pattern.compile("^(appart|apt|door).*(no|num)", Pattern.CASE_INSENSITIVE), null),
     DRIVERS_LICENSE_NUMBER(Pattern.compile("^(driv.*lic.*)", Pattern.CASE_INSENSITIVE), null),
     PASSPORT_NUMBER(Pattern.compile("passport", Pattern.CASE_INSENSITIVE), null),
     ARNO(Pattern.compile("^arno$", Pattern.CASE_INSENSITIVE), null),
@@ -61,6 +55,7 @@ public enum DataCategory {
 
     private final Pattern namePattern;
     private final Pattern dataPattern;
+    private final DataCategoryParser parser;
 
     public static List<String> names() {
        Collection<String> n = Collections2.transform(Arrays.asList(values()), new Function<DataCategory, String>() {
@@ -76,8 +71,25 @@ public enum DataCategory {
     }
 
     DataCategory(Pattern namePattern, Pattern dataPatten) {
+        this(namePattern, dataPatten, new StringParser());
+    }
+
+    DataCategory(Pattern namePattern, Pattern dataPatten, DataCategoryParser parser) {
         this.namePattern = namePattern;
         this.dataPattern = dataPatten;
+        this.parser = parser;
+    }
+
+    public Comparable<?> parsedValue(String value) {
+        return parser.parse(value);
+    }
+
+    public String dbValue(Object parsedValue) {
+        return parser.dbValue(parsedValue);
+    }
+
+    public String dbType() {
+        return parser.dbType();
     }
 
     private boolean isHeaderMatching(String header) {

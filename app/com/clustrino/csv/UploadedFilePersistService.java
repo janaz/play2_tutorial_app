@@ -3,6 +3,8 @@ package com.clustrino.csv;
 import com.amazonaws.services.s3.model.S3Object;
 import com.clustrino.AppConfiguration;
 import com.clustrino.aws.S3Client;
+import com.clustrino.profiling.MetadataSchema;
+import com.clustrino.profiling.StagingSchema;
 import models.clustrino.CsvFile;
 import org.springframework.util.FileCopyUtils;
 
@@ -10,7 +12,27 @@ import java.io.*;
 
 
 public abstract class UploadedFilePersistService {
-    public abstract void persist(UploadedFile uploadedFile) throws PersistException;
+    public void persist(UploadedFile uploadedFile) throws PersistException {
+        _persist(uploadedFile);
+    }
+
+    public void importToDB(CsvFile fileModel) throws IOException {
+        CSVFile3 csvFile = new CSVFile3(fileModel);
+        csvFile.addReadListener(new DBSaver(fileModel.user.id, fileModel.id));
+        MetadataSchema met = new  MetadataSchema(fileModel.user.id);
+        StagingSchema stg = new  StagingSchema(fileModel.user.id, fileModel.id);
+        if (!stg.isCreated()) {
+            stg.createDatabase();
+        }
+
+        if (!met.isCreated()) {
+            met.createDatabase();
+            met.createTables();
+        }
+        csvFile.readFile();
+    }
+
+    public abstract void _persist(UploadedFile uploadedFile) throws PersistException;
 
     public static UploadedFilePersistService getService() {
         final String store = AppConfiguration.get().getString("uploaded_files_store");
@@ -36,7 +58,7 @@ public abstract class UploadedFilePersistService {
         }
 
         @Override
-        public void persist(UploadedFile uploadedFile) throws PersistException {
+        public void _persist(UploadedFile uploadedFile) throws PersistException {
             String destination = fullPath(uploadedFile.getFileName()) ;
 
             try {
@@ -60,7 +82,7 @@ public abstract class UploadedFilePersistService {
         }
 
         @Override
-        public void persist(UploadedFile uploadedFile) throws PersistException {
+        public void _persist(UploadedFile uploadedFile) throws PersistException {
             if (!s3client.put(uploadedFile.getFileName(),uploadedFile.getFile())) {
                 throw new PersistException("failed to put object in s3");
             }

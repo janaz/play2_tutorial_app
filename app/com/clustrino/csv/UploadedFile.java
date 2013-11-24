@@ -16,6 +16,7 @@ public class UploadedFile {
         this.file = file;
         this.model = model;
     }
+
     public UploadedFile(CsvFile model) {
         this(model, null);
     }
@@ -28,9 +29,12 @@ public class UploadedFile {
         return file;
     }
 
+    public UploadedFilePersistService persistService() {
+        return UploadedFilePersistService.getService();
+    }
+
     public void persist() throws PersistException {
-        UploadedFilePersistService persist = UploadedFilePersistService.getService();
-        persist.persist(this);
+        persistService().persist(this);
     }
 }
 

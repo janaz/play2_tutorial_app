@@ -5,12 +5,17 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
+import com.clustrino.csv.DataCategory;
+import com.google.common.base.Function;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
 import models.User;
 import org.apache.commons.codec.binary.Hex;
 import play.data.validation.Constraints.*;
 
 import play.db.ebean.*;
 
+import javax.annotation.Nullable;
 import javax.persistence.*;
 
 @Entity
@@ -36,6 +41,14 @@ public class CsvFile extends Model {
             Long.class, CsvFile.class
     );
 
+    public CsvMetadata getMetadata() {
+        return metadata;
+    }
+
+    public void setMetadata(CsvMetadata metadata) {
+        this.metadata = metadata;
+    }
+
     public static List<CsvFile> all() {
         return find.all();
     }
@@ -58,4 +71,20 @@ public class CsvFile extends Model {
         md.update(fileName.getBytes());
         return Hex.encodeHexString(md.digest()) + "_" + user.id + "_" + uploadedAt;
     }
+
+    public List<DataCategory> getHeaderCategories() {
+        if (this.getMetadata() != null && this.getMetadata().getColumnNames() != null) {
+            Iterable<String> iter = Splitter.on(',').split(this.getMetadata().getColumnNames());
+            return Lists.transform(Lists.newArrayList(iter), new Function<String, DataCategory>() {
+                @Nullable
+                @Override
+                public DataCategory apply(@Nullable String s) {
+                    return DataCategory.valueOf(s);
+                }
+            });
+        } else {
+            return null;
+        }
+    }
+
 }

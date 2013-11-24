@@ -10,6 +10,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -48,69 +49,68 @@ public class CSVFile {
         }
     }
 
-    public List<Float> getPopulationInfo() throws IOException {
-        List<Float> retVal = new ArrayList<>();
-        List<Integer> populated = new ArrayList<>();
+    public List<ColumnStatistics> getStatistics(List<DataCategory> categories) throws IOException {
+        List<ColumnStatistics> stats = new ArrayList<>();
+        while (stats.size() < categories.size()) {
+            stats.add(new ColumnStatistics());
+        }
         final CSVReader reader = new CSVReader(getReader(), getSeparator());
         try {
-            int lines = 0;
             do {
                 String[] next = reader.readNext();
                 if (next == null) {
                     break;
                 }
-                lines++;
-//                int len = populated.size();
-                while (populated.size() < next.length) {
-                    populated.add(0);
-                }
-//                if (populated.size() != len) {
-//                    System.out.println("Line " + lines + " Changed size from " + len + " to " + populated.size() + " xxx " + Arrays.toString(next));
-//                }
-                for (int idx = 0; idx < next.length; idx++) {
-                    String s = next[idx];
-                    if (s != null && !s.trim().isEmpty()) {
-                        populated.set(idx, populated.get(idx).intValue() + 1);
+                try {
+                    List<Comparable<?>> parsedValues = new ArrayList<>(categories.size());
+
+                    for (int idx = 0; idx < stats.size(); idx++) {
+                        String stringValue = "";
+                        if (idx < next.length) {
+                            stringValue = next[idx];
+                        }
+                        Comparable<?> parsedValue = categories.get(idx).parsedValue(stringValue);
+                        parsedValues.add(parsedValue);
                     }
+                    for (int idx = 0; idx < stats.size(); idx++) {
+                        stats.get(idx).add(parsedValues.get(idx));
+                    }
+                } catch (Exception e) {
+
+                    //mark next as invalid row
                 }
             } while (true);
-            if (lines != 0) {
-                for (int i : populated) {
-                    retVal.add((float) i / lines);
-                }
-            }
-            return retVal;
+            return stats;
         } finally {
             reader.close();
         }
-
     }
 
     private boolean dataIncludesHeader() {
-        String[] firstLine = getDataSample().iterator().next();
+        List<String> firstLine = Arrays.asList(getDataSample().iterator().next());
         int unknowns = 0;
         for (String s : columnNames(firstLine)) {
             if (s == DataCategory.UNKNOWN.name()) {
                 unknowns++;
             }
         }
-        if (unknowns * 100 / firstLine.length > 30) {
+        if (unknowns * 100 / firstLine.size() > 30) {
             return false;
         } else {
             return true;
         }
     }
 
-    public String[] headerNames() {
+    public List<String> headerNames() {
         return columnNames(header());
     }
 
-    private String[] columnNames(String[] columns) {
+    private List<String> columnNames(List<String> columns) {
         List<String> out = new ArrayList<>();
         for (String s : columns) {
             out.add(DataCategory.detect(s, null).name());
         }
-        return out.toArray(new String[]{});
+        return out;
     }
 
     private int maxCols() {
@@ -123,8 +123,8 @@ public class CSVFile {
         return Collections.max(lengths);
     }
 
-    private String[] header() {
-        return getDataSample().iterator().next();
+    private List<String> header() {
+        return Arrays.asList(getDataSample().iterator().next());
     }
 
     public List<String[]> dataSample() {

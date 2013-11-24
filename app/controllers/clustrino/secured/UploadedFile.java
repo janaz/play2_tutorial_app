@@ -1,13 +1,15 @@
 package controllers.clustrino.secured;
 
-import com.clustrino.csv.CSVFile;
-import com.clustrino.csv.DataCategory;
-import com.clustrino.csv.PersistException;
+import com.clustrino.csv.*;
+import com.clustrino.profiling.StagingSchema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
+import com.google.common.base.Splitter;
 import com.google.common.collect.Collections2;
+import com.google.common.collect.Lists;
 import controllers.Application;
 import models.User;
 import models.clustrino.CsvFile;
@@ -17,6 +19,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 
 import javax.annotation.Nullable;
+import java.io.IOException;
 import java.util.*;
 
 public class UploadedFile extends Secured {
@@ -40,12 +43,17 @@ public class UploadedFile extends Secured {
             uploadedFile.persist();
             uploadedFile.getFile().delete();
             fileModel.save();
+            uploadedFile.persistService().importToDB(fileModel);
             result.put("status", "OK, Super");
             result.put("id", fileModel.id);
             result.put("message", "File has been uploaded successfully.");
             result.put("view_url", controllers.clustrino.secured.routes.UploadedFile.showFile(fileModel.id).url());
             return ok(result);
         } catch (PersistException e) {
+            result.put("status", "Failure: " + e.getMessage());
+            result.put("message", "An error occurred while uploading the file.");
+            return internalServerError(result);
+        } catch (IOException e) {
             result.put("status", "Failure: " + e.getMessage());
             result.put("message", "An error occurred while uploading the file.");
             return internalServerError(result);
@@ -71,12 +79,31 @@ public class UploadedFile extends Secured {
 
         final CsvFile fileModel = getLoggedinUserFile(id);
         try {
-            if (fileModel.metadata == null) {
-                fileModel.metadata = new CsvMetadata();
+            if (fileModel.getMetadata() == null) {
+                fileModel.setMetadata(new CsvMetadata());
             }
-            fileModel.metadata.setColumnNames(Joiner.on(',').join(data));
-            fileModel.metadata.save();
+            fileModel.getMetadata().setColumnNames(Joiner.on(',').join(data));
+            fileModel.getMetadata().save();
+            fileModel.save();
             result.put("status", "OK, Super");
+
+
+            final User localUser = Application.getLocalUser(session());
+            List<DataCategory> listCat = Lists.transform(data, new Function<String, DataCategory>() {
+                @Nullable
+                @Override
+                public DataCategory apply(@Nullable String s) {
+                    return DataCategory.valueOf(s);
+                }
+            });
+
+            StagingSchema schema = new StagingSchema(localUser.id, fileModel.id);
+            if (!schema.isCreated()) {
+                schema.createDatabase();
+            }
+            schema.createStagingTable(listCat);
+            schema.createRejectsTable();
+
             return ok(result);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -87,14 +114,23 @@ public class UploadedFile extends Secured {
 
     public static Result showFile(final Long id) {
         final CsvFile fileModel = getLoggedinUserFile(id);
-        CSVFile csvFile = new CSVFile(fileModel);
+        CSVFile3 csvFile = new CSVFile3(fileModel);
+
+        SampleReader sampleReader = new SampleReader();
+        StatisticsGatherer stats = new StatisticsGatherer();
+        csvFile.addReadListener(sampleReader);
+        csvFile.addReadListener(stats);
+
         JsonNode headers = Json.toJson(Collections.emptyList());
         JsonNode sample = Json.toJson(Collections.emptyList());
         JsonNode population = Json.toJson(Collections.emptyList());
         try{
-            headers = Json.toJson(csvFile.headerNames());
-            sample = Json.toJson(csvFile.dataSample());
-            population = Json.toJson(csvFile.getPopulationInfo());
+            csvFile.readFile();
+
+            headers = Json.toJson(sampleReader.getStringHeader());
+            sample = Json.toJson(sampleReader.getSampleLines());
+            population = Json.toJson(stats.getPercentagePopulated());
+
         } catch (Exception e) {
 
            throw new RuntimeException(e);
