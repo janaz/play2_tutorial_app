@@ -1,16 +1,13 @@
 package controllers.clustrino.secured;
 
 import com.clustrino.csv.*;
-import com.clustrino.profiling.StagingSchema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
-import com.google.common.base.Splitter;
 import com.google.common.collect.Collections2;
-import com.google.common.collect.Lists;
 import controllers.Application;
+import jobs.CSVFileParser;
 import models.User;
 import models.clustrino.CsvFile;
 import models.clustrino.CsvMetadata;
@@ -19,7 +16,6 @@ import play.mvc.Http;
 import play.mvc.Result;
 
 import javax.annotation.Nullable;
-import java.io.IOException;
 import java.util.*;
 
 public class UploadedFile extends Secured {
@@ -43,17 +39,13 @@ public class UploadedFile extends Secured {
             uploadedFile.persist();
             uploadedFile.getFile().delete();
             fileModel.save();
-            uploadedFile.persistService().importToDB(fileModel);
+            CSVFileParser.parseFile(fileModel);
             result.put("status", "OK, Super");
             result.put("id", fileModel.id);
             result.put("message", "File has been uploaded successfully.");
             result.put("view_url", controllers.clustrino.secured.routes.UploadedFile.showFile(fileModel.id).url());
             return ok(result);
         } catch (PersistException e) {
-            result.put("status", "Failure: " + e.getMessage());
-            result.put("message", "An error occurred while uploading the file.");
-            return internalServerError(result);
-        } catch (IOException e) {
             result.put("status", "Failure: " + e.getMessage());
             result.put("message", "An error occurred while uploading the file.");
             return internalServerError(result);
@@ -86,24 +78,7 @@ public class UploadedFile extends Secured {
             fileModel.getMetadata().save();
             fileModel.save();
             result.put("status", "OK, Super");
-
-
-            final User localUser = Application.getLocalUser(session());
-            List<DataCategory> listCat = Lists.transform(data, new Function<String, DataCategory>() {
-                @Nullable
-                @Override
-                public DataCategory apply(@Nullable String s) {
-                    return DataCategory.valueOf(s);
-                }
-            });
-
-            StagingSchema schema = new StagingSchema(localUser.id, fileModel.id);
-            if (!schema.isCreated()) {
-                schema.createDatabase();
-            }
-            schema.createStagingTable(listCat);
-            schema.createRejectsTable();
-
+            CSVFileParser.parseFile(fileModel);
             return ok(result);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -116,8 +91,8 @@ public class UploadedFile extends Secured {
         final CsvFile fileModel = getLoggedinUserFile(id);
         CSVFile3 csvFile = new CSVFile3(fileModel);
 
-        SampleReader sampleReader = new SampleReader();
-        StatisticsGatherer stats = new StatisticsGatherer();
+        SampleReader sampleReader = new SampleReader(1000);
+        StatisticsGatherer stats = new StatisticsGatherer(1000);
         csvFile.addReadListener(sampleReader);
         csvFile.addReadListener(stats);
 

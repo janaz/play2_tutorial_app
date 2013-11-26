@@ -5,6 +5,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
+import com.avaje.ebean.Expr;
+import com.clustrino.csv.CSVState;
 import com.clustrino.csv.DataCategory;
 import com.google.common.base.Function;
 import com.google.common.base.Splitter;
@@ -37,10 +39,18 @@ public class CsvFile extends Model {
     @OneToOne
     public CsvMetadata metadata;
 
+    @Enumerated(EnumType.STRING)
+    public CSVState state;
+
     public static Finder<Long,CsvFile> find = new Finder(
             Long.class, CsvFile.class
     );
 
+    public static List<CsvFile> getNotParsed() {
+
+        return find.where().or(Expr.eq("state", CSVState.PARSING), Expr.isNull("state")).findList();
+
+    }
     public CsvMetadata getMetadata() {
         return metadata;
     }

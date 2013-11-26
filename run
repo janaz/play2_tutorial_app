@@ -1,0 +1,7 @@
+#!/bin/bash
+
+play clean compile stage
+
+./target/universal/stage/bin/todolist -Dconfig.resource=application.conf -Dhttp.port=9000 -Dhttp.address=0.0.0.0 -Dnewrelic.bootstrap_classpath=true -J-Xms512m -J-Xmx512m -J-server -J-javaagent:/home/janaz/play/newrelic/newrelic.jar
+
+

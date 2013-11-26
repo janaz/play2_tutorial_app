@@ -23,6 +23,7 @@ import java.util.List;
 public class StagingSchema {
     private final Long userId;
     private final Long dataSetId;
+    private EbeanServer stgSrv;
 
     public StagingSchema(Long userId, Long dataSetId) {
         this.userId = userId;
@@ -77,21 +78,24 @@ public class StagingSchema {
     }
 
     private EbeanServer ebeanStagingServer() {
-        ServerConfig config = new ServerConfig();
-        config.setName("/tmp/"+databaseName());
-        DataSourceConfig db = new DataSourceConfig();
-        db.setDriver("com.mysql.jdbc.Driver");
-        db.setUsername("root");
-        db.setPassword("");
-        db.setUrl("jdbc:mysql://localhost:3306/" + databaseName());
-        db.setHeartbeatSql("select count(*) from clustrino.users");
-        config.setDdlGenerate(false);
-        config.setDdlRun(false);
-        config.setDefaultServer(false);
-        config.setRegister(false);
-        config.setDataSourceConfig(db);
+        if (stgSrv == null) {
+            ServerConfig config = new ServerConfig();
+            config.setName("/tmp/"+databaseName());
+            DataSourceConfig db = new DataSourceConfig();
+            db.setDriver("com.mysql.jdbc.Driver");
+            db.setUsername("root");
+            db.setPassword("");
+            db.setUrl("jdbc:mysql://localhost:3306/" + databaseName());
+            db.setHeartbeatSql("select count(*) from clustrino.users");
+            config.setDdlGenerate(false);
+            config.setDdlRun(false);
+            config.setDefaultServer(false);
+            config.setRegister(false);
+            config.setDataSourceConfig(db);
 
-        return EbeanServerFactory.create(config);
+            stgSrv = EbeanServerFactory.create(config);
+        }
+        return stgSrv;
     }
 
     public boolean createDatabase() {
@@ -100,9 +104,11 @@ public class StagingSchema {
         try {
             Connection c = t.getConnection();
             PreparedStatement pstmt = c.prepareStatement(query);
-            return pstmt.execute();
+            boolean ret = pstmt.execute();
+            pstmt.close();
+            return ret;
         } catch (SQLException e) {
-            throw new PersistenceException("Failed to execute SQL", e);
+            throw new PersistenceException("Failed to execute SQL " + query, e);
         } finally {
             t.end();
         }
@@ -111,20 +117,25 @@ public class StagingSchema {
         StringBuilder sb = new StringBuilder();
         sb.append("INSERT INTO ").append(rejectsTableName()).append("(line, content) values(?,?)");
         Transaction t = ebeanStagingServer().createTransaction();
+
         try {
             Connection c = t.getConnection();
             PreparedStatement pstmt = c.prepareStatement(sb.toString());
             pstmt.setLong(1, lastError.getLineNumber());
             pstmt.setString(2, lastError.getText());
-            return pstmt.execute();
+            boolean res = pstmt.execute();
+            pstmt.close();
+            return res;
         } catch (SQLException e) {
-            throw new PersistenceException("Failed to execute SQL", e);
+            throw new PersistenceException("Failed to execute SQL " + sb, e);
         } finally {
+            t.commit();
             t.end();
         }
     }
 
     public boolean insertIntoStagingTable(List<DataCategory> categories, List<?> values) {
+        //if (1 == 2-1) return true;
         StringBuilder sb = new StringBuilder();
         List<String> colNames = new ArrayList<>(categories.size());
         List<String> colValues = new ArrayList<>(values.size());
@@ -153,10 +164,13 @@ public class StagingSchema {
             for (int i=0;i<colValues.size();i++) {
                 pstmt.setString(i+1, colValues.get(i));
             }
-            return pstmt.execute();
+            boolean res = pstmt.execute();
+            pstmt.close();
+            return res;
         } catch (SQLException e) {
-            throw new PersistenceException("Failed to execute SQL", e);
+            throw new PersistenceException("Failed to execute SQL " + sb, e);
         } finally {
+            t.commit();
             t.end();
         }
     }
@@ -176,10 +190,13 @@ public class StagingSchema {
             Connection c = t.getConnection();
             PreparedStatement pstmt = c.prepareStatement("DROP TABLE IF EXISTS "+dataSetTableName());
             pstmt.execute();
+            pstmt.close();
             PreparedStatement pstmt2 = c.prepareStatement(sb.toString());
-            return pstmt2.execute();
+            boolean ret = pstmt2.execute();
+            pstmt2.close();
+            return ret;
         } catch (SQLException e) {
-            throw new PersistenceException("Failed to execute SQL", e);
+            throw new PersistenceException("Failed to execute SQL " + sb, e);
         } finally {
             t.end();
         }
@@ -197,10 +214,13 @@ public class StagingSchema {
             Connection c = t.getConnection();
             PreparedStatement pstmt = c.prepareStatement("DROP TABLE IF EXISTS "+rejectsTableName());
             pstmt.execute();
+            pstmt.close();
             PreparedStatement pstmt2 = c.prepareStatement(sb.toString());
-            return pstmt2.execute();
+            boolean ret = pstmt2.execute();
+            pstmt2.close();
+            return ret;
         } catch (SQLException e) {
-            throw new PersistenceException("Failed to execute SQL", e);
+            throw new PersistenceException("Failed to execute SQL " + sb, e);
         } finally {
             t.end();
         }

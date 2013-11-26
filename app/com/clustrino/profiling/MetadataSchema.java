@@ -18,6 +18,7 @@ import java.util.Arrays;
 
 public class MetadataSchema {
     private final Long userId;
+    private EbeanServer metadataEbeanServer;
 
     public MetadataSchema(Long userId) {
         this.userId = userId;
@@ -63,9 +64,16 @@ public class MetadataSchema {
         }
     }
 
-    public void createTables() {
+    public String serverName() {
+        return "/tmp/"+databaseName();
+    }
+
+    public EbeanServer medadataServer() {
+        if (metadataEbeanServer != null) {
+            return metadataEbeanServer;
+        }
         ServerConfig config = new ServerConfig();
-        config.setName("/tmp/"+databaseName());
+        config.setName(serverName());
         DataSourceConfig db = new DataSourceConfig();
         db.setDriver("com.mysql.jdbc.Driver");
         db.setUsername("root");
@@ -75,12 +83,16 @@ public class MetadataSchema {
         config.setDdlGenerate(true);
         config.setDdlRun(true);
         config.setDefaultServer(false);
-        config.setRegister(false);
+        config.setRegister(true);
         config.setDataSourceConfig(db);
         config.setClasses(Arrays.asList(new Class<?>[] {DataSet.class, File.class, Column.class}));
 
-        EbeanServer server = EbeanServerFactory.create(config);
-        Transaction t = server.beginTransaction();
+        metadataEbeanServer = EbeanServerFactory.create(config);
+        return metadataEbeanServer;
+    }
+
+    public void createTables() {
+        Transaction t = medadataServer().beginTransaction();
         t.end();
     }
 
@@ -90,7 +102,9 @@ public class MetadataSchema {
         try {
             Connection c = t.getConnection();
             PreparedStatement pstmt = c.prepareStatement(query);
-            return pstmt.execute();
+            boolean ret = pstmt.execute();
+            pstmt.close();
+            return ret;
         } catch (SQLException e) {
             throw new PersistenceException("Failed to execute SQL", e);
         } finally {
@@ -119,9 +133,11 @@ public class MetadataSchema {
             String q = "drop table if exists Test2";
             PreparedStatement pstmt = c.prepareStatement(q);
             pstmt.execute();
+            pstmt.close();
             q = "Create table Test2(id int primary key)";
             pstmt = c.prepareStatement(q);
             pstmt.execute();
+            pstmt.close();
         } catch (SQLException e) {
             throw new PersistenceException("Failed to execute DDL", e);
         } finally {

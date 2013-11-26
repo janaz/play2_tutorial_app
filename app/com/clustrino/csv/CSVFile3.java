@@ -87,7 +87,7 @@ public class CSVFile3 {
     }
 
 
-    private List<DataCategory> categories() throws IOException {
+    public List<DataCategory> categories() throws IOException {
         if (this.categories == null) {
             this.categories = model.getHeaderCategories();
             if (this.categories == null) {
@@ -101,14 +101,22 @@ public class CSVFile3 {
         this.lineReadListeners.add(l);
     }
 
-    private void lineRead(long lineNumber, String[] line) throws IOException {
+    private void lineRead(long lineNumber, String[] line, String raw) throws IOException {
         for (LineReadListener l : lineReadListeners) {
-            l.lineRead(lineNumber, line, categories());
+            l.lineRead(lineNumber, line, raw, categories());
         }
     }
 
-    public void readFile() throws IOException {
-        long lineNumber=0;
+    private boolean finished() {
+        boolean fin = true;
+        for (LineReadListener l : lineReadListeners) {
+            if (fin) fin = l.finished();
+        }
+        return fin;
+    }
+
+    public void readFile_old() throws IOException {
+        long lineNumber = 0;
         final CSVReader reader = new CSVReader(getReader(), getSeparator());
         try {
             if (dataIncludesHeader()) {
@@ -121,8 +129,38 @@ public class CSVFile3 {
                 if (next == null) {
                     break;
                 }
-                lineRead(lineNumber, next);
-            } while (true);
+                lineRead(lineNumber, next, null);
+            } while (!finished());
+        } finally {
+            reader.close();
+        }
+    }
+
+    public void readFile() throws IOException {
+        long lineNumber = 0;
+        final BufferedReader reader = new BufferedReader(getReader());
+        try {
+            if (dataIncludesHeader()) {
+                reader.readLine();
+                lineNumber++;
+            }
+            final CSVParser parser = new CSVParser(getSeparator());
+            do {
+
+                final String line = reader.readLine();
+                if (line == null) {
+                    break;
+                }
+                String[] next = null;
+                try {
+                    next = parser.parseLine(line);
+                } catch (Exception e) {
+                    System.out.println(e);
+                    System.out.println(e.getStackTrace());
+                }
+                lineNumber++;
+                lineRead(lineNumber, next, line);
+            } while (!finished());
         } finally {
             reader.close();
         }

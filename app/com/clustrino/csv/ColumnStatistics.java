@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class ColumnStatistics {
+    private final DataCategory column;
     private int populated;
     private int count;
     private int minLength;
@@ -13,19 +14,15 @@ public class ColumnStatistics {
     private Comparable<?> maxValue;
     Set<Object> distinct;
 
-    public ColumnStatistics() {
+    public ColumnStatistics(DataCategory column) {
         this.minLength = -1;
         this.maxLength = -1;
         distinct = new HashSet<>();
+        this.column = column;
     }
 
-    public void addPopulated(Comparable<?> parsedValue) {
-        count++;
-        if (parsedValue == null || parsedValue.toString().isEmpty()) {
-            nullCount++;
-        } else {
-            populated++;
-        }
+    public DataCategory getColumn() {
+        return column;
     }
 
     public void add(Comparable<?> parsedValue) {
@@ -48,7 +45,7 @@ public class ColumnStatistics {
             if (maxValue == null || ((Comparable<Object>)parsedValue).compareTo(maxValue) > 0) {
                 maxValue = parsedValue;
             }
-            distinct.add(parsedValue);
+            //distinct.add(parsedValue);
         }
     }
 

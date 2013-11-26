@@ -20,6 +20,11 @@ public class DBSaver implements LineReadListener {
         stg = new  StagingSchema(userId, dataSetId);
     }
 
+    public StatisticsGatherer getStatsGatherer() {
+        return statsGatherer;
+    }
+
+
     private void createTable(List<DataCategory> columns){
         if (tableCreated) {
             return;
@@ -34,9 +39,9 @@ public class DBSaver implements LineReadListener {
     }
 
     @Override
-    public Object lineRead(long lineNumber, String[] line, List<DataCategory> categories) {
+    public Object lineRead(long lineNumber, String[] line, String raw, List<DataCategory> categories) {
         createTable(categories);
-        List<Comparable<?>> parsedValues = (List<Comparable<?>>)statsGatherer.lineRead(lineNumber, line, categories);
+        List<Comparable<?>> parsedValues = (List<Comparable<?>>)statsGatherer.lineRead(lineNumber, line, raw, categories);
         if (parsedValues == null) {
             CSVError lastError = statsGatherer.getErrors().get(statsGatherer.getErrors().size() - 1);
             insertError(lastError);
@@ -44,6 +49,11 @@ public class DBSaver implements LineReadListener {
             insertRecord(parsedValues, categories);
         }
         return null;
+    }
+
+    @Override
+    public boolean finished() {
+        return false;
     }
 
     private void insertRecord(List<Comparable<?>> parsedValues, List<DataCategory> categories) {

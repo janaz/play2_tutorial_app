@@ -5,10 +5,12 @@ import com.clustrino.AppConfiguration;
 import com.clustrino.aws.S3Client;
 import com.clustrino.profiling.MetadataSchema;
 import com.clustrino.profiling.StagingSchema;
+import com.clustrino.profiling.metadata.Column;
 import models.clustrino.CsvFile;
 import org.springframework.util.FileCopyUtils;
 
 import java.io.*;
+import java.util.Calendar;
 
 
 public abstract class UploadedFilePersistService {
@@ -18,7 +20,8 @@ public abstract class UploadedFilePersistService {
 
     public void importToDB(CsvFile fileModel) throws IOException {
         CSVFile3 csvFile = new CSVFile3(fileModel);
-        csvFile.addReadListener(new DBSaver(fileModel.user.id, fileModel.id));
+        DBSaver saver = new DBSaver(fileModel.user.id, fileModel.id)
+        csvFile.addReadListener(saver);
         MetadataSchema met = new  MetadataSchema(fileModel.user.id);
         StagingSchema stg = new  StagingSchema(fileModel.user.id, fileModel.id);
         if (!stg.isCreated()) {
@@ -28,6 +31,16 @@ public abstract class UploadedFilePersistService {
         if (!met.isCreated()) {
             met.createDatabase();
             met.createTables();
+        }
+        met.medadataServer();
+        for (DataCategory cat : csvFile.categories()) {
+            Column col = new Column();
+            col.createdAt = Calendar.getInstance().getTimeInMillis();
+            col.updatedAt = Calendar.getInstance().getTimeInMillis();
+            col.dataType = cat.dbType();
+            col.length = 256;
+            col.name = cat.name();
+            col.save(met.serverName());
         }
         csvFile.readFile();
     }

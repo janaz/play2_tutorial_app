@@ -11,11 +11,12 @@ import java.util.List;
 public class SampleReader implements LineReadListener {
     private final List<String[]> sampleLines;
     private List<DataCategory> header;
-    private final static int LIMIT = 1000;
+    private long limit;
 
-    public SampleReader() {
+    public SampleReader(long limit) {
         sampleLines = new ArrayList<>();
         header = null;
+        this.limit = limit;
     }
 
     public List<String[]> getSampleLines() {
@@ -38,14 +39,20 @@ public class SampleReader implements LineReadListener {
     }
 
     @Override
-    public Object lineRead(long lineNumber, String[] line, List<DataCategory> categories) {
-        if (sampleLines.size() < LIMIT) {
+    public Object lineRead(long lineNumber, String[] line, String raw, List<DataCategory> categories) {
+        if (line != null) {
             sampleLines.add(line);
         }
+
         if (header == null) {
             header = categories;
         }
         return null;
+    }
+
+    @Override
+    public boolean finished() {
+        return sampleLines.size() >= limit;
     }
 
 

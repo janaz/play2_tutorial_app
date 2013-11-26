@@ -20,6 +20,9 @@ public class DecimalParser implements DataCategoryParser {
 
     @Override
     public String dbValue(Object o) {
+        if (o == null) {
+            return null;
+        }
         return o.toString();
     }
 }

@@ -1,5 +1,6 @@
 import java.util.Arrays;
 
+import jobs.CSVFileParser;
 import models.SecurityRole;
 
 import com.feth.play.module.pa.PlayAuthenticate;
@@ -16,6 +17,7 @@ import play.mvc.Call;
 public class Global extends GlobalSettings {
 
 	public void onStart(Application app) {
+        new CSVFileParser();
 		PlayAuthenticate.setResolver(new Resolver() {
 
 			@Override

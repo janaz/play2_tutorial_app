@@ -12,15 +12,22 @@ import java.util.List;
 public class StatisticsGatherer implements LineReadListener {
     private final List<ColumnStatistics> stats;
     private final List<CSVError> errors;
+    private final long limit;
+    private long linesRead;
 
     public StatisticsGatherer() {
+        this(-1L);
+    }
+
+    public StatisticsGatherer(long limit) {
         stats = new ArrayList<>();
         errors = new ArrayList<>();
+        this.limit=limit;
+        linesRead = 0L;
     }
 
     public List<ColumnStatistics> getStats() {
         return stats;
-
     }
 
     public List<CSVError> getErrors() {
@@ -28,12 +35,11 @@ public class StatisticsGatherer implements LineReadListener {
     }
 
     @Override
-    public Object lineRead(long lineNumber, String[] line, List<DataCategory> categories) {
-        while (stats.size() < categories.size()) {
-            stats.add(new ColumnStatistics());
-        }
-        List<Comparable<?>> parsedValues = parsedLine(lineNumber, line, categories);
+    public Object lineRead(long lineNumber, String[] line, String raw, List<DataCategory> categories) {
+        initStats(categories);
+        List<Comparable<?>> parsedValues = parsedLine(lineNumber, line, raw, categories);
         if (parsedValues != null) {
+            linesRead++;
             for (int idx = 0; idx < stats.size(); idx++) {
                 stats.get(idx).add(parsedValues.get(idx));
             }
@@ -41,9 +47,23 @@ public class StatisticsGatherer implements LineReadListener {
         return parsedValues;
     }
 
-    private List<Comparable<?>> parsedLine(long lineNumber, String[] line, List<DataCategory> categories){
-        if (categories.size() != line.length) {
-            errors.add(new CSVError(lineNumber, Joiner.on(',').join(line)));
+    private void initStats(List<DataCategory> categories) {
+        if(stats.isEmpty()) {
+            for (DataCategory cat : categories) {
+                stats.add(new ColumnStatistics(cat));
+            }
+        }
+    }
+
+    @Override
+    public boolean finished() {
+        if (limit < 0) return false;
+        return linesRead >= limit;
+    }
+
+    private List<Comparable<?>> parsedLine(long lineNumber, String[] line, String raw, List<DataCategory> categories){
+        if (line == null || categories.size() != line.length) {
+            errors.add(new CSVError(lineNumber, raw));
             return null;
         } else {
             try {
@@ -56,7 +76,9 @@ public class StatisticsGatherer implements LineReadListener {
                 }
                 return parsedValues;
             } catch (Exception e) {
-                errors.add(new CSVError(lineNumber, Joiner.on(',').join(line)));
+                System.out.println(e);
+                System.out.println(e.getStackTrace());
+                errors.add(new CSVError(lineNumber, raw));
                 return null;
             }
         }
