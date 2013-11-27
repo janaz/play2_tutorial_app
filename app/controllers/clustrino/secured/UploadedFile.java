@@ -89,7 +89,7 @@ public class UploadedFile extends Secured {
 
     public static Result showFile(final Long id) {
         final CsvFile fileModel = getLoggedinUserFile(id);
-        CSVFile3 csvFile = new CSVFile3(fileModel);
+        CSVFile csvFile = new CSVFile(fileModel);
 
         SampleReader sampleReader = new SampleReader(1000);
         StatisticsGatherer stats = new StatisticsGatherer(1000);

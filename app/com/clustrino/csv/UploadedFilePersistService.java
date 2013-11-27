@@ -19,8 +19,8 @@ public abstract class UploadedFilePersistService {
     }
 
     public void importToDB(CsvFile fileModel) throws IOException {
-        CSVFile3 csvFile = new CSVFile3(fileModel);
-        DBSaver saver = new DBSaver(fileModel.user.id, fileModel.id)
+        CSVFile csvFile = new CSVFile(fileModel);
+        DBSaver saver = new DBSaver(fileModel.user.id, fileModel.id);
         csvFile.addReadListener(saver);
         MetadataSchema met = new  MetadataSchema(fileModel.user.id);
         StagingSchema stg = new  StagingSchema(fileModel.user.id, fileModel.id);

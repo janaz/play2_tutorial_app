@@ -15,8 +15,8 @@ import java.util.concurrent.atomic.AtomicLong;
 public class CSVFileParser {
     private static final ConcurrentMap<CsvFile, Boolean> QUEUE = new ConcurrentHashMap<>();
 
-    private static class MailJob implements Runnable {
-        public MailJob(CsvFile fileModel) {
+    private static class CSVParseJob implements Runnable {
+        public CSVParseJob(CsvFile fileModel) {
             System.out.println("Adding file "+fileModel.id + " to queue");
             QUEUE.put(fileModel, Boolean.TRUE);
         }
@@ -36,6 +36,9 @@ public class CSVFileParser {
 
             do {
                 System.out.println("Main loop");
+                for (CsvFile fileModel : CsvFile.getNotParsed()) {
+                    parseFile(fileModel);
+                }
 
                 if (QUEUE.isEmpty()) {
                     System.out.println("Queue is empty. Waiting 10 sec");
@@ -67,6 +70,7 @@ public class CSVFileParser {
             } while (true);
 
         }
+
         private void runJobFor(CsvFile fileModel) {
             fileModel.state = CSVState.PARSING;
             fileModel.save();
@@ -94,9 +98,6 @@ public class CSVFileParser {
                 .scheduleOnce(Duration.create(0L, TimeUnit.SECONDS),
                         PROCESSOR,
                         Akka.system().dispatcher());
-        for (CsvFile fileModel : CsvFile.getNotParsed()) {
-            parseFile(fileModel);
-        }
         //get all files not parsed yet
     };
 
@@ -105,7 +106,7 @@ public class CSVFileParser {
                 .system()
                 .scheduler()
                 .scheduleOnce(Duration.create(1L, TimeUnit.SECONDS),
-                        new MailJob(fileModel),
+                        new CSVParseJob(fileModel),
                         Akka.system().dispatcher());
     }
 

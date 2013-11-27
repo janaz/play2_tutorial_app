@@ -6,21 +6,22 @@ import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import models.clustrino.CsvFile;
 
+import javax.annotation.Nullable;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class CSVFile {
-    List<String[]> data;
-
     private CsvFile model;
+    private String firstLine;
+    List<LineReadListener> lineReadListeners;
+    List<DataCategory> categories;
 
     public CSVFile(CsvFile model) {
         this.model = model;
+        lineReadListeners = new ArrayList<>();
     }
 
     private Reader getReader() throws IOException {
@@ -28,140 +29,141 @@ public class CSVFile {
         return persistService.getReader(model);
     }
 
-    private char getSeparator() throws IOException {
+    private String getFirstLine() throws IOException {
+        if (this.firstLine != null) {
+            return this.firstLine;
+        }
         BufferedReader reader = new BufferedReader(getReader());
         try {
-            String firstLine = reader.readLine();
-            int maxFieldsNumber = 0;
-            char separator = ',';
-            for (char c : new char[]{',', ';', '|', '\t'}) {
-                CSVParser parser = new CSVParser(c);
-                int fieldsNumber = parser.parseLine(firstLine).length;
-                if (fieldsNumber > maxFieldsNumber) {
-                    maxFieldsNumber = fieldsNumber;
-                    separator = c;
-                }
+            this.firstLine = reader.readLine();
+            return this.firstLine;
+        } finally {
+            reader.close();
+        }
+    }
+
+    private List<DataCategory> categoriesInFirstLine() throws IOException {
+        List<DataCategory> retVal = Lists.transform(originalHeaders(), new Function<String, DataCategory>() {
+            @Nullable
+            @Override
+            public DataCategory apply(@Nullable String s) {
+                return DataCategory.detect(s, null);
             }
-            return separator;
-
-        } finally {
-            reader.close();
-        }
+        });
+        return retVal;
     }
 
-    public List<ColumnStatistics> getStatistics(List<DataCategory> categories) throws IOException {
-        List<ColumnStatistics> stats = new ArrayList<>();
-        while (stats.size() < categories.size()) {
-            stats.add(new ColumnStatistics());
+    private char getSeparator() throws IOException {
+        int maxFieldsNumber = 0;
+        char separator = ',';
+        for (char c : new char[]{',', ';', '|', '\t'}) {
+            CSVParser parser = new CSVParser(c);
+            int fieldsNumber = parser.parseLine(this.getFirstLine()).length;
+            if (fieldsNumber > maxFieldsNumber) {
+                maxFieldsNumber = fieldsNumber;
+                separator = c;
+            }
         }
-        final CSVReader reader = new CSVReader(getReader(), getSeparator());
-        try {
-            do {
-                String[] next = reader.readNext();
-                if (next == null) {
-                    break;
-                }
-                try {
-                    List<Comparable<?>> parsedValues = new ArrayList<>(categories.size());
-
-                    for (int idx = 0; idx < stats.size(); idx++) {
-                        String stringValue = "";
-                        if (idx < next.length) {
-                            stringValue = next[idx];
-                        }
-                        Comparable<?> parsedValue = categories.get(idx).parsedValue(stringValue);
-                        parsedValues.add(parsedValue);
-                    }
-                    for (int idx = 0; idx < stats.size(); idx++) {
-                        stats.get(idx).add(parsedValues.get(idx));
-                    }
-                } catch (Exception e) {
-
-                    //mark next as invalid row
-                }
-            } while (true);
-            return stats;
-        } finally {
-            reader.close();
-        }
+        return separator;
     }
 
-    private boolean dataIncludesHeader() {
-        List<String> firstLine = Arrays.asList(getDataSample().iterator().next());
+    private boolean dataIncludesHeader() throws IOException {
         int unknowns = 0;
-        for (String s : columnNames(firstLine)) {
-            if (s == DataCategory.UNKNOWN.name()) {
+        for (DataCategory cat : categoriesInFirstLine()) {
+            if (cat == DataCategory.UNKNOWN) {
                 unknowns++;
             }
         }
-        if (unknowns * 100 / firstLine.size() > 30) {
+        if (unknowns * 100 / categoriesInFirstLine().size() > 30) {
             return false;
         } else {
             return true;
         }
     }
 
-    public List<String> headerNames() {
-        return columnNames(header());
+    private List<String> originalHeaders() throws IOException {
+        CSVParser parser = new CSVParser(getSeparator());
+        return Lists.newArrayList(parser.parseLine(this.getFirstLine()));
     }
 
-    private List<String> columnNames(List<String> columns) {
-        List<String> out = new ArrayList<>();
-        for (String s : columns) {
-            out.add(DataCategory.detect(s, null).name());
-        }
-        return out;
-    }
 
-    private int maxCols() {
-        List<Integer> lengths = Lists.transform(getDataSample(), new Function<String[], Integer>() {
-            @Override
-            public Integer apply(String[] strings) {
-                return strings.length;
+    public List<DataCategory> categories() throws IOException {
+        if (this.categories == null) {
+            this.categories = model.getHeaderCategories();
+            if (this.categories == null) {
+                this.categories = categoriesInFirstLine();
             }
-        });
-        return Collections.max(lengths);
+        }
+        return this.categories;
     }
 
-    private List<String> header() {
-        return Arrays.asList(getDataSample().iterator().next());
+    public void addReadListener(LineReadListener l) {
+        this.lineReadListeners.add(l);
     }
 
-    public List<String[]> dataSample() {
-        if (dataIncludesHeader()) {
-            return getDataSample().subList(1, getDataSample().size() - 1);
-        } else {
-            return getDataSample();
+    private void lineRead(long lineNumber, String[] line, String raw) throws IOException {
+        for (LineReadListener l : lineReadListeners) {
+            l.lineRead(lineNumber, line, raw, categories());
         }
     }
 
-    private List<String[]> _getDataSample(int howMany) throws IOException {
+    private boolean finished() {
+        boolean fin = true;
+        for (LineReadListener l : lineReadListeners) {
+            if (fin) fin = l.finished();
+        }
+        return fin;
+    }
+
+    public void readFile_old() throws IOException {
+        long lineNumber = 0;
         final CSVReader reader = new CSVReader(getReader(), getSeparator());
         try {
-            List<String[]> out = new ArrayList<>();
+            if (dataIncludesHeader()) {
+                reader.readNext();
+                lineNumber++;
+            }
             do {
-                String[] next = reader.readNext();
-                if (next == null || out.size() >= howMany) {
+                final String[] next = reader.readNext();
+                lineNumber++;
+                if (next == null) {
                     break;
                 }
-                out.add(next);
-
-            } while (true);
-            return out;
+                lineRead(lineNumber, next, null);
+            } while (!finished());
         } finally {
             reader.close();
         }
     }
 
-    private List<String[]> getDataSample() {
-        if (data == null) {
-            try {
-                data = _getDataSample(1000);
-            } catch (IOException e) {
-                data = Collections.EMPTY_LIST;
+    public void readFile() throws IOException {
+        long lineNumber = 0;
+        final BufferedReader reader = new BufferedReader(getReader());
+        try {
+            if (dataIncludesHeader()) {
+                reader.readLine();
+                lineNumber++;
             }
+            final CSVParser parser = new CSVParser(getSeparator());
+            do {
+
+                final String line = reader.readLine();
+                if (line == null) {
+                    break;
+                }
+                String[] next = null;
+                try {
+                    next = parser.parseLine(line);
+                } catch (Exception e) {
+                    System.out.println(e);
+                    System.out.println(e.getStackTrace());
+                }
+                lineNumber++;
+                lineRead(lineNumber, next, line);
+            } while (!finished());
+        } finally {
+            reader.close();
         }
-        return data;
     }
 
 }
