@@ -5,7 +5,6 @@ import com.feth.play.module.pa.PlayAuthenticate;
 import com.feth.play.module.pa.providers.password.UsernamePasswordAuthProvider;
 import com.feth.play.module.pa.providers.password.UsernamePasswordAuthUser;
 import controllers.routes;
-import models.LinkedAccount;
 import models.TokenAction;
 import models.TokenAction.Type;
 import models.User;
@@ -157,22 +156,12 @@ public class MyUsernamePasswordAuthProvider
 			if (!u.emailValidated) {
 				return LoginResult.USER_UNVERIFIED;
 			} else {
-				for (final LinkedAccount acc : u.linkedAccounts) {
-					if (getKey().equals(acc.providerKey)) {
-						if (authUser.checkPassword(acc.providerUserId,
-								authUser.getPassword())) {
-							// Password was correct
-							return LoginResult.USER_LOGGED_IN;
-						} else {
-							// if you don't return here,
-							// you would allow the user to have
-							// multiple passwords defined
-							// usually we don't want this
-							return LoginResult.WRONG_PASSWORD;
-						}
-					}
-				}
-				return LoginResult.WRONG_PASSWORD;
+                if (authUser.checkPassword(u.password,
+                        authUser.getPassword())) {
+                    return LoginResult.USER_LOGGED_IN;
+                } else {
+                    return LoginResult.WRONG_PASSWORD;
+                }
 			}
 		}
 	}

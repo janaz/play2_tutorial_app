@@ -43,6 +43,8 @@ public class User extends Model implements Subject {
 
 	public String name;
 
+    public String password;
+
     public String extraInfo;
 
     public String firstName;
@@ -59,15 +61,6 @@ public class User extends Model implements Subject {
 
 	public boolean emailValidated;
 
-	@ManyToMany
-	public List<SecurityRole> roles;
-
-	@OneToMany(cascade = CascadeType.ALL)
-	public List<LinkedAccount> linkedAccounts;
-
-	@ManyToMany
-	public List<UserPermission> permissions;
-
 	public static final Finder<Long, User> find = new Finder<Long, User>(
 			Long.class, User.class);
 
@@ -79,12 +72,17 @@ public class User extends Model implements Subject {
 
 	@Override
 	public List<? extends Role> getRoles() {
-		return roles;
+		return Arrays.asList(new Role[]{new Role() {
+            @Override
+            public String getName() {
+                return controllers.Application.USER_ROLE;
+            }
+        }});
 	}
 
 	@Override
 	public List<? extends Permission> getPermissions() {
-		return permissions;
+		return Arrays.asList(new Permission[]{});
 	}
 
 	public static boolean existsByAuthUserIdentity(
@@ -101,8 +99,7 @@ public class User extends Model implements Subject {
 	private static ExpressionList<User> getAuthUserFind(
 			final AuthUserIdentity identity) {
 		return find.where().eq("active", true)
-				.eq("linkedAccounts.providerUserId", identity.getId())
-				.eq("linkedAccounts.providerKey", identity.getProvider());
+				.eq("password", identity.getId());
 	}
 
 	public static User findByAuthUserIdentity(final AuthUserIdentity identity) {
@@ -116,38 +113,22 @@ public class User extends Model implements Subject {
 		}
 	}
 
-	public static User findByUsernamePasswordIdentity(
+    public static User findByUsernamePasswordIdentity(
+            final UsernamePasswordAuthUser identity) {
+        return getEmailUserFind(identity.getEmail()).findUnique();
+
+    }
+
+    private static ExpressionList<User> getUsernamePasswordAuthUserFind(
 			final UsernamePasswordAuthUser identity) {
-		return getUsernamePasswordAuthUserFind(identity).findUnique();
-	}
-
-	private static ExpressionList<User> getUsernamePasswordAuthUserFind(
-			final UsernamePasswordAuthUser identity) {
-		return getEmailUserFind(identity.getEmail()).eq(
-				"linkedAccounts.providerKey", identity.getProvider());
-	}
-
-	public void merge(final User otherUser) {
-		for (final LinkedAccount acc : otherUser.linkedAccounts) {
-			this.linkedAccounts.add(LinkedAccount.create(acc));
-		}
-		// do all other merging stuff here - like resources, etc.
-
-		// deactivate the merged user that got added to this one
-		otherUser.active = false;
-		Ebean.save(Arrays.asList(new User[] { otherUser, this }));
+        return getEmailUserFind(identity.getEmail());
 	}
 
 	public static User create(final AuthUser authUser) {
 		final User user = new User();
-		user.roles = Collections.singletonList(SecurityRole
-				.findByRoleName(controllers.Application.USER_ROLE));
-		// user.permissions = new ArrayList<UserPermission>();
-		// user.permissions.add(UserPermission.findByValue("printers.edit"));
 		user.active = true;
 		user.lastLogin = new Date();
-		user.linkedAccounts = Collections.singletonList(LinkedAccount
-				.create(authUser));
+        user.password = authUser.getId();
 
 		if (authUser instanceof EmailIdentity) {
 			final EmailIdentity identity = (EmailIdentity) authUser;
@@ -187,30 +168,7 @@ public class User extends Model implements Subject {
 
 
         user.save();
-		user.saveManyToManyAssociations("roles");
-		// user.saveManyToManyAssociations("permissions");
 		return user;
-	}
-
-	public static void merge(final AuthUser oldUser, final AuthUser newUser) {
-		User.findByAuthUserIdentity(oldUser).merge(
-				User.findByAuthUserIdentity(newUser));
-	}
-
-	public Set<String> getProviders() {
-		final Set<String> providerKeys = new HashSet<String>(
-				linkedAccounts.size());
-		for (final LinkedAccount acc : linkedAccounts) {
-			providerKeys.add(acc.providerKey);
-		}
-		return providerKeys;
-	}
-
-	public static void addLinkedAccount(final AuthUser oldUser,
-			final AuthUser newUser) {
-		final User u = User.findByAuthUserIdentity(oldUser);
-		u.linkedAccounts.add(LinkedAccount.create(newUser));
-		u.save();
 	}
 
 	public static void setLastLoginDate(final AuthUser knownUser) {
@@ -227,10 +185,6 @@ public class User extends Model implements Subject {
 		return find.where().eq("active", true).eq("email", email);
 	}
 
-	public LinkedAccount getAccountByProvider(final String providerKey) {
-		return LinkedAccount.findByProviderKey(this, providerKey);
-	}
-
 	public static void verify(final User unverified) {
 		// You might want to wrap this into a transaction
 		unverified.emailValidated = true;
@@ -240,18 +194,8 @@ public class User extends Model implements Subject {
 
 	public void changePassword(final UsernamePasswordAuthUser authUser,
 			final boolean create) {
-		LinkedAccount a = this.getAccountByProvider(authUser.getProvider());
-		if (a == null) {
-			if (create) {
-				a = LinkedAccount.create(authUser);
-				a.user = this;
-			} else {
-				throw new RuntimeException(
-						"Account not enabled for password usage");
-			}
-		}
-		a.providerUserId = authUser.getHashedPassword();
-		a.save();
+		password = authUser.getHashedPassword();
+		save();
 	}
 
 	public void resetPassword(final UsernamePasswordAuthUser authUser,

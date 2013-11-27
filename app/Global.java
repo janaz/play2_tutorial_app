@@ -1,15 +1,9 @@
-import java.util.Arrays;
-
-import jobs.CSVFileParser;
-import models.SecurityRole;
-
 import com.feth.play.module.pa.PlayAuthenticate;
 import com.feth.play.module.pa.PlayAuthenticate.Resolver;
 import com.feth.play.module.pa.exceptions.AccessDeniedException;
 import com.feth.play.module.pa.exceptions.AuthException;
-
 import controllers.routes;
-
+import jobs.CSVFileParser;
 import play.Application;
 import play.GlobalSettings;
 import play.mvc.Call;
@@ -46,17 +40,17 @@ public class Global extends GlobalSettings {
 						.authenticate(provider);
 			}
 
-			@Override
-			public Call askMerge() {
-				return routes.Account.askMerge();
-			}
+            @Override
+            public Call askMerge() {
+                return null;  //To change body of implemented methods use File | Settings | File Templates.
+            }
 
-			@Override
-			public Call askLink() {
-				return routes.Account.askLink();
-			}
+            @Override
+            public Call askLink() {
+                return null;  //To change body of implemented methods use File | Settings | File Templates.
+            }
 
-			@Override
+            @Override
 			public Call onException(final AuthException e) {
 				if (e instanceof AccessDeniedException) {
 					return routes.Signup
@@ -69,17 +63,6 @@ public class Global extends GlobalSettings {
 			}
 		});
 
-		initialData();
 	}
 
-	private void initialData() {
-		if (SecurityRole.find.findRowCount() == 0) {
-			for (final String roleName : Arrays
-					.asList(controllers.Application.USER_ROLE)) {
-				final SecurityRole role = new SecurityRole();
-				role.roleName = roleName;
-				role.save();
-			}
-		}
-	}
 }

@@ -36,21 +36,17 @@ public class MyUserServicePlugin extends UserServicePlugin {
 		}
 	}
 
-	@Override
-	public AuthUser merge(final AuthUser newUser, final AuthUser oldUser) {
-		if (!oldUser.equals(newUser)) {
-			User.merge(oldUser, newUser);
-		}
-		return oldUser;
-	}
+    @Override
+    public AuthUser merge(AuthUser newUser, AuthUser oldUser) {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
 
-	@Override
-	public AuthUser link(final AuthUser oldUser, final AuthUser newUser) {
-		User.addLinkedAccount(oldUser, newUser);
-		return newUser;
-	}
-	
-	@Override
+    @Override
+    public AuthUser link(AuthUser oldUser, AuthUser newUser) {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
 	public AuthUser update(final AuthUser knownUser) {
 		// User logged in again, bump last login date
 		User.setLastLoginDate(knownUser);
