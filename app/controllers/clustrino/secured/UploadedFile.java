@@ -70,10 +70,11 @@ public class UploadedFile extends Secured {
         List<String> data = Json.fromJson(reqNode, List.class);
 
         final CsvFile fileModel = getLoggedinUserFile(id);
+        if (fileModel.getMetadata() == null) {
+            fileModel.setMetadata(new CsvMetadata());
+        }
+
         try {
-            if (fileModel.getMetadata() == null) {
-                fileModel.setMetadata(new CsvMetadata());
-            }
             fileModel.getMetadata().setColumnNames(Joiner.on(',').join(data));
             fileModel.getMetadata().save();
             fileModel.save();
@@ -81,9 +82,9 @@ public class UploadedFile extends Secured {
             CSVFileParser.parseFile(fileModel);
             return ok(result);
         } catch (Exception e) {
-            throw new RuntimeException(e);
-//            result.put("status", "Error "+e.getMessage());
-//            return internalServerError(result);
+            result.put("status", "Error");
+            result.put("message", e.getMessage());
+            return badRequest(result);
         }
     }
 
@@ -99,7 +100,7 @@ public class UploadedFile extends Secured {
         JsonNode headers = Json.toJson(Collections.emptyList());
         JsonNode sample = Json.toJson(Collections.emptyList());
         JsonNode population = Json.toJson(Collections.emptyList());
-        try{
+        try {
             csvFile.readFile();
 
             headers = Json.toJson(sampleReader.getStringHeader());
@@ -108,7 +109,7 @@ public class UploadedFile extends Secured {
 
         } catch (Exception e) {
 
-           throw new RuntimeException(e);
+            throw new RuntimeException(e);
         }
 
         return ok(views.html.clustrino.show_file.render(fileModel.fileName,

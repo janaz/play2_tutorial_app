@@ -42,7 +42,12 @@ ShowFile = function (myData, myHeaders, myPopulation, myNames, csvId) {
                         url: "/clustrino/update_columns/"+csvId,
                         data: JSON.stringify(myHeaders),
                         contentType: "application/json; charset=utf-8",
-                        success: function() {
+                        success: function(data, textStatus, jqXHR) {
+                            console.log('ajax success');
+                            console.log(jqXHR);
+                            console.log(textStatus);
+                            console.log(jqXHR);
+
                             var el = $('.save-update');
                             el.fadeOut(1, function () {
                                 el.html('Changes saved').css('color', 'green');
@@ -53,13 +58,18 @@ ShowFile = function (myData, myHeaders, myPopulation, myNames, csvId) {
                                 });
                             });
                         },
-                        error: function() {
+                        error: function(jqXHR, textStatus, errorThrown) {
+                            console.log('ajax error');
+
+                            console.log(jqXHR);
+                            console.log(textStatus);
+                            console.log(errorThrown);
                             var el = $('.save-update');
                             el.fadeOut(1, function () {
-                                el.html('Error saving changes').css('color', 'red');
+                                el.html('Error saving changes: ').css('color', 'red');
                                 el.fadeIn(500, function () {
                                     el.fadeOut(1000, function () {
-                                        el.html('');
+//                                        el.html('');
                                     });
                                 });
                             });
