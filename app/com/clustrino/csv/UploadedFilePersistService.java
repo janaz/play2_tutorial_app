@@ -4,13 +4,12 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.clustrino.AppConfiguration;
 import com.clustrino.aws.S3Client;
 import com.clustrino.profiling.MetadataSchema;
-import com.clustrino.profiling.StagingSchema;
-import com.clustrino.profiling.metadata.Column;
-import models.clustrino.CsvFile;
+import com.clustrino.profiling.metadata.DataColumn;
+import com.clustrino.profiling.metadata.DataSet;
 import org.springframework.util.FileCopyUtils;
 
 import java.io.*;
-import java.util.Calendar;
+import java.util.Date;
 
 
 public abstract class UploadedFilePersistService {
@@ -18,30 +17,10 @@ public abstract class UploadedFilePersistService {
         _persist(uploadedFile);
     }
 
-    public void importToDB(CsvFile fileModel) throws IOException {
-        CSVFile csvFile = new CSVFile(fileModel);
-        DBSaver saver = new DBSaver(fileModel.user.id, fileModel.id);
+    public void importToDB(DataSet dataSet) throws IOException {
+        CSVFile csvFile = new CSVFile(dataSet);
+        DBSaver saver = new DBSaver(dataSet.userId, dataSet.id);
         csvFile.addReadListener(saver);
-        MetadataSchema met = new  MetadataSchema(fileModel.user.id);
-        StagingSchema stg = new  StagingSchema(fileModel.user.id, fileModel.id);
-        if (!stg.isCreated()) {
-            stg.createDatabase();
-        }
-
-        if (!met.isCreated()) {
-            met.createDatabase();
-            met.createTables();
-        }
-        met.medadataServer();
-        for (DataCategory cat : csvFile.categories()) {
-            Column col = new Column();
-            col.createdAt = Calendar.getInstance().getTimeInMillis();
-            col.updatedAt = Calendar.getInstance().getTimeInMillis();
-            col.dataType = cat.dbType();
-            col.length = 256;
-            col.name = cat.name();
-            col.save(met.serverName());
-        }
         csvFile.readFile();
     }
 
@@ -58,7 +37,7 @@ public abstract class UploadedFilePersistService {
         }
     }
 
-    public abstract Reader getReader(CsvFile model) throws IOException;
+    public abstract Reader getReader(DataSet model) throws IOException;
 
     private static class FileSystemPersistService extends UploadedFilePersistService {
         private final String root;
@@ -82,8 +61,8 @@ public abstract class UploadedFilePersistService {
         }
 
         @Override
-        public Reader getReader(CsvFile model) throws FileNotFoundException {
-            return new FileReader(fullPath(model.getSavedFileName()));
+        public Reader getReader(DataSet model) throws FileNotFoundException {
+            return new FileReader(fullPath(model.getFile().fileLocation));
         }
     }
 
@@ -102,8 +81,8 @@ public abstract class UploadedFilePersistService {
         }
 
         @Override
-        public Reader getReader(CsvFile model) throws FileNotFoundException {
-            S3Object object = s3client.get(model.getSavedFileName());
+        public Reader getReader(DataSet model) throws FileNotFoundException {
+            S3Object object = s3client.get(model.getFile().fileLocation);
             return new InputStreamReader(object.getObjectContent());
         }
     }

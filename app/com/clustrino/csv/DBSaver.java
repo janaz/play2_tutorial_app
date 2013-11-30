@@ -8,16 +8,16 @@ import java.util.List;
 public class DBSaver implements LineReadListener {
     private final StagingSchema stg;
     private boolean tableCreated;
-    private final long userId;
-    private final long dataSetId;
+    private final int userId;
+    private final int dataSetId;
     private final StatisticsGatherer statsGatherer;
 
-    public DBSaver(long userId, long dataSetId) {
+    public DBSaver(int userId, int dataSetId) {
         this.userId = userId;
         this.dataSetId = dataSetId;
         tableCreated = false;
         statsGatherer = new StatisticsGatherer();
-        stg = new  StagingSchema(userId, dataSetId);
+        stg = new StagingSchema(userId, dataSetId);
     }
 
     public StatisticsGatherer getStatsGatherer() {
@@ -34,8 +34,7 @@ public class DBSaver implements LineReadListener {
     }
 
     private void realCreateTable(List<DataCategory> columns) {
-        stg.createRejectsTable();
-        stg.createStagingTable(columns);
+        stg.createTables(columns);
     }
 
     @Override
@@ -62,8 +61,5 @@ public class DBSaver implements LineReadListener {
 
     private void insertError(CSVError lastError) {
         stg.insertIntoRejectsTable(lastError);
-        //To change body of created methods use File | Settings | File Templates.
     }
-
-
 }

@@ -2,9 +2,10 @@ package com.clustrino.csv;
 
 import au.com.bytecode.opencsv.CSVParser;
 import au.com.bytecode.opencsv.CSVReader;
+import com.clustrino.profiling.metadata.DataColumn;
+import com.clustrino.profiling.metadata.DataSet;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
-import models.clustrino.CsvFile;
 
 import javax.annotation.Nullable;
 import java.io.BufferedReader;
@@ -14,12 +15,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CSVFile {
-    private CsvFile model;
+    private DataSet model;
     private String firstLine;
     List<LineReadListener> lineReadListeners;
-    List<DataCategory> categories;
 
-    public CSVFile(CsvFile model) {
+    public CSVFile(DataSet model) {
         this.model = model;
         lineReadListeners = new ArrayList<>();
     }
@@ -42,7 +42,7 @@ public class CSVFile {
         }
     }
 
-    private List<DataCategory> categoriesInFirstLine() throws IOException {
+    public List<DataCategory> categoriesInFirstLine() throws IOException {
         List<DataCategory> retVal = Lists.transform(originalHeaders(), new Function<String, DataCategory>() {
             @Nullable
             @Override
@@ -53,7 +53,7 @@ public class CSVFile {
         return retVal;
     }
 
-    private char getSeparator() throws IOException {
+    public char getSeparator() throws IOException {
         int maxFieldsNumber = 0;
         char separator = ',';
         for (char c : new char[]{',', ';', '|', '\t'}) {
@@ -67,7 +67,7 @@ public class CSVFile {
         return separator;
     }
 
-    private boolean dataIncludesHeader() throws IOException {
+    public boolean dataIncludesHeader() throws IOException {
         int unknowns = 0;
         for (DataCategory cat : categoriesInFirstLine()) {
             if (cat == DataCategory.UNKNOWN) {
@@ -88,13 +88,13 @@ public class CSVFile {
 
 
     public List<DataCategory> categories() throws IOException {
-        if (this.categories == null) {
-            this.categories = model.getHeaderCategories();
-            if (this.categories == null) {
-                this.categories = categoriesInFirstLine();
+        return Lists.transform(model.getColumns(), new Function<DataColumn, DataCategory>() {
+            @Nullable
+            @Override
+            public DataCategory apply(@Nullable DataColumn dataColumn) {
+                return dataColumn.dataType;
             }
-        }
-        return this.categories;
+        });
     }
 
     public void addReadListener(LineReadListener l) {

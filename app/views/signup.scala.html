@@ -22,31 +22,60 @@
 		            <span class="label label-important">@signupForm.globalError.message</span>
 		        </p>
             }
-            
-             @inputText(
-                signupForm("name"),
-                '_label -> Messages("playauthenticate.signup.name")
-             )
-             
-             @_emailPartial(signupForm)
+
+            @inputText(
+                signupForm("companyName"),
+                '_label -> Messages("playauthenticate.signup.companyName")
+            )
+
+            @inputText(
+                signupForm("contactName"),
+                '_label -> Messages("playauthenticate.signup.contactName")
+            )
+
+            @_emailPartial(signupForm)
 
             @_passwordPartial(signupForm)
 
             @inputText(
-                signupForm("extraInfo"),
-                '_label -> Messages("playauthenticate.signup.extraInfo")
+                signupForm("contactPhone"),
+                '_label -> Messages("playauthenticate.signup.contactPhone")
             )
+
+            @inputText(
+                signupForm("addressLine1"),
+                '_label -> Messages("playauthenticate.signup.addressLine1")
+            )
+
+            @inputText(
+                signupForm("addressLine2"),
+                '_label -> Messages("playauthenticate.signup.addressLine2")
+            )
+
+            @inputText(
+                signupForm("addressLine3"),
+                '_label -> Messages("playauthenticate.signup.addressLine3")
+            )
+
+            @inputText(
+                signupForm("suburb"),
+                '_label -> Messages("playauthenticate.signup.suburb")
+            )
+
+            @inputText(
+                signupForm("state"),
+                '_label -> Messages("playauthenticate.signup.state")
+            )
+
+            @inputText(
+                signupForm("postcode"),
+                '_label -> Messages("playauthenticate.signup.postcode")
+            )
+
 
             <input type="submit" value="@Messages("playauthenticate.signup.now")" class="btn btn-primary">
     	}
     </div>
-
-    <div class="span3">
-        @Messages("playauthenticate.signup.oauth")
-        @* Display list of available providers *@
-        @_providerPartial(skipCurrent=false)
-    </div>
-
   </div>
 
 }

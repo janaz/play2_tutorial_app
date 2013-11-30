@@ -9,9 +9,10 @@ import play.GlobalSettings;
 import play.mvc.Call;
 
 public class Global extends GlobalSettings {
-
-	public void onStart(Application app) {
-        new CSVFileParser();
+    public void beforeStart(Application app) {
+        //new CSVFileParser();
+    }
+        public void onStart(Application app) {
 		PlayAuthenticate.setResolver(new Resolver() {
 
 			@Override

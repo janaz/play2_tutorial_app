@@ -7,7 +7,7 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import com.feth.play.module.pa.PlayAuthenticate;
 
 import com.feth.play.module.pa.providers.password.UsernamePasswordAuthProvider;
-import models.User;
+import models.configuration.User;
 import play.Routes;
 import play.data.Form;
 import play.mvc.Controller;

@@ -1,24 +1,20 @@
 package models.clustrino;
 
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.List;
-
-import com.avaje.ebean.Expr;
-import com.clustrino.csv.CSVState;
 import com.clustrino.csv.DataCategory;
 import com.google.common.base.Function;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
-import models.User;
+import models.configuration.User;
 import org.apache.commons.codec.binary.Hex;
-import play.data.validation.Constraints.*;
-
-import play.db.ebean.*;
+import play.data.validation.Constraints.Required;
+import play.db.ebean.Model;
 
 import javax.annotation.Nullable;
 import javax.persistence.*;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.List;
 
 @Entity
 public class CsvFile extends Model {
@@ -39,18 +35,10 @@ public class CsvFile extends Model {
     @OneToOne
     public CsvMetadata metadata;
 
-    @Enumerated(EnumType.STRING)
-    public CSVState state;
-
     public static Finder<Long,CsvFile> find = new Finder(
             Long.class, CsvFile.class
     );
 
-    public static List<CsvFile> getNotParsed() {
-
-        return find.where().or(Expr.eq("state", CSVState.PARSING), Expr.isNull("state")).findList();
-
-    }
     public CsvMetadata getMetadata() {
         return metadata;
     }

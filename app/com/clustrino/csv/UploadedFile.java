@@ -1,28 +1,29 @@
 package com.clustrino.csv;
 
+import com.clustrino.profiling.metadata.DataSet;
 import models.clustrino.CsvFile;
 
 import java.io.File;
 
 public class UploadedFile {
     private final File file;
-    private final CsvFile model;
+    private final DataSet model;
 
-    public static UploadedFile fromUpload(CsvFile model, File file) {
+    public static UploadedFile fromUpload(DataSet model, File file) {
         return new UploadedFile(model, file);
     }
 
-    private UploadedFile(CsvFile model, File file) {
+    private UploadedFile(DataSet model, File file) {
         this.file = file;
         this.model = model;
     }
 
-    public UploadedFile(CsvFile model) {
+    public UploadedFile(DataSet model) {
         this(model, null);
     }
 
     public String getFileName() {
-        return model.getSavedFileName();
+        return model.getFile().fileLocation;
     }
 
     public File getFile() {

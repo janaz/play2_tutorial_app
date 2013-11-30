@@ -5,9 +5,9 @@ import com.feth.play.module.pa.PlayAuthenticate;
 import com.feth.play.module.pa.providers.password.UsernamePasswordAuthProvider;
 import com.feth.play.module.pa.providers.password.UsernamePasswordAuthUser;
 import controllers.routes;
-import models.TokenAction;
-import models.TokenAction.Type;
-import models.User;
+import models.configuration.TokenAction;
+import models.configuration.TokenAction.Type;
+import models.configuration.User;
 import play.Application;
 import play.Logger;
 import play.data.Form;
@@ -95,9 +95,30 @@ public class MyUsernamePasswordAuthProvider
 		public String repeatPassword;
 
         @Required
-        public String name;
+        public String companyName;
 
-        public String extraInfo;
+        @Required
+        public String contactName;
+
+        @Required
+        public String contactPhone;
+
+        @Required
+        public String addressLine1;
+
+        public String addressLine2;
+
+        public String addressLine3;
+
+        @Required
+        public String suburb;
+
+        @Required
+        public String state;
+
+        @Required
+        public Integer postcode;
+
 
         public String validate() {
 			if (password == null || !password.equals(repeatPassword)) {
@@ -223,10 +244,10 @@ public class MyUsernamePasswordAuthProvider
 
 		final String html = getEmailTemplate(
 				"views.html.account.signup.email.verify_email", langCode, url,
-				token, user.getName(), user.getEmail());
+				token, user.getContactName(), user.getEmail());
 		final String text = getEmailTemplate(
 				"views.txt.account.signup.email.verify_email", langCode, url,
-				token, user.getName(), user.getEmail());
+				token, user.getContactName(), user.getEmail());
 
 		return new Body(text, html);
 	}
@@ -272,10 +293,10 @@ public class MyUsernamePasswordAuthProvider
 
 		final String html = getEmailTemplate(
 				"views.html.account.email.password_reset", langCode, url,
-				token, user.name, user.email);
+				token, user.contactName, user.email);
 		final String text = getEmailTemplate(
 				"views.txt.account.email.password_reset", langCode, url, token,
-				user.name, user.email);
+				user.contactName, user.email);
 
 		return new Body(text, html);
 	}
@@ -353,10 +374,10 @@ public class MyUsernamePasswordAuthProvider
 
 		final String html = getEmailTemplate(
 				"views.html.account.email.verify_email", langCode, url, token,
-				user.name, user.email);
+				user.contactName, user.email);
 		final String text = getEmailTemplate(
 				"views.txt.account.email.verify_email", langCode, url, token,
-				user.name, user.email);
+				user.contactName, user.email);
 
 		return new Body(text, html);
 	}
@@ -372,6 +393,6 @@ public class MyUsernamePasswordAuthProvider
 	}
 
 	private String getEmailName(final User user) {
-		return getEmailName(user.email, user.name);
+		return getEmailName(user.email, user.contactName);
 	}
 }

@@ -1,11 +1,8 @@
-package models;
+package models.configuration;
 
 import java.util.Date;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 
 import play.data.format.Formats;
 import play.db.ebean.Model;
@@ -15,6 +12,7 @@ import com.avaje.ebean.QueryIterator;
 import com.avaje.ebean.annotation.EnumValue;
 
 @Entity
+@Table(name = "TokenAction")
 public class TokenAction extends Model {
 
 	public enum Type {
@@ -38,20 +36,25 @@ public class TokenAction extends Model {
 	private final static long VERIFICATION_TIME = 7 * 24 * 3600;
 
 	@Id
-	public Long id;
+    @Column(name="ID")
+    public Long id;
 
-	@Column(unique = true)
+	@Column(name="Token", unique = true)
 	public String token;
 
 	@ManyToOne
-	public User targetUser;
+    @JoinColumn(name="TargetUserID")
+    public User targetUser;
 
-	public Type type;
+    @Column(name="Type")
+    public Type type;
 
 	@Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Column(name="CreationTimestamp")
 	public Date created;
 
 	@Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Column(name="Expires")
 	public Date expires;
 
 	public static final Finder<Long, TokenAction> find = new Finder<Long, TokenAction>(

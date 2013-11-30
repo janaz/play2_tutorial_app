@@ -1,16 +1,6 @@
 package com.feth.play.module.pa.providers.password;
 
-import java.util.Arrays;
-import java.util.List;
-
-import play.Application;
-import play.data.Form;
-import play.mvc.Call;
-import play.mvc.Http;
-import play.mvc.Http.Context;
-import play.mvc.Result;
 import akka.actor.Cancellable;
-
 import com.feth.play.module.mail.Mailer;
 import com.feth.play.module.mail.Mailer.Mail;
 import com.feth.play.module.mail.Mailer.Mail.Body;
@@ -19,6 +9,15 @@ import com.feth.play.module.pa.exceptions.AuthException;
 import com.feth.play.module.pa.providers.AuthProvider;
 import com.feth.play.module.pa.user.AuthUser;
 import com.feth.play.module.pa.user.NameIdentity;
+import play.Application;
+import play.data.Form;
+import play.mvc.Call;
+import play.mvc.Http;
+import play.mvc.Http.Context;
+import play.mvc.Result;
+
+import java.util.Arrays;
+import java.util.List;
 
 public abstract class UsernamePasswordAuthProvider<R, UL extends UsernamePasswordAuthUser, US extends UsernamePasswordAuthUser, L extends UsernamePasswordAuthProvider.UsernamePassword, S extends UsernamePasswordAuthProvider.UsernamePassword>
 		extends AuthProvider {

@@ -1,12 +1,8 @@
 package controllers;
 
-import models.User;
+import models.configuration.User;
 import be.objectify.deadbolt.java.actions.Restrict;
 import be.objectify.deadbolt.java.actions.Group;
-import be.objectify.deadbolt.java.actions.SubjectPresent;
-
-import com.feth.play.module.pa.PlayAuthenticate;
-import com.feth.play.module.pa.user.AuthUser;
 
 import play.data.Form;
 import play.data.format.Formats.NonEmpty;

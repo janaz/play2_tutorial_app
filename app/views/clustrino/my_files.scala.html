@@ -1,4 +1,4 @@
-@(files: List[models.clustrino.CsvFile])
+@(dataSet: List[com.clustrino.profiling.metadata.DataSet])
 @import org.joda.time.format.DateTimeFormat
 @import org.joda.time.DateTime
 
@@ -48,19 +48,19 @@
                         <button type="button" class="btn btn-primary upload-action-start"><span class="glyphicon glyphicon-upload"></span> Upload</button>
                     </td>
                 </tr>
-            @for((file, idx) <- files.sortBy(_.uploadedAt).reverse.zipWithIndex) {
+            @for((file, idx) <- dataSet.map(_.getFile).sortBy(_.creationTimestamp).reverse.zipWithIndex) {
                 <tr>
                     <td>
                        @{idx + 1}
                     </td>
                     <td>
-                        @file.fileName
+                        @file.originalFileName
                     </td>
                     <td>
-                        @{new DateTime(file.uploadedAt).toString(DateTimeFormat.mediumDateTime())}
+                        @{new DateTime(file.creationTimestamp).toString(DateTimeFormat.mediumDateTime())}
                     </td>
                     <td>
-                        <a data-pjax type="button" class="btn btn-default" href="@controllers.clustrino.secured.routes.UploadedFile.showFile(file.id)"><span class="glyphicon glyphicon-expand"></span> @Messages("clustrino.my_files.action.view")</a>
+                        <a data-pjax type="button" class="btn btn-default" href="@controllers.clustrino.secured.routes.UploadedFile.showFile(file.getDataSet.id)"><span class="glyphicon glyphicon-expand"></span> @Messages("clustrino.my_files.action.view")</a>
 
                     </td>
                 </tr>

@@ -6,7 +6,7 @@ Renderer = function (color, bgcolor, fontStyle) {
     };
 };
 
-ShowFile = function (myData, myHeaders, myPopulation, myNames, csvId) {
+ShowFile = function (myData, myHeaders, myPopulation, myNames, modelId) {
     var OPTIONS = myNames;
 
     var UNKNOWN_RENDERER = new Renderer('white', '#FF5C5C', 'italic').getRenderer;
@@ -39,7 +39,7 @@ ShowFile = function (myData, myHeaders, myPopulation, myNames, csvId) {
                     myHeaders[col] = e.val;
                     $.ajax({
                         type: "POST",
-                        url: "/clustrino/update_columns/"+csvId,
+                        url: "/clustrino/update_columns/"+modelId,
                         data: JSON.stringify(myHeaders),
                         contentType: "application/json; charset=utf-8",
                         success: function(data, textStatus, jqXHR) {

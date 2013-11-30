@@ -1,11 +1,9 @@
 package security;
 
-import models.User;
+import models.configuration.User;
 import play.libs.F;
 import play.mvc.Http;
-import play.mvc.Result;
 import be.objectify.deadbolt.java.AbstractDeadboltHandler;
-import be.objectify.deadbolt.java.DynamicResourceHandler;
 import be.objectify.deadbolt.core.models.Subject;
 
 import com.feth.play.module.pa.PlayAuthenticate;

@@ -1,30 +1,85 @@
 package com.clustrino.profiling.metadata;
 
+import com.avaje.ebean.annotation.EnumValue;
+import play.data.format.Formats;
 import play.db.ebean.Model;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.Date;
 import java.util.List;
 
 @Entity
-@Table(name="data_sets")
+@Table(name="DataSet")
 public class DataSet extends Model {
+    public enum Type {
+        @EnumValue("FILE")
+        FILE,
+
+        @EnumValue("TABLE")
+        TABLE
+    }
+
+    public enum State {
+        @EnumValue("PARSING")
+        PARSING,
+
+        @EnumValue("PARSED")
+        PARSED,
+
+        @EnumValue("ERROR")
+        ERROR
+    }
+
     @Id
-    public Long id;
+    @Column(name="ID")
+    public Integer id;
 
     @NotNull
-    public Long userId;
+    @Column(name="UserID")
+    public Integer userId;
 
-    public String type;
+    @Column(name="State")
+    public State state;
 
-    @OneToMany(mappedBy="data_set")
-    public List<Column> columns;
+    @Column(name="Type")
+    public Type type;
+
+    @OneToMany(mappedBy="dataSet", cascade=CascadeType.ALL)
+    public List<DataColumn> columns;
+
+    @OneToOne(mappedBy="dataSet", cascade=CascadeType.ALL)
+    public File file;
 
     @NotNull
-    public Long createdAt;
+    @Column(name="CreationTimestamp")
+    @Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
+    public Date creationTimestamp;
 
-    public Long updatedAt;
+    @Column(name="ModificationTimestamp")
+    @Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
+    public Date modificationTimestamp;
+
+    public static Finder<Integer, DataSet> find(String serverName) {
+        return new Finder<Integer, DataSet>(
+                serverName, Integer.class, DataSet.class);
+    }
+
+    public File getFile() {
+        return file;
+    }
+
+    public void setFile(File file) {
+        this.file = file;
+    }
+
+    public List<DataColumn> getColumns() {
+        return columns;
+    }
+
+    public void setColumns(List<DataColumn> columns) {
+        this.columns = columns;
+    }
+
+
 }

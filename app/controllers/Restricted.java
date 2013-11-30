@@ -1,6 +1,6 @@
 package controllers;
 
-import models.User;
+import models.configuration.User;
 import play.mvc.Controller;
 import play.mvc.Result;
 import play.mvc.Security;

@@ -1,8 +1,8 @@
 package controllers;
 
-import models.TokenAction;
-import models.TokenAction.Type;
-import models.User;
+import models.configuration.TokenAction;
+import models.configuration.TokenAction.Type;
+import models.configuration.User;
 import play.data.Form;
 import play.i18n.Messages;
 import play.mvc.Controller;

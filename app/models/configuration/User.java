@@ -1,31 +1,33 @@
-package models;
+package models.configuration;
 
 import be.objectify.deadbolt.core.models.Permission;
 import be.objectify.deadbolt.core.models.Role;
 import be.objectify.deadbolt.core.models.Subject;
-import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
+import com.clustrino.profiling.MetadataSchema;
+import com.clustrino.profiling.StagingSchema;
+import com.clustrino.profiling.metadata.File;
 import com.feth.play.module.pa.providers.password.UsernamePasswordAuthUser;
 import com.feth.play.module.pa.user.AuthUser;
 import com.feth.play.module.pa.user.AuthUserIdentity;
 import com.feth.play.module.pa.user.EmailIdentity;
-import com.feth.play.module.pa.user.NameIdentity;
-import com.feth.play.module.pa.user.FirstLastNameIdentity;
-import models.TokenAction.Type;
 import models.clustrino.CsvFile;
+import models.configuration.TokenAction.Type;
 import org.hibernate.validator.constraints.Email;
 import play.data.format.Formats;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Initial version based on work by Steve Chaloner (steve@objectify.be) for
  * Deadbolt2
  */
 @Entity
-@Table(name = "users")
+@Table(name = "User")
 public class User extends Model implements Subject {
 	/**
 	 * 
@@ -33,41 +35,74 @@ public class User extends Model implements Subject {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	public Long id;
+    @Column(name="ID")
+    public Integer id;
 
-	@Email
-	// if you make this unique, keep in mind that users *must* merge/link their
-	// accounts then on signup with additional providers
-	// @Column(unique = true)
-	public String email;
+    @Column(name="CompanyName", length = 60)
+    public String companyName;
 
-	public String name;
+    @Column(name="ContactName", length = 60)
+    public String contactName;
 
+    @Column(name="ContactPhone", length = 20)
+    public String contactPhone;
+
+    @Column(name="ContactEmail", length = 200, unique=true)
+    @Email
+    public String email;
+
+    @Column(name="AddressLine1", length = 120)
+    public String addressLine1;
+
+    @Column(name="AddressLine2", length = 120)
+    public String addressLine2;
+
+    @Column(name="AddressLine3", length = 120)
+    public String addressLine3;
+
+    @Column(name="Suburb", length = 60)
+    public String suburb;
+
+    @Column(name="State", length = 30)
+    public String state;
+
+    @Column(name="Postcode")
+    public Integer postcode;
+
+    @Column(name="EncryptedPassword")
     public String password;
 
-    public String extraInfo;
+    @Column(name="CreationTimestamp")
+    @Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
+    public Date creationTimestamp;
 
-    public String firstName;
-	
-	public String lastName;
+    @Column(name="ModificationTimestamp")
+    @Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
+    public Date modificationTimestamp;
 
-    @OneToMany(mappedBy="user")
-    public List<CsvFile> files;
+    @Column(name="LastLogin")
+    @Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
+    public Date lastLogin;
 
-	@Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
-	public Date lastLogin;
+    @Column(name="Active")
+    public boolean active;
 
-	public boolean active;
+    @Column(name="EmailValidated")
+    public boolean emailValidated;
 
-	public boolean emailValidated;
+	public static final Finder<Integer, User> find = new Finder<Integer, User>(
+            Integer.class, User.class);
 
-	public static final Finder<Long, User> find = new Finder<Long, User>(
-			Long.class, User.class);
+    public List<CsvFile> getFiles() {
+        //File.
+        return null;
+    }
 
-	@Override
+
+    @Override
 	public String getIdentifier()
 	{
-		return Long.toString(id);
+		return Integer.toString(id);
 	}
 
 	@Override
@@ -128,6 +163,7 @@ public class User extends Model implements Subject {
 		final User user = new User();
 		user.active = true;
 		user.lastLogin = new Date();
+        user.creationTimestamp = new Date();
         user.password = authUser.getId();
 
 		if (authUser instanceof EmailIdentity) {
@@ -139,41 +175,37 @@ public class User extends Model implements Subject {
 			user.emailValidated = false;
 		}
 
-		if (authUser instanceof NameIdentity) {
-			final NameIdentity identity = (NameIdentity) authUser;
-			final String name = identity.getName();
-			if (name != null) {
-				user.name = name;
-			}
-		}
-		
-		if (authUser instanceof FirstLastNameIdentity) {
-		  final FirstLastNameIdentity identity = (FirstLastNameIdentity) authUser;
-		  final String firstName = identity.getFirstName();
-		  final String lastName = identity.getLastName();
-		  if (firstName != null) {
-		    user.firstName = firstName;
-		  }
-		  if (lastName != null) {
-		    user.lastName = lastName;
-		  }
-		}
-
         if (authUser instanceof MyExtendedIdentity) {
             final MyExtendedIdentity identity = (MyExtendedIdentity) authUser;
-            final String extraInfo = identity.getExtraInfo();
-            user.extraInfo = extraInfo;
-
+            user.companyName = identity.getCompanyName();
+            user.contactName = identity.getContactName();
+            user.contactPhone = identity.getContactPhone();
+            user.addressLine1 = identity.getAddressLine1();
+            user.addressLine2 = identity.getAddressLine2();
+            user.addressLine3 = identity.getAddressLine3();
+            user.suburb = identity.getSuburb();
+            user.state = identity.getState();
+            user.postcode = identity.getPostcode();
         }
-
-
         user.save();
+        if (user.id != null) {
+            user.createDatabases();
+        }
 		return user;
 	}
 
-	public static void setLastLoginDate(final AuthUser knownUser) {
+    private void createDatabases() {
+        StagingSchema stg = new StagingSchema(id, null);
+        MetadataSchema mtd = new MetadataSchema(id);
+        mtd.createDatabase();
+        mtd.createTables();
+        stg.createDatabase();
+    }
+
+    public static void setLastLoginDate(final AuthUser knownUser) {
 		final User u = User.findByAuthUserIdentity(knownUser);
 		u.lastLogin = new Date();
+        u.modificationTimestamp = new Date();
 		u.save();
 	}
 
@@ -188,6 +220,7 @@ public class User extends Model implements Subject {
 	public static void verify(final User unverified) {
 		// You might want to wrap this into a transaction
 		unverified.emailValidated = true;
+        unverified.modificationTimestamp = new Date();
 		unverified.save();
 		TokenAction.deleteByUser(unverified, Type.EMAIL_VERIFICATION);
 	}
@@ -195,6 +228,7 @@ public class User extends Model implements Subject {
 	public void changePassword(final UsernamePasswordAuthUser authUser,
 			final boolean create) {
 		password = authUser.getHashedPassword();
+        modificationTimestamp = new Date();
 		save();
 	}
 

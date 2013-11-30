@@ -1,24 +1,23 @@
 package jobs;
 
 import akka.actor.Cancellable;
-import com.clustrino.csv.CSVState;
+import com.clustrino.profiling.MetadataSchema;
+import com.clustrino.profiling.metadata.DataSet;
 import com.google.common.base.Joiner;
-import models.clustrino.CsvFile;
 import play.libs.Akka;
 import scala.concurrent.duration.Duration;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 
 public class CSVFileParser {
-    private static final ConcurrentMap<CsvFile, Boolean> QUEUE = new ConcurrentHashMap<>();
+    private static final ConcurrentMap<DataSet, Boolean> QUEUE = new ConcurrentHashMap<>();
 
     private static class CSVParseJob implements Runnable {
-        public CSVParseJob(CsvFile fileModel) {
-            System.out.println("Adding file "+fileModel.id + " to queue");
-            QUEUE.put(fileModel, Boolean.TRUE);
+        public CSVParseJob(DataSet model) {
+            System.out.println("Adding file " + model.id + " to queue");
+            QUEUE.put(model, Boolean.TRUE);
         }
 
         @Override
@@ -28,17 +27,19 @@ public class CSVFileParser {
     }
 
     private static final Runnable PROCESSOR = new Runnable() {
-        private final AtomicLong ZERO = new AtomicLong(0L);
-
         @Override
         public void run() {
             System.out.println("Starting main job");
 
             do {
                 System.out.println("Main loop");
-                for (CsvFile fileModel : CsvFile.getNotParsed()) {
-                    parseFile(fileModel);
-                }
+//                try {
+//                    for (DataSet model : CsvFile.getNotParsed()) {
+//                        parseFile(model);
+//                    }
+//                } catch (Exception e) {
+//
+//                }
 
                 if (QUEUE.isEmpty()) {
                     System.out.println("Queue is empty. Waiting 10 sec");
@@ -50,16 +51,16 @@ public class CSVFileParser {
                     }
                 }
 
-                for (CsvFile fileModel : QUEUE.keySet()) {
-                    if (QUEUE.replace(fileModel, Boolean.TRUE, Boolean.FALSE)) {
-                        System.out.println("Starting job for " + fileModel.id);
-                        runJobFor(fileModel);
-                        System.out.println("End of job for " + fileModel.id);
+                for (DataSet model : QUEUE.keySet()) {
+                    if (QUEUE.replace(model, Boolean.TRUE, Boolean.FALSE)) {
+                        System.out.println("Starting job for " + model.id);
+                        runJobFor(model);
+                        System.out.println("End of job for " + model.id);
                         System.out.println("QUEUE is " + Joiner.on(',').join(QUEUE.values()));
-                        if (QUEUE.remove(fileModel, Boolean.FALSE)) {
-                            System.out.println("Removed job for " + fileModel.id);
+                        if (QUEUE.remove(model, Boolean.FALSE)) {
+                            System.out.println("Removed job for " + model.id);
                         } else {
-                            System.out.println("Didn't remove job for " + fileModel.id + " will process it again");
+                            System.out.println("Didn't remove job for " + model.id + " will process it again");
                         }
                         System.out.println("After removing the QUEUE is " + Joiner.on(',').join(QUEUE.values()));
 
@@ -71,22 +72,21 @@ public class CSVFileParser {
 
         }
 
-        private void runJobFor(CsvFile fileModel) {
-            fileModel.state = CSVState.PARSING;
-            fileModel.save();
-            final com.clustrino.csv.UploadedFile uploadedFile = new com.clustrino.csv.UploadedFile(fileModel);
+        private void runJobFor(DataSet model) {
+            MetadataSchema met = new MetadataSchema(model.userId);
+            model.state = DataSet.State.PARSING;
+            model.save(met.server().getName());
+            final com.clustrino.csv.UploadedFile uploadedFile = new com.clustrino.csv.UploadedFile(model);
             try {
-              uploadedFile.persistService().importToDB(fileModel);
-              fileModel.state = CSVState.PARSED;
-
-//                Thread.sleep(60000);
+                uploadedFile.persistService().importToDB(model);
+                model.state = DataSet.State.PARSED;
             } catch (Exception e) {
-                fileModel.state = CSVState.ERROR;
+                model.state = DataSet.State.ERROR;
 
                 e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
             }
 
-            fileModel.save();
+            model.save(met.server().getName());
 
         }
     };
@@ -98,15 +98,14 @@ public class CSVFileParser {
                 .scheduleOnce(Duration.create(0L, TimeUnit.SECONDS),
                         PROCESSOR,
                         Akka.system().dispatcher());
-        //get all files not parsed yet
-    };
+    }
 
-    public static Cancellable parseFile(CsvFile fileModel) {
+    public static Cancellable parseFile(DataSet model) {
         return Akka
                 .system()
                 .scheduler()
                 .scheduleOnce(Duration.create(1L, TimeUnit.SECONDS),
-                        new CSVParseJob(fileModel),
+                        new CSVParseJob(model),
                         Akka.system().dispatcher());
     }
 

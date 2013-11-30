@@ -10,8 +10,8 @@ GET         /assets/*file                         controllers.Assets.at(path="/p
 
 GET         /clustrino/index                      controllers.clustrino.BasicFlow.index()
 POST        /clustrino/upload                     controllers.clustrino.secured.UploadedFile.uploadFile()
-GET         /clustrino/show/:id                       controllers.clustrino.secured.UploadedFile.showFile(id: Long)
-POST        /clustrino/update_columns/:id                       controllers.clustrino.secured.UploadedFile.updateColumns(id: Long)
+GET         /clustrino/show/:id                       controllers.clustrino.secured.UploadedFile.showFile(id: Integer)
+POST        /clustrino/update_columns/:id                       controllers.clustrino.secured.UploadedFile.updateColumns(id: Integer)
 GET         /clustrino/my_files                   controllers.clustrino.secured.UploadedFile.myFiles()
 GET         /clustrino/dashboard                  controllers.clustrino.secured.Dashboard.dashboard()
 GET         /clustrino/test_action                controllers.clustrino.BasicFlow.testAction()
