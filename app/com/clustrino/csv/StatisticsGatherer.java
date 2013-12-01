@@ -65,7 +65,7 @@ public class StatisticsGatherer implements LineReadListener {
     private List<Comparable<?>> parsedLine(long lineNumber, String[] line, String raw, List<DataCategory> categories){
         if (line == null || categories.size() != line.length) {
             System.out.println("Error "+ categories +" " +line);
-            //errors.clear();
+            errors.clear();
             errors.add(new CSVError(lineNumber, raw));
             return null;
         } else {
@@ -81,6 +81,7 @@ public class StatisticsGatherer implements LineReadListener {
             } catch (Exception e) {
                 System.out.println(e);
                 System.out.println(e.getStackTrace());
+                errors.clear();
                 errors.add(new CSVError(lineNumber, raw));
                 return null;
             }
