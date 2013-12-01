@@ -89,6 +89,7 @@ public class EbeanServerManager {
                     e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
                 }
             }
+            t.commit();
             t.end();
         }
     }

@@ -41,7 +41,7 @@ public class File extends Model {
     @Column(name="HeaderFlag")
     public Boolean headerFlag;
 
-    @OneToOne
+    @OneToOne(optional = true)
     @NotNull
     @JoinColumn(name="DataSetID")
     public DataSet dataSet;
@@ -55,7 +55,7 @@ public class File extends Model {
     @Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
     public Date modificationTimestamp;
 
-    public static Finder<Integer, File> find(String serverName) {
+    public static Finder<Integer, File> find(final String serverName) {
         return new Finder<Integer, File>(
             serverName, Integer.class, File.class);
     }
@@ -79,4 +79,9 @@ public class File extends Model {
     public void setDataSet(DataSet dataSet) {
         this.dataSet = dataSet;
     }
+
+    public String getFileLocation() {
+        return fileLocation;
+    }
+
 }

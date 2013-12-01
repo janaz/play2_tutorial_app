@@ -1,5 +1,6 @@
 package controllers.clustrino.secured;
 
+import com.avaje.ebean.Query;
 import com.clustrino.csv.*;
 import com.clustrino.profiling.MetadataSchema;
 import com.clustrino.profiling.metadata.DataColumn;
@@ -23,7 +24,9 @@ public class UploadedFile extends Secured {
     public static Result myFiles() {
         final User localUser = Application.getLocalUser(session());
         final MetadataSchema met = new MetadataSchema(localUser.id);
-        List<DataSet> list =  DataSet.find(met.server().getName()).where().eq("type", DataSet.Type.FILE).findList();
+        List<DataSet> list = DataSet.find(met.server().getName()).all();
+
+        System.out.println("My Files: " + list);
         return ok(views.html.clustrino.my_files.render(list));
     }
 
@@ -59,6 +62,7 @@ public class UploadedFile extends Secured {
             fileModel.headerFlag = csvFile.dataIncludesHeader();
 
             model.getColumns().clear();
+            model.save(met.server().getName());
             for (DataCategory cat : csvFile.categoriesInFirstLine()) {
                 DataColumn col = new DataColumn();
                 col.creationTimestamp = new Date();
@@ -93,7 +97,11 @@ public class UploadedFile extends Secured {
     private static DataSet getLoggedinUserDataSet(final Integer id) {
         final User localUser = Application.getLocalUser(session());
         final MetadataSchema met = new MetadataSchema(localUser.id);
-        return DataSet.find(met.server().getName()).where().eq("type", DataSet.Type.FILE).eq("userId",localUser.id).eq("id", id).findUnique();
+        Query<DataSet> sql = DataSet.find(met.server().getName()).where().eq("type", DataSet.Type.FILE).eq("userId", localUser.id).eq("id", id).query();
+        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        sql.findUnique();
+        System.out.println(sql.getGeneratedSql());
+        return DataSet.find(met.server().getName()).where().eq("userId", localUser.id).eq("id", id).findUnique();
     }
 
     public static Result updateColumns(final Integer id) {
@@ -104,8 +112,12 @@ public class UploadedFile extends Secured {
 
         final DataSet model = getLoggedinUserDataSet(id);
 
+        MetadataSchema met = new MetadataSchema(model.userId);
         try {
-            MetadataSchema met = new MetadataSchema(model.userId);
+            System.out.println("Columns size: " + model.getColumns().size());
+            for (DataColumn col : model.getColumns()) {
+                col.delete(met.server().getName());
+            }
             model.getColumns().clear();
             for (String colName : data) {
                 DataCategory cat = DataCategory.valueOf(colName);
@@ -117,9 +129,8 @@ public class UploadedFile extends Secured {
                 col.name = cat.name();
                 model.getColumns().add(col);
                 col.setDataSet(model);
-                //col.save(met.server().getName());
+                col.save(met.server().getName());
             }
-            model.save(met.server().getName());
 
             result.put("status", "OK, Super");
             CSVFileParser.parseFile(model);
@@ -133,6 +144,9 @@ public class UploadedFile extends Secured {
 
     public static Result showFile(final Integer id) {
         final DataSet model = getLoggedinUserDataSet(id);
+        System.out.println(model);
+        System.out.println(model.getFile());
+
         CSVFile csvFile = new CSVFile(model);
 
         SampleReader sampleReader = new SampleReader(1000);

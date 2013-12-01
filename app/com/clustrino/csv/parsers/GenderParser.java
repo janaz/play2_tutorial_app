@@ -10,6 +10,8 @@ public class GenderParser implements DataCategoryParser {
             return "M";
         } else if (cleanVal.startsWith("U") || cleanVal.isEmpty()) {
             return "U";
+        } else if (cleanVal.isEmpty()){
+            return null;
         } else {
             return cleanVal;
         }

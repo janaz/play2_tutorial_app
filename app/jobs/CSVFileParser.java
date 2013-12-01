@@ -79,6 +79,7 @@ public class CSVFileParser {
             final com.clustrino.csv.UploadedFile uploadedFile = new com.clustrino.csv.UploadedFile(model);
             try {
                 uploadedFile.persistService().importToDB(model);
+                uploadedFile.persistService().runProfiling(model);
                 model.state = DataSet.State.PARSED;
             } catch (Exception e) {
                 model.state = DataSet.State.ERROR;

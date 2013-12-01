@@ -52,6 +52,8 @@ public class SampleReader implements LineReadListener {
 
     @Override
     public boolean finished() {
+        System.out.println("Sample" + limit + " " +sampleLines.size());
+
         return sampleLines.size() >= limit;
     }
 

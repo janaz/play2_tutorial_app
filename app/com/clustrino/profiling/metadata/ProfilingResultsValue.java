@@ -1,5 +1,8 @@
 package com.clustrino.profiling.metadata;
 
+import com.clustrino.profiling.MetadataSchema;
+import com.clustrino.profiling.StagingSchema;
+import models.configuration.ProfilingTemplate;
 import play.data.format.Formats;
 import play.db.ebean.Model;
 
@@ -7,6 +10,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.Map;
 
 @Entity
 @Table(name="ProfilingResultsValue")
@@ -50,4 +54,20 @@ public class ProfilingResultsValue extends Model {
     }
 
 
+    public static void addResult(MetadataSchema mtd, StagingSchema stg, ProfilingTemplate template, DataColumn col, Map<String, String> results) {
+        ProfilingResultsValue res = new ProfilingResultsValue();
+        col.getResultsValues().add(res);
+        try {
+            res.cardinality = Integer.valueOf(results.get("Cardinality"));
+        }catch (NumberFormatException e) {
+            res.cardinality = 0;
+        }
+        res.value = results.get("Value");
+        res.columnName = col.name;
+        res.profilingTemplateId = template.id;
+        res.tableName = stg.dataSetTableName();
+        res.setDataColumn(col);
+        res.save(mtd.server().getName());
+        col.save(mtd.server().getName());
+    }
 }

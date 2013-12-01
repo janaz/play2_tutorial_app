@@ -43,9 +43,12 @@ public class DBSaver implements LineReadListener {
         List<Comparable<?>> parsedValues = (List<Comparable<?>>)statsGatherer.lineRead(lineNumber, line, raw, categories);
         if (parsedValues == null) {
             CSVError lastError = statsGatherer.getErrors().get(statsGatherer.getErrors().size() - 1);
+            System.out.println("DEBUG: inserting error" + lastError);
             insertError(lastError);
         } else {
             insertRecord(parsedValues, categories);
+            System.out.println("DEBUG: inserting dataset" + parsedValues + " " + categories);
+
         }
         return null;
     }

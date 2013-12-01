@@ -3,7 +3,11 @@ package com.clustrino.csv.parsers;
 public class StringParser implements DataCategoryParser {
     @Override
     public String parse(String value) {
-        return value.trim();
+        String trimmed = value.trim();
+        if (trimmed.isEmpty()) {
+            return null;
+        }
+        return trimmed;
     }
 
     @Override

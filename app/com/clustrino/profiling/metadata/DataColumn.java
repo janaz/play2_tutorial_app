@@ -30,13 +30,13 @@ public class DataColumn extends Model {
     @JoinColumn(name="DataSetID")
     public DataSet dataSet;
 
-    @OneToMany(mappedBy="dataColumn")
+    @OneToMany(mappedBy="dataColumn", cascade = CascadeType.ALL)
     public List<ProfilingResultsColumn> resultsColumns;
 
-    @OneToMany(mappedBy="dataColumn")
+    @OneToMany(mappedBy="dataColumn", cascade = CascadeType.ALL)
     public List<ProfilingResultsValue> resultsValues;
 
-    @OneToMany(mappedBy="dataColumn")
+    @OneToMany(mappedBy="dataColumn", cascade = CascadeType.ALL)
     public List<ProfilingResultsFormat> resultsFormats;
 
     @Column(name="CreationTimestamp")

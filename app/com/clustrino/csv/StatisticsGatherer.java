@@ -58,11 +58,14 @@ public class StatisticsGatherer implements LineReadListener {
     @Override
     public boolean finished() {
         if (limit < 0) return false;
+        System.out.println("Stats" + limit + " " +linesRead);
         return linesRead >= limit;
     }
 
     private List<Comparable<?>> parsedLine(long lineNumber, String[] line, String raw, List<DataCategory> categories){
         if (line == null || categories.size() != line.length) {
+            System.out.println("Error "+ categories +" " +line);
+            //errors.clear();
             errors.add(new CSVError(lineNumber, raw));
             return null;
         } else {

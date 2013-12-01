@@ -48,7 +48,7 @@ public class DataSet extends Model {
     @OneToMany(mappedBy="dataSet", cascade=CascadeType.ALL)
     public List<DataColumn> columns;
 
-    @OneToOne(mappedBy="dataSet", cascade=CascadeType.ALL)
+    @OneToOne(mappedBy="dataSet", cascade=CascadeType.ALL, optional = true)
     public File file;
 
     @NotNull
@@ -60,7 +60,7 @@ public class DataSet extends Model {
     @Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
     public Date modificationTimestamp;
 
-    public static Finder<Integer, DataSet> find(String serverName) {
+    public static Finder<Integer, DataSet> find(final String serverName) {
         return new Finder<Integer, DataSet>(
                 serverName, Integer.class, DataSet.class);
     }

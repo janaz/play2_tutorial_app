@@ -48,19 +48,19 @@
                         <button type="button" class="btn btn-primary upload-action-start"><span class="glyphicon glyphicon-upload"></span> Upload</button>
                     </td>
                 </tr>
-            @for((file, idx) <- dataSet.map(_.getFile).sortBy(_.creationTimestamp).reverse.zipWithIndex) {
+            @for((item, idx) <- dataSet.sortBy(_.creationTimestamp).reverse.zipWithIndex) {
                 <tr>
                     <td>
                        @{idx + 1}
                     </td>
                     <td>
-                        @file.originalFileName
+                        @item.getFile.originalFileName
                     </td>
                     <td>
-                        @{new DateTime(file.creationTimestamp).toString(DateTimeFormat.mediumDateTime())}
+                        @{new DateTime(item.creationTimestamp).toString(DateTimeFormat.mediumDateTime())}
                     </td>
                     <td>
-                        <a data-pjax type="button" class="btn btn-default" href="@controllers.clustrino.secured.routes.UploadedFile.showFile(file.getDataSet.id)"><span class="glyphicon glyphicon-expand"></span> @Messages("clustrino.my_files.action.view")</a>
+                        <a data-pjax type="button" class="btn btn-default" href="@controllers.clustrino.secured.routes.UploadedFile.showFile(item.id)"><span class="glyphicon glyphicon-expand"></span> @Messages("clustrino.my_files.action.view")</a>
 
                     </td>
                 </tr>

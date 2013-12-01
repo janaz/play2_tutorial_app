@@ -1,5 +1,8 @@
 package com.clustrino.profiling.metadata;
 
+import com.clustrino.profiling.MetadataSchema;
+import com.clustrino.profiling.StagingSchema;
+import models.configuration.ProfilingTemplate;
 import play.data.format.Formats;
 import play.db.ebean.Model;
 
@@ -7,6 +10,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.Map;
 
 @Entity
 @Table(name="ProfilingResultsColumn")
@@ -38,11 +42,11 @@ public class ProfilingResultsColumn extends Model {
     public Integer nullCount;
 
     @NotNull
-    @Column(name="PercentagePopulated")
+    @Column(name="PercentagePopulated", length = 10, precision = 5)
     public BigDecimal percentagePopulated;
 
     @NotNull
-    @Column(name="PercentageUnique")
+    @Column(name="PercentageUnique", length = 10, precision = 5)
     public BigDecimal percentageUnique;
 
     @NotNull
@@ -77,4 +81,53 @@ public class ProfilingResultsColumn extends Model {
     }
 
 
+    public static void addResult(MetadataSchema mtd, StagingSchema stg, ProfilingTemplate template, DataColumn col, Map<String, String> results) {
+        ProfilingResultsColumn res = new ProfilingResultsColumn();
+        col.getResultsColumns().add(res);
+
+        for (String k:results.keySet()) {
+            System.out.println("DEBUG PRofiing results: "+k+" -> "+ results.get(k));
+        }
+        try {
+            res.totalCount = Integer.valueOf(results.get("TotalCount"));
+        }catch (NumberFormatException e) {
+            res.totalCount = 0;
+        }
+        try {
+            res.distinctCount = Integer.valueOf(results.get("DistinctCount"));
+        }catch (NumberFormatException e) {
+            res.distinctCount = 0;
+        }
+
+        try {
+            res.nullCount = Integer.valueOf(results.get("NullCount"));
+        }catch (NumberFormatException e) {
+            res.nullCount = 0;
+        }
+
+        res.percentagePopulated = new BigDecimal(results.get("PercentagePopulated"));
+        res.percentageUnique = new BigDecimal(results.get("PercentageUnique"));
+
+        try {
+            res.minimumLength = Integer.valueOf(results.get("MinimumLength"));
+        }catch (NumberFormatException e) {
+            res.minimumLength = 0;
+        }
+
+        try {
+            res.maximumLength = Integer.valueOf(results.get("MaximumLength"));
+        }catch (NumberFormatException e) {
+            res.maximumLength = 0;
+        }
+
+        res.minimumValue = results.get("MinimumValue");
+        res.maximumValue = results.get("MaximumValue");
+
+        res.columnName = col.name;
+        res.profilingTemplateId = template.id;
+        res.tableName = stg.dataSetTableName();
+        res.setDataColumn(col);
+        res.save(mtd.server().getName());
+        col.save(mtd.server().getName());
+    }
 }

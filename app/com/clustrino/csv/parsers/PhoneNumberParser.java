@@ -3,7 +3,11 @@ package com.clustrino.csv.parsers;
 public class PhoneNumberParser implements DataCategoryParser {
     @Override
     public String parse(String value) {
-        return value.trim().replace(" ","").replace("-","");
+        String trimmed = value.trim();
+        if (trimmed.isEmpty()) {
+            return null;
+        }
+        return trimmed.replace(" ","").replace("-","");
     }
 
     @Override

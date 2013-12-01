@@ -20,15 +20,15 @@ public class StagingSchema {
         this.dataSetId = dataSetId;
     }
 
-    private String databaseName() {
+    public String databaseName() {
         return String.format("Staging%03d", this.userId);
     }
 
-    private String dataSetTableName() {
+    public String dataSetTableName() {
         return String.format("DataSet%05d", this.dataSetId);
     }
 
-    private String rejectsTableName() {
+    public String rejectsTableName() {
         return String.format("FileRejects%05d", this.dataSetId);
     }
 
@@ -77,9 +77,9 @@ public class StagingSchema {
     }
 
     public boolean insertIntoStagingTable(final List<DataCategory> categories, final List<?> values) {
-        return EbeanServerManager.getManager().executeQuery(server(), new QueryCallable<Boolean>() {
-            private final List<String> colValues = new ArrayList<>(values.size());
+        final List<String> colValues = new ArrayList<>(values.size());
 
+        return EbeanServerManager.getManager().executeQuery(server(), new QueryCallable<Boolean>() {
             @Override
             public Boolean call(PreparedStatement pstmt) throws SQLException {
                 return pstmt.execute();
@@ -107,11 +107,13 @@ public class StagingSchema {
                 sb.append(") VALUES (");
                 sb.append(Joiner.on(',').join(colValuesPlaceholder));
                 sb.append(")");
+                System.out.println("DEBUG SQL: "+sb.toString());
                 return sb.toString();
             }
 
             @Override
             public void setup(PreparedStatement pstmt) throws SQLException {
+                System.out.println("DEBUG setting values" + colValues);
                 for (int i = 0; i < colValues.size(); i++) {
                     pstmt.setString(i + 1, colValues.get(i));
                 }
