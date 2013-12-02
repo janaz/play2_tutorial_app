@@ -43,8 +43,8 @@ public class TokenAction extends Model {
 	public String token;
 
 	@ManyToOne
-    @JoinColumn(name="TargetUserID")
-    public User targetUser;
+    @JoinColumn(name="UserID")
+    public User user;
 
     @Column(name="Type")
     public Type type;
@@ -66,7 +66,7 @@ public class TokenAction extends Model {
 
 	public static void deleteByUser(final User u, final Type type) {
 		QueryIterator<TokenAction> iterator = find.where()
-				.eq("targetUser.id", u.id).eq("type", type).findIterate();
+				.eq("user.id", u.id).eq("type", type).findIterate();
 		Ebean.delete(iterator);
 		iterator.close();
 	}
@@ -78,7 +78,7 @@ public class TokenAction extends Model {
 	public static TokenAction create(final Type type, final String token,
 			final User targetUser) {
 		final TokenAction ua = new TokenAction();
-		ua.targetUser = targetUser;
+		ua.user = targetUser;
 		ua.token = token;
 		ua.type = type;
 		final Date created = new Date();

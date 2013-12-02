@@ -154,7 +154,7 @@ public class Signup extends Controller {
 			if (ta == null) {
 				return badRequest(no_token_or_invalid.render());
 			}
-			final User u = ta.targetUser;
+			final User u = ta.user;
 			try {
 				// Pass true for the second parameter if you want to
 				// automatically create a password and the exception never to
@@ -199,8 +199,8 @@ public class Signup extends Controller {
 		if (ta == null) {
 			return badRequest(no_token_or_invalid.render());
 		}
-		final String email = ta.targetUser.email;
-		User.verify(ta.targetUser);
+		final String email = ta.user.email;
+		User.verify(ta.user);
 		flash(Application.FLASH_MESSAGE_KEY,
 				Messages.get("playauthenticate.verify_email.success", email));
 		if (Application.getLocalUser(session()) != null) {
