@@ -60,6 +60,11 @@ public class File extends Model {
             serverName, Integer.class, File.class);
     }
 
+    public String getOriginalFileName() {
+        return originalFileName;
+    }
+
+
     public void setSavedFileName() {
         MessageDigest md;
         try {

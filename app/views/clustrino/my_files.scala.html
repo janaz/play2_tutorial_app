@@ -54,7 +54,7 @@
                        @{idx + 1}
                     </td>
                     <td>
-                        @item.getFile.originalFileName
+                        @item.getFile.getOriginalFileName
                     </td>
                     <td>
                         @{new DateTime(item.creationTimestamp).toString(DateTimeFormat.mediumDateTime())}

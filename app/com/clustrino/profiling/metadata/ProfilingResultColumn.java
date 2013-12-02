@@ -13,8 +13,8 @@ import java.util.Date;
 import java.util.Map;
 
 @Entity
-@Table(name="ProfilingResultsColumn")
-public class ProfilingResultsColumn extends Model {
+@Table(name="ProfilingResultColumn")
+public class ProfilingResultColumn extends Model {
     @Id
     @Column(name="ID")
     public Integer id;
@@ -82,7 +82,7 @@ public class ProfilingResultsColumn extends Model {
 
 
     public static void addResult(MetadataSchema mtd, StagingSchema stg, ProfilingTemplate template, DataColumn col, Map<String, String> results) {
-        ProfilingResultsColumn res = new ProfilingResultsColumn();
+        ProfilingResultColumn res = new ProfilingResultColumn();
         col.getResultsColumns().add(res);
 
         for (String k:results.keySet()) {

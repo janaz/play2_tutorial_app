@@ -8,13 +8,12 @@ import play.db.ebean.Model;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Map;
 
 @Entity
-@Table(name="ProfilingResultsValue")
-public class ProfilingResultsValue extends Model {
+@Table(name="ProfilingResultFormat")
+public class ProfilingResultFormat extends Model {
     @Id
     @Column(name="ID")
     public Integer id;
@@ -29,8 +28,8 @@ public class ProfilingResultsValue extends Model {
     @Column(name="ColumnName", length = 64)
     public String columnName;
 
-    @Column(name="Value", length = 128)
-    public String value;
+    @Column(name="Format", length = 128)
+    public String format;
 
     @NotNull
     @Column(name="Cardinality")
@@ -55,14 +54,14 @@ public class ProfilingResultsValue extends Model {
 
 
     public static void addResult(MetadataSchema mtd, StagingSchema stg, ProfilingTemplate template, DataColumn col, Map<String, String> results) {
-        ProfilingResultsValue res = new ProfilingResultsValue();
-        col.getResultsValues().add(res);
+        ProfilingResultFormat res = new ProfilingResultFormat();
+        col.getResultsFormats().add(res);
         try {
             res.cardinality = Integer.valueOf(results.get("Cardinality"));
         }catch (NumberFormatException e) {
             res.cardinality = 0;
         }
-        res.value = results.get("Value");
+        res.format = results.get("Format");
         res.columnName = col.name;
         res.profilingTemplateId = template.id;
         res.tableName = stg.dataSetTableName();

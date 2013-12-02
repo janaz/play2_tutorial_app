@@ -31,13 +31,13 @@ public class DataColumn extends Model {
     public DataSet dataSet;
 
     @OneToMany(mappedBy="dataColumn", cascade = CascadeType.ALL)
-    public List<ProfilingResultsColumn> resultsColumns;
+    public List<ProfilingResultColumn> resultsColumns;
 
     @OneToMany(mappedBy="dataColumn", cascade = CascadeType.ALL)
-    public List<ProfilingResultsValue> resultsValues;
+    public List<ProfilingResultValue> resultsValues;
 
     @OneToMany(mappedBy="dataColumn", cascade = CascadeType.ALL)
-    public List<ProfilingResultsFormat> resultsFormats;
+    public List<ProfilingResultFormat> resultsFormats;
 
     @Column(name="CreationTimestamp")
     @Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -55,27 +55,27 @@ public class DataColumn extends Model {
         this.dataSet = dataSet;
     }
 
-    public List<ProfilingResultsColumn> getResultsColumns() {
+    public List<ProfilingResultColumn> getResultsColumns() {
         return resultsColumns;
     }
 
-    public void setResultsColumns(List<ProfilingResultsColumn> resultsColumns) {
+    public void setResultsColumns(List<ProfilingResultColumn> resultsColumns) {
         this.resultsColumns = resultsColumns;
     }
 
-    public List<ProfilingResultsValue> getResultsValues() {
+    public List<ProfilingResultValue> getResultsValues() {
         return resultsValues;
     }
 
-    public void setResultsValues(List<ProfilingResultsValue> resultsValues) {
+    public void setResultsValues(List<ProfilingResultValue> resultsValues) {
         this.resultsValues = resultsValues;
     }
 
-    public List<ProfilingResultsFormat> getResultsFormats() {
+    public List<ProfilingResultFormat> getResultsFormats() {
         return resultsFormats;
     }
 
-    public void setResultsFormats(List<ProfilingResultsFormat> resultsFormats) {
+    public void setResultsFormats(List<ProfilingResultFormat> resultsFormats) {
         this.resultsFormats = resultsFormats;
     }
 

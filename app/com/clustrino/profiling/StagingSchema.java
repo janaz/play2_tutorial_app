@@ -107,13 +107,11 @@ public class StagingSchema {
                 sb.append(") VALUES (");
                 sb.append(Joiner.on(',').join(colValuesPlaceholder));
                 sb.append(")");
-                System.out.println("DEBUG SQL: "+sb.toString());
                 return sb.toString();
             }
 
             @Override
             public void setup(PreparedStatement pstmt) throws SQLException {
-                System.out.println("DEBUG setting values" + colValues);
                 for (int i = 0; i < colValues.size(); i++) {
                     pstmt.setString(i + 1, colValues.get(i));
                 }

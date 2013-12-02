@@ -41,39 +41,30 @@ public abstract class UploadedFilePersistService {
         for (final DataColumn col : dataSet.getColumns()) {
             if (col.dataType != DataCategory.UNKNOWN) {
                 for (final ProfilingTemplate template : ProfilingTemplate.find.all()) {
-                    EbeanServerManager.getManager().executeQuery(stg.server(), new QueryCallable<Void>() {
+                    EbeanServerManager.getManager().executeQuery(mtd.server(), new QueryCallable<Boolean>() {
                         @Override
-                        public Void call(PreparedStatement pstmt) throws SQLException {
-                            ResultSet res = pstmt.executeQuery();
-                            ResultSetMetaData rsmd = res.getMetaData();
-                            List<String> colNames = new ArrayList<>();
-                            int colCount = rsmd.getColumnCount();
-                            for (int i = 0; i < colCount; i++) {
-                                colNames.add(rsmd.getColumnName(i + 1));
-                            }
-                            while (res.next()) {
-                                Map<String, String> retVal = new HashMap<>();
-                                for (int i = 0; i < colCount; i++) {
-                                    retVal.put(colNames.get(i), res.getString(i + 1));
-                                }
-                                if (template.targetTableName.equals("ProfilingResultColumn")) {
-                                    ProfilingResultsColumn.addResult(mtd, stg, template, col, retVal);
-                                } else if (template.targetTableName.equals("ProfilingResultFormat")) {
-                                    ProfilingResultsFormat.addResult(mtd, stg, template, col, retVal);
-                                } else if (template.targetTableName.equals("ProfilingResultValue")) {
-                                    ProfilingResultsValue.addResult(mtd, stg, template, col, retVal);
-                                }
-
-                            }
-                            return null;
-
+                        public Boolean call(PreparedStatement pstmt) throws SQLException {
+                            return pstmt.execute();
                         }
 
                         @Override
                         public String getQuery() {
-                            return template.templateQuery.replaceAll("#SchemaName#", stg.databaseName()).
+                            String subQuery = template.templateQuery.replaceAll("#SchemaName#", stg.databaseName()).
                                     replaceAll("#TableName#", stg.dataSetTableName()).
                                     replaceAll("#ColumnName#", col.name);
+                            String columnList = null;
+                            if (template.targetTableName.equals("ProfilingResultColumn")) {
+                                columnList = "TotalCount,DistinctCount,NullCount,PercentagePopulated,PercentageUnique,MinimumLength,MaximumLength,MinimumValue,MaximumValue";
+                            } else if (template.targetTableName.equals("ProfilingResultFormat")) {
+                                columnList = "Format, Cardinality";
+                            } else if (template.targetTableName.equals("ProfilingResultValue")) {
+                                columnList = "Value, Cardinality";
+                            }
+                            String query = "INSERT INTO " + template.targetTableName + "(ProfilingTemplateID, TableName,ColumnName,DataColumnID,CreationTimestamp, " + columnList +
+                                    ") SELECT " + template.id + ",'" + stg.dataSetTableName() + "','" + col.name + "'," + col.id + ",CURRENT_TIMESTAMP," + columnList + " FROM (" + subQuery + ") profiling_subquery";
+
+                            System.out.println("PROFILE QUERY " + query);
+                            return query;
                         }
 
                         @Override

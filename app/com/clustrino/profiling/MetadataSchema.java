@@ -8,9 +8,9 @@ import java.util.List;
 
 public class MetadataSchema {
     private static final List<Class<?>> CLASSES = Arrays.asList(new Class<?>[]{
-            ProfilingResultsColumn.class,
-            ProfilingResultsFormat.class,
-            ProfilingResultsValue.class,
+            ProfilingResultColumn.class,
+            ProfilingResultFormat.class,
+            ProfilingResultValue.class,
             DataSet.class,
             File.class,
             DataColumn.class});
