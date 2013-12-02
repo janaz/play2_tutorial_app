@@ -13,7 +13,6 @@ import java.util.List;
 public class StagingSchema {
     private final Integer userId;
     private final Integer dataSetId;
-    private EbeanServer stgSrv;
 
     public StagingSchema(Integer userId, Integer dataSetId) {
         this.userId = userId;
@@ -37,7 +36,7 @@ public class StagingSchema {
     }
 
     public EbeanServer server() {
-        return EbeanServerManager.getManager().getServer(databaseName(), null, false);
+        return EbeanServerManager.getManager().getMysqlServer();
     }
 
     public boolean createDatabase() {
@@ -64,7 +63,7 @@ public class StagingSchema {
             @Override
             public String getQuery() {
                 StringBuilder sb = new StringBuilder();
-                return sb.append("INSERT INTO ").append(rejectsTableName()).append("(line, content) values(?,?)").toString();
+                return sb.append("INSERT INTO ").append(rejectsTableName()).append("(Line, Content) values(?,?)").toString();
             }
 
             @Override
@@ -102,7 +101,7 @@ public class StagingSchema {
                         colValuesPlaceholder.add("?");
                     }
                 }
-                sb.append("INSERT INTO ").append(dataSetTableName()).append("(");
+                sb.append("INSERT INTO ").append(databaseName()).append(".").append(dataSetTableName()).append("(");
                 sb.append(Joiner.on(',').join(colNames));
                 sb.append(") VALUES (");
                 sb.append(Joiner.on(',').join(colValuesPlaceholder));
@@ -130,14 +129,14 @@ public class StagingSchema {
             @Override
             public String getQuery() {
                 StringBuilder sb = new StringBuilder();
-                sb.append("CREATE TABLE ").append(dataSetTableName()).append("(");
-                sb.append("id bigint(20) NOT NULL AUTO_INCREMENT,");
+                sb.append("CREATE TABLE ").append(databaseName()).append(".").append(dataSetTableName()).append("(");
+                sb.append("ID bigint(20) NOT NULL AUTO_INCREMENT,");
                 for (DataCategory cat : categories) {
                     if (cat != DataCategory.UNKNOWN) {
                         sb.append(cat.name()).append(" ").append(cat.dbType()).append(",");
                     }
                 }
-                sb.append("PRIMARY KEY (id) )");
+                sb.append("PRIMARY KEY (ID) )");
                 return sb.toString();
             }
 
@@ -157,7 +156,7 @@ public class StagingSchema {
 
             @Override
             public String getQuery() {
-                return "DROP TABLE IF EXISTS " + tableName;
+                return "DROP TABLE IF EXISTS " + databaseName() + "." + tableName;
             }
 
             @Override
@@ -184,11 +183,11 @@ public class StagingSchema {
             @Override
             public String getQuery() {
                 StringBuilder sb = new StringBuilder();
-                sb.append("CREATE TABLE ").append(rejectsTableName()).append("(");
-                sb.append("id bigint(20) NOT NULL AUTO_INCREMENT,");
-                sb.append("line bigint(20),");
-                sb.append("content text,");
-                sb.append("PRIMARY KEY (id) )");
+                sb.append("CREATE TABLE ").append(databaseName()).append(".").append(rejectsTableName()).append("(");
+                sb.append("ID bigint(20) NOT NULL AUTO_INCREMENT,");
+                sb.append("Line bigint(20),");
+                sb.append("Content text,");
+                sb.append("PRIMARY KEY (ID) )");
                 return sb.toString();
             }
 
