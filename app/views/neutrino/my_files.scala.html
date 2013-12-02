@@ -4,16 +4,16 @@
 
 @admin {
     @_navbar()
-        <h4>@Messages("clustrino.my_files.header.page_header")</h4>
+        <h4>@Messages("neutrino.my_files.header.page_header")</h4>
 
 
         <table class="table table-striped">
             <thead>
                 <tr>
                     <th>#</th>
-                    <th>@Messages("clustrino.my_files.header.name")</th>
-                    <th>@Messages("clustrino.my_files.header.uploaded_at")</th>
-                    <th>@Messages("clustrino.my_files.header.action")</th>
+                    <th>@Messages("neutrino.my_files.header.name")</th>
+                    <th>@Messages("neutrino.my_files.header.uploaded_at")</th>
+                    <th>@Messages("neutrino.my_files.header.action")</th>
                 </tr>
             </thead>
             <tbody>
@@ -28,7 +28,7 @@
                         <span class="btn btn-success fileinput-button">
 
                             <span class="glyphicon glyphicon-plus"></span>
-                            <span>@Messages("clustrino.upload.add_files")</span>
+                            <span>@Messages("neutrino.upload.add_files")</span>
                             <input id="fileupload" type="file" name="files[]" data-url="@controllers.neutrino.secured.routes.UploadedFile.uploadFile()">
                         </span>
                     </td>
@@ -43,7 +43,7 @@
                     <td>
                     </td>
                     <td>
-                        <a data-pjax type="button" class="btn btn-success upload-view-file hidden" href="#"><span class="glyphicon glyphicon-expand"></span> @Messages("clustrino.my_files.action.view")</a>
+                        <a data-pjax type="button" class="btn btn-success upload-view-file hidden" href="#"><span class="glyphicon glyphicon-expand"></span> @Messages("neutrino.my_files.action.view")</a>
 
                         <button type="button" class="btn btn-primary upload-action-start"><span class="glyphicon glyphicon-upload"></span> Upload</button>
                     </td>
@@ -60,7 +60,7 @@
                         @{new DateTime(item.creationTimestamp).toString(DateTimeFormat.mediumDateTime())}
                     </td>
                     <td>
-                        <a data-pjax type="button" class="btn btn-default" href="@controllers.neutrino.secured.routes.UploadedFile.showFile(item.id)"><span class="glyphicon glyphicon-expand"></span> @Messages("clustrino.my_files.action.view")</a>
+                        <a data-pjax type="button" class="btn btn-default" href="@controllers.neutrino.secured.routes.UploadedFile.showFile(item.id)"><span class="glyphicon glyphicon-expand"></span> @Messages("neutrino.my_files.action.view")</a>
 
                     </td>
                 </tr>

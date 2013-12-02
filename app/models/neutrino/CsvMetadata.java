@@ -1,4 +1,4 @@
-package models.clustrino;
+package models.neutrino;
 
 import com.neutrino.csv.DuplicteColumnException;
 import com.google.common.base.Splitter;

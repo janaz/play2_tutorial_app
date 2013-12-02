@@ -8,13 +8,13 @@ GET         /                                     controllers.Application.index(
 # Map static resources from the /public folder to the /assets URL path
 GET         /assets/*file                         controllers.Assets.at(path="/public", file)
 
-GET         /clustrino/index                      controllers.neutrino.BasicFlow.index()
-POST        /clustrino/upload                     controllers.neutrino.secured.UploadedFile.uploadFile()
-GET         /clustrino/show/:id                       controllers.neutrino.secured.UploadedFile.showFile(id: Integer)
-POST        /clustrino/update_columns/:id                       controllers.neutrino.secured.UploadedFile.updateColumns(id: Integer)
-GET         /clustrino/my_files                   controllers.neutrino.secured.UploadedFile.myFiles()
-GET         /clustrino/dashboard                  controllers.neutrino.secured.Dashboard.dashboard()
-GET         /clustrino/test_action                controllers.neutrino.BasicFlow.testAction()
+GET         /neutrino/index                      controllers.neutrino.BasicFlow.index()
+POST        /neutrino/upload                     controllers.neutrino.secured.UploadedFile.uploadFile()
+GET         /neutrino/show/:id                       controllers.neutrino.secured.UploadedFile.showFile(id: Integer)
+POST        /neutrino/update_columns/:id                       controllers.neutrino.secured.UploadedFile.updateColumns(id: Integer)
+GET         /neutrino/my_files                   controllers.neutrino.secured.UploadedFile.myFiles()
+GET         /neutrino/dashboard                  controllers.neutrino.secured.Dashboard.dashboard()
+GET         /neutrino/test_action                controllers.neutrino.BasicFlow.testAction()
 
 GET     /restricted                 controllers.Application.restricted
 #GET     /assets/javascript/routes.js    controllers.Application.jsRoutes

@@ -7,7 +7,7 @@
 @if(request.getHeader("X-PJAX") != null) {
     @content
 } else {
-    @main("Clustrino") {
+    @main("Neutrino") {
 
         <div class="upload-alert alert alert-success" style="display: none;">
         </div>
@@ -62,19 +62,19 @@
                     var response = data.result;
                     $('.upload-data-context .upload-view-file' ).removeClass('hidden' ).attr('href', response.view_url);
                     $('.upload-progress').addClass('hidden');
-                    $('.upload-alert' ).removeClass('hidden').html('@Messages("clustrino.upload.file_uploaded_successfully") ' +response.message + ' <a href="'+response.view_url+'">Display the content</a>').slideDown();
+                    $('.upload-alert' ).removeClass('hidden').html('@Messages("neutrino.upload.file_uploaded_successfully") ' +response.message + ' <a href="'+response.view_url+'">Display the content</a>').slideDown();
                 },
                 progressall: function (e, data) {
                     var progress = parseInt(data.loaded / data.total * 100, 10);
                     $('.upload-progress .progress-bar').css('width',progress + '%').attr('aria-valuenow', progress);
-                    $('.upload-progress .progress-bar .progress-percentage' ).html('@Messages("clustrino.upload.uploading") ' + this.fileName +' '+ progress + '% @Messages("clustrino.upload.complete")');
+                    $('.upload-progress .progress-bar .progress-percentage' ).html('@Messages("neutrino.upload.uploading") ' + this.fileName +' '+ progress + '% @Messages("neutrino.upload.complete")');
                 }
             });
         };
         </script>
 
         @defining(Application.getLocalUser(session())) { user =>
-            <h3>@Messages("clustrino.header.welcome", user.contactName)</h3>
+            <h3>@Messages("neutrino.header.welcome", user.contactName)</h3>
         }
         <div id="pjax-container">
             @content

@@ -159,33 +159,33 @@ playauthenticate.restricted.secrets=Secrets, everywhere!
 
 
 ### The app
-clustrino.header.welcome=Welcome {0}!
+neutrino.header.welcome=Welcome {0}!
 
-clustrino.index.welcome.title=Welcome!
-clustrino.index.welcome.learn_more=Learn more
-clustrino.index.welcome.message=Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat.
-clustrino.index.dashboard_link=Dashboard
+neutrino.index.welcome.title=Welcome!
+neutrino.index.welcome.learn_more=Learn more
+neutrino.index.welcome.message=Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat.
+neutrino.index.dashboard_link=Dashboard
 
-clustrino.dashboard.option.upload=Manage Files
+neutrino.dashboard.option.upload=Manage Files
 
-clustrino.navbar.upload=Upload file
-clustrino.navbar.view=View file
-clustrino.navbar.profile=Profile
-clustrino.navbar.test=Test
-clustrino.navbar.my_files=My files
+neutrino.navbar.upload=Upload file
+neutrino.navbar.view=View file
+neutrino.navbar.profile=Profile
+neutrino.navbar.test=Test
+neutrino.navbar.my_files=My files
 
-clustrino.footer=Copyright 2013
+neutrino.footer=Copyright 2013
 
 
-clustrino.my_files.header.page_header=My Files
-clustrino.my_files.header.name=Name
-clustrino.my_files.header.uploaded_at=Uploaded
-clustrino.my_files.header.action=Action
-clustrino.my_files.action.view=View
+neutrino.my_files.header.page_header=My Files
+neutrino.my_files.header.name=Name
+neutrino.my_files.header.uploaded_at=Uploaded
+neutrino.my_files.header.action=Action
+neutrino.my_files.action.view=View
 
-clustrino.upload.add_files=Add File
-clustrino.upload.chosen_file=Selected file
-clustrino.upload.bytes=bytes
-clustrino.upload.file_uploaded_successfully=File uploaded successfully
-clustrino.upload.uploading=Uploading
-clustrino.upload.complete=complete
+neutrino.upload.add_files=Add File
+neutrino.upload.chosen_file=Selected file
+neutrino.upload.bytes=bytes
+neutrino.upload.file_uploaded_successfully=File uploaded successfully
+neutrino.upload.uploading=Uploading
+neutrino.upload.complete=complete

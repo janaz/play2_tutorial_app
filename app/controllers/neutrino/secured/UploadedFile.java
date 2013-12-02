@@ -27,7 +27,7 @@ public class UploadedFile extends Secured {
         List<DataSet> list = DataSet.find(met.server().getName()).all();
 
         System.out.println("My Files: " + list);
-        return ok(views.html.clustrino.my_files.render(list));
+        return ok(views.html.neutrino.my_files.render(list));
     }
 
 
@@ -169,7 +169,7 @@ public class UploadedFile extends Secured {
             throw new RuntimeException(e);
         }
 
-        return ok(views.html.clustrino.show_file.render(model.getFile().originalFileName,
+        return ok(views.html.neutrino.show_file.render(model.getFile().originalFileName,
                 Json.stringify(headers),
                 Json.stringify(sample),
                 Json.stringify(population),

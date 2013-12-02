@@ -1,18 +1,18 @@
 @import helper._
 
 @import controllers.neutrino._
-@main("Clustrino") {
+@main("Neutrino") {
     <div class="jumbotron">
-        <h1>@Messages("clustrino.index.welcome.title")</h1>
-        <p>@Messages("clustrino.index.welcome.message")</p>
+        <h1>@Messages("neutrino.index.welcome.title")</h1>
+        <p>@Messages("neutrino.index.welcome.message")</p>
 
-        <p><a class="btn btn-primary btn-lg" role="button">@Messages("clustrino.index.welcome.learn_more")</a></p>
+        <p><a class="btn btn-primary btn-lg" role="button">@Messages("neutrino.index.welcome.learn_more")</a></p>
     </div>
     <div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
         <div class="fixed-background"></div>
         <div class="fixed">
             <div>
-                <a type="button" class="btn btn-primary btn-lg btn-success" href="@controllers.neutrino.secured.routes.Dashboard.dashboard">@Messages("clustrino.index.dashboard_link") <span class="glyphicon glyphicon-log-in"></span></a>
+                <a type="button" class="btn btn-primary btn-lg btn-success" href="@controllers.neutrino.secured.routes.Dashboard.dashboard">@Messages("neutrino.index.dashboard_link") <span class="glyphicon glyphicon-log-in"></span></a>
             </div>
             <p>this is fixed and always there</p>
             <p>this is fixed and always there</p>

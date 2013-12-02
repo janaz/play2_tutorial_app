@@ -10,7 +10,7 @@ import com.feth.play.module.pa.providers.password.UsernamePasswordAuthUser;
 import com.feth.play.module.pa.user.AuthUser;
 import com.feth.play.module.pa.user.AuthUserIdentity;
 import com.feth.play.module.pa.user.EmailIdentity;
-import models.clustrino.CsvFile;
+import models.neutrino.CsvFile;
 import models.configuration.TokenAction.Type;
 import org.hibernate.validator.constraints.Email;
 import play.data.format.Formats;
