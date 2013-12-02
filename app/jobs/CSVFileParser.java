@@ -1,8 +1,8 @@
 package jobs;
 
 import akka.actor.Cancellable;
-import com.clustrino.profiling.MetadataSchema;
-import com.clustrino.profiling.metadata.DataSet;
+import com.neutrino.profiling.MetadataSchema;
+import com.neutrino.profiling.metadata.DataSet;
 import com.google.common.base.Joiner;
 import play.libs.Akka;
 import scala.concurrent.duration.Duration;
@@ -76,7 +76,7 @@ public class CSVFileParser {
             MetadataSchema met = new MetadataSchema(model.userId);
             model.state = DataSet.State.PARSING;
             model.save(met.server().getName());
-            final com.clustrino.csv.UploadedFile uploadedFile = new com.clustrino.csv.UploadedFile(model);
+            final com.neutrino.csv.UploadedFile uploadedFile = new com.neutrino.csv.UploadedFile(model);
             try {
                 uploadedFile.persistService().importToDB(model);
                 uploadedFile.persistService().runProfiling(model);

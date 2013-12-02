@@ -1,11 +1,11 @@
 package controllers.clustrino.secured;
 
 import com.avaje.ebean.Query;
-import com.clustrino.csv.*;
-import com.clustrino.profiling.MetadataSchema;
-import com.clustrino.profiling.metadata.DataColumn;
-import com.clustrino.profiling.metadata.DataSet;
-import com.clustrino.profiling.metadata.File;
+import com.neutrino.csv.*;
+import com.neutrino.profiling.MetadataSchema;
+import com.neutrino.profiling.metadata.DataColumn;
+import com.neutrino.profiling.metadata.DataSet;
+import com.neutrino.profiling.metadata.File;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.Application;
@@ -52,7 +52,7 @@ public class UploadedFile extends Secured {
             fileModel.setSavedFileName();
             model.setFile(fileModel);
 
-            final com.clustrino.csv.UploadedFile uploadedFile = com.clustrino.csv.UploadedFile.fromUpload(model, part.getFile());
+            final com.neutrino.csv.UploadedFile uploadedFile = com.neutrino.csv.UploadedFile.fromUpload(model, part.getFile());
             uploadedFile.persist();
             uploadedFile.getFile().delete();
 

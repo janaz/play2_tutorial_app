@@ -1,6 +1,6 @@
 package models.clustrino;
 
-import com.clustrino.csv.DuplicteColumnException;
+import com.neutrino.csv.DuplicteColumnException;
 import com.google.common.base.Splitter;
 import play.db.ebean.Model;
 

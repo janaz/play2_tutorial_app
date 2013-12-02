@@ -39,7 +39,7 @@ ShowFile = function (myData, myHeaders, myPopulation, myNames, modelId) {
                     myHeaders[col] = e.val;
                     $.ajax({
                         type: "POST",
-                        url: "/clustrino/update_columns/"+modelId,
+                        url: "/neutrino/update_columns/"+modelId,
                         data: JSON.stringify(myHeaders),
                         contentType: "application/json; charset=utf-8",
                         success: function(data, textStatus, jqXHR) {

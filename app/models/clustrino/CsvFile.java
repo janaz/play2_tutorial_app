@@ -1,7 +1,7 @@
 package models.clustrino;
 
 
-import com.clustrino.csv.DataCategory;
+import com.neutrino.csv.DataCategory;
 import com.google.common.base.Function;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
