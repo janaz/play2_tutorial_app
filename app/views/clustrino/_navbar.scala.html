@@ -1,6 +1,6 @@
 <ul class="nav nav-tabs">
-    <li @if(request.path.contains("/my_files")) {class="active"} ><a data-pjax href="@controllers.clustrino.secured.routes.UploadedFile.myFiles()">@Messages("clustrino.navbar.my_files")</a></li>
+    <li @if(request.path.contains("/my_files")) {class="active"} ><a data-pjax href="@controllers.neutrino.secured.routes.UploadedFile.myFiles()">@Messages("clustrino.navbar.my_files")</a></li>
     <li @if(request.path.contains("/show")) {class="active"} ><a href="#">@Messages("clustrino.navbar.view")</a></li>
     <li class="disabled"><a href="#">@Messages("clustrino.navbar.profile")</a></li>
-    <li @if(request.path.contains("/test_action")) {class="active"} ><a data-pjax href="@controllers.clustrino.routes.BasicFlow.testAction()">@Messages("clustrino.navbar.test")</a></li>
+    <li @if(request.path.contains("/test_action")) {class="active"} ><a data-pjax href="@controllers.neutrino.routes.BasicFlow.testAction()">@Messages("clustrino.navbar.test")</a></li>
 </ul>

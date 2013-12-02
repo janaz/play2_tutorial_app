@@ -3,7 +3,6 @@ import com.feth.play.module.pa.PlayAuthenticate.Resolver;
 import com.feth.play.module.pa.exceptions.AccessDeniedException;
 import com.feth.play.module.pa.exceptions.AuthException;
 import controllers.routes;
-import jobs.CSVFileParser;
 import play.Application;
 import play.GlobalSettings;
 import play.mvc.Call;
@@ -25,7 +24,7 @@ public class Global extends GlobalSettings {
 			public Call afterAuth() {
 				// The user will be redirected to this page after authentication
 				// if no original URL was saved
-                return controllers.clustrino.secured.routes.Dashboard.dashboard();
+                return controllers.neutrino.secured.routes.Dashboard.dashboard();
 			}
 
 			@Override

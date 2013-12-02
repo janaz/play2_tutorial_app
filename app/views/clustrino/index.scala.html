@@ -1,6 +1,6 @@
 @import helper._
 
-@import controllers.clustrino._
+@import controllers.neutrino._
 @main("Clustrino") {
     <div class="jumbotron">
         <h1>@Messages("clustrino.index.welcome.title")</h1>
@@ -12,7 +12,7 @@
         <div class="fixed-background"></div>
         <div class="fixed">
             <div>
-                <a type="button" class="btn btn-primary btn-lg btn-success" href="@controllers.clustrino.secured.routes.Dashboard.dashboard">@Messages("clustrino.index.dashboard_link") <span class="glyphicon glyphicon-log-in"></span></a>
+                <a type="button" class="btn btn-primary btn-lg btn-success" href="@controllers.neutrino.secured.routes.Dashboard.dashboard">@Messages("clustrino.index.dashboard_link") <span class="glyphicon glyphicon-log-in"></span></a>
             </div>
             <p>this is fixed and always there</p>
             <p>this is fixed and always there</p>

@@ -1,11 +1,11 @@
 @import helper._
 
-@import controllers.clustrino._
+@import controllers.neutrino._
 @main("Clustrino") {
     @defining(Application.getLocalUser(session())) { user =>
         <h3>@Messages("clustrino.header.welcome", user.contactName)</h3>
     }
     <div>
-        <a type="button" class="btn btn-primary btn-lg" href="@controllers.clustrino.secured.routes.UploadedFile.myFiles">@Messages("clustrino.dashboard.option.upload")</a>
+        <a type="button" class="btn btn-primary btn-lg" href="@controllers.neutrino.secured.routes.UploadedFile.myFiles">@Messages("clustrino.dashboard.option.upload")</a>
     </div>
 }

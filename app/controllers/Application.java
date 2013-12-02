@@ -20,7 +20,7 @@ import java.util.Date;
 
 public class Application extends Controller {
     public static Result index() {
-        return redirect(controllers.clustrino.routes.BasicFlow.index());
+        return redirect(controllers.neutrino.routes.BasicFlow.index());
     }
 
     public static final String FLASH_MESSAGE_KEY = "message";

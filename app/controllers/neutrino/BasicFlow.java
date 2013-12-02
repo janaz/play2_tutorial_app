@@ -1,4 +1,4 @@
-package controllers.clustrino;
+package controllers.neutrino;
 
 import play.mvc.Controller;
 import play.mvc.Result;

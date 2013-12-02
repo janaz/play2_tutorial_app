@@ -1,4 +1,4 @@
-package controllers.clustrino.secured;
+package controllers.neutrino.secured;
 
 import com.avaje.ebean.Query;
 import com.neutrino.csv.*;
@@ -81,7 +81,7 @@ public class UploadedFile extends Secured {
             result.put("status", "OK, Super");
             result.put("id", fileModel.id);
             result.put("message", "File has been uploaded successfully.");
-            result.put("view_url", controllers.clustrino.secured.routes.UploadedFile.showFile(model.id).url());
+            result.put("view_url", controllers.neutrino.secured.routes.UploadedFile.showFile(model.id).url());
             return ok(result);
         } catch (PersistException e) {
             result.put("status", "Failure: " + e.getMessage());

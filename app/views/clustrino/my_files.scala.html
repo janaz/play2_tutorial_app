@@ -29,7 +29,7 @@
 
                             <span class="glyphicon glyphicon-plus"></span>
                             <span>@Messages("clustrino.upload.add_files")</span>
-                            <input id="fileupload" type="file" name="files[]" data-url="@controllers.clustrino.secured.routes.UploadedFile.uploadFile()">
+                            <input id="fileupload" type="file" name="files[]" data-url="@controllers.neutrino.secured.routes.UploadedFile.uploadFile()">
                         </span>
                     </td>
                 </tr>
@@ -60,7 +60,7 @@
                         @{new DateTime(item.creationTimestamp).toString(DateTimeFormat.mediumDateTime())}
                     </td>
                     <td>
-                        <a data-pjax type="button" class="btn btn-default" href="@controllers.clustrino.secured.routes.UploadedFile.showFile(item.id)"><span class="glyphicon glyphicon-expand"></span> @Messages("clustrino.my_files.action.view")</a>
+                        <a data-pjax type="button" class="btn btn-default" href="@controllers.neutrino.secured.routes.UploadedFile.showFile(item.id)"><span class="glyphicon glyphicon-expand"></span> @Messages("clustrino.my_files.action.view")</a>
 
                     </td>
                 </tr>
