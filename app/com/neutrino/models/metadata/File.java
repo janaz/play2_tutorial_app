@@ -1,4 +1,4 @@
-package com.neutrino.profiling.metadata;
+package com.neutrino.models.metadata;
 
 import org.apache.commons.codec.binary.Hex;
 import play.data.format.Formats;

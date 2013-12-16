@@ -2,8 +2,8 @@ package com.neutrino.csv;
 
 import au.com.bytecode.opencsv.CSVParser;
 import au.com.bytecode.opencsv.CSVReader;
-import com.neutrino.profiling.metadata.DataColumn;
-import com.neutrino.profiling.metadata.DataSet;
+import com.neutrino.models.metadata.DataColumn;
+import com.neutrino.models.metadata.DataSet;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 

@@ -1,8 +1,8 @@
 package controllers;
 
-import models.configuration.TokenAction;
-import models.configuration.TokenAction.Type;
-import models.configuration.User;
+import com.neutrino.models.configuration.TokenAction;
+import com.neutrino.models.configuration.TokenAction.Type;
+import com.neutrino.models.configuration.User;
 import play.data.Form;
 import play.i18n.Messages;
 import play.mvc.Controller;

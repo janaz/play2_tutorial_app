@@ -1,6 +1,6 @@
 package service;
 
-import models.configuration.User;
+import com.neutrino.models.configuration.User;
 import play.Application;
 
 import com.feth.play.module.pa.user.AuthUser;

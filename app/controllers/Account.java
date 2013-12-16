@@ -1,6 +1,6 @@
 package controllers;
 
-import models.configuration.User;
+import com.neutrino.models.configuration.User;
 import be.objectify.deadbolt.java.actions.Restrict;
 import be.objectify.deadbolt.java.actions.Group;
 

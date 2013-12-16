@@ -1,4 +1,4 @@
-package models.configuration;
+package com.neutrino.models.configuration;
 
 import play.db.ebean.Model;
 
@@ -7,10 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-/**
- * Initial version based on work by Steve Chaloner (steve@objectify.be) for
- * Deadbolt2
- */
+
 @Entity
 @Table(name = "ProfilingTemplate")
 public class ProfilingTemplate extends Model {

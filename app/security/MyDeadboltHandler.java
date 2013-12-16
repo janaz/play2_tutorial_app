@@ -1,6 +1,6 @@
 package security;
 
-import models.configuration.User;
+import com.neutrino.models.configuration.User;
 import play.libs.F;
 import play.mvc.Http;
 import be.objectify.deadbolt.java.AbstractDeadboltHandler;

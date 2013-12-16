@@ -1,4 +1,4 @@
-package com.neutrino.profiling.metadata;
+package com.neutrino.models.metadata;
 
 import com.neutrino.csv.DataCategory;
 import play.data.format.Formats;
@@ -45,6 +45,12 @@ public class DataColumn extends Model {
     @Column(name="ModificationTimestamp")
     @Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
     public Date modificationTimestamp;
+
+    public static Finder<Integer, DataColumn> find(final String serverName) {
+        return new Finder<Integer, DataColumn>(
+                serverName, Integer.class, DataColumn.class);
+    }
+
 
     public DataSet getDataSet() {
         return dataSet;

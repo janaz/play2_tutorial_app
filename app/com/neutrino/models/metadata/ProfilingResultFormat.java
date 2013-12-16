@@ -1,8 +1,8 @@
-package com.neutrino.profiling.metadata;
+package com.neutrino.models.metadata;
 
 import com.neutrino.profiling.MetadataSchema;
 import com.neutrino.profiling.StagingSchema;
-import models.configuration.ProfilingTemplate;
+import com.neutrino.models.configuration.ProfilingTemplate;
 import play.data.format.Formats;
 import play.db.ebean.Model;
 

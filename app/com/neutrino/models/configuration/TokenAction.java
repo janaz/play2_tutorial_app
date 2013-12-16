@@ -1,4 +1,4 @@
-package models.configuration;
+package com.neutrino.models.configuration;
 
 import java.util.Date;
 

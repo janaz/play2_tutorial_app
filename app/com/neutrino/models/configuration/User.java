@@ -1,4 +1,4 @@
-package models.configuration;
+package com.neutrino.models.configuration;
 
 import be.objectify.deadbolt.core.models.Permission;
 import be.objectify.deadbolt.core.models.Role;
@@ -10,8 +10,7 @@ import com.feth.play.module.pa.providers.password.UsernamePasswordAuthUser;
 import com.feth.play.module.pa.user.AuthUser;
 import com.feth.play.module.pa.user.AuthUserIdentity;
 import com.feth.play.module.pa.user.EmailIdentity;
-import models.neutrino.CsvFile;
-import models.configuration.TokenAction.Type;
+import com.neutrino.models.configuration.TokenAction.Type;
 import org.hibernate.validator.constraints.Email;
 import play.data.format.Formats;
 import play.db.ebean.Model;
@@ -94,12 +93,6 @@ public class User extends Model implements Subject {
 
 	public static final Finder<Integer, User> find = new Finder<Integer, User>(
             Integer.class, User.class);
-
-    public List<CsvFile> getFiles() {
-        //File.
-        return null;
-    }
-
 
     @Override
 	public String getIdentifier()

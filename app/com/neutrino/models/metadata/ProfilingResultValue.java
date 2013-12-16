@@ -1,8 +1,8 @@
-package com.neutrino.profiling.metadata;
+package com.neutrino.models.metadata;
 
 import com.neutrino.profiling.MetadataSchema;
 import com.neutrino.profiling.StagingSchema;
-import models.configuration.ProfilingTemplate;
+import com.neutrino.models.configuration.ProfilingTemplate;
 import play.data.format.Formats;
 import play.db.ebean.Model;
 
@@ -44,6 +44,11 @@ public class ProfilingResultValue extends Model {
     @Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
     public Date creationTimestamp;
 
+    public static Finder<Integer, ProfilingResultValue> find(final String serverName) {
+        return new Finder<Integer, ProfilingResultValue>(
+                serverName, Integer.class, ProfilingResultValue.class);
+    }
+
     public DataColumn getDataColumn() {
         return dataColumn;
     }
@@ -52,10 +57,8 @@ public class ProfilingResultValue extends Model {
         this.dataColumn = dataColumn;
     }
 
-
     public static void addResult(MetadataSchema mtd, StagingSchema stg, ProfilingTemplate template, DataColumn col, Map<String, String> results) {
         ProfilingResultValue res = new ProfilingResultValue();
-        col.getResultsValues().add(res);
         try {
             res.cardinality = Integer.valueOf(results.get("Cardinality"));
         }catch (NumberFormatException e) {
@@ -67,6 +70,5 @@ public class ProfilingResultValue extends Model {
         res.tableName = stg.dataSetTableName();
         res.setDataColumn(col);
         res.save(mtd.server().getName());
-        col.save(mtd.server().getName());
     }
 }

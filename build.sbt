@@ -2,14 +2,11 @@ name := "neutrino"
 
 version := "1.0-SNAPSHOT"
 
-//resolvers += "Apache" at "http://repo1.maven.org/maven2/"
-
-   resolvers ++= Seq(
-        "Apache" at "http://repo1.maven.org/maven2/",
-        Resolver.url("Objectify Play Repository", url("http://schaloner.github.com/releases/"))(Resolver.ivyStylePatterns),
-        Resolver.url("Objectify Play Snapshot Repository", url("http://schaloner.github.com/snapshots/"))(Resolver.ivyStylePatterns)
-        )
-
+resolvers ++= Seq(
+    "Apache" at "http://repo1.maven.org/maven2/",
+    Resolver.url("Objectify Play Repository", url("http://schaloner.github.com/releases/"))(Resolver.ivyStylePatterns),
+    Resolver.url("Objectify Play Snapshot Repository", url("http://schaloner.github.com/snapshots/"))(Resolver.ivyStylePatterns)
+    )
 
 
 libraryDependencies ++= Seq(
@@ -31,4 +28,3 @@ libraryDependencies ++= Seq(
 )     
 
 play.Project.playJavaSettings
-

@@ -1,7 +1,7 @@
 package providers;
 
 import com.feth.play.module.pa.providers.password.UsernamePasswordAuthUser;
-import models.configuration.MyExtendedIdentity;
+import com.neutrino.models.configuration.MyExtendedIdentity;
 import providers.MyUsernamePasswordAuthProvider.MySignup;
 
 public class MyUsernamePasswordAuthUser extends UsernamePasswordAuthUser

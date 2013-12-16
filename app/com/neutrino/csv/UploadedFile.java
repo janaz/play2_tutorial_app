@@ -1,6 +1,6 @@
 package com.neutrino.csv;
 
-import com.neutrino.profiling.metadata.DataSet;
+import com.neutrino.models.metadata.DataSet;
 
 import java.io.File;
 

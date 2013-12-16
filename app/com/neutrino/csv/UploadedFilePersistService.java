@@ -7,8 +7,8 @@ import com.neutrino.profiling.EbeanServerManager;
 import com.neutrino.profiling.MetadataSchema;
 import com.neutrino.profiling.QueryCallable;
 import com.neutrino.profiling.StagingSchema;
-import com.neutrino.profiling.metadata.*;
-import models.configuration.ProfilingTemplate;
+import com.neutrino.models.metadata.*;
+import com.neutrino.models.configuration.ProfilingTemplate;
 import org.springframework.util.FileCopyUtils;
 
 import java.io.File;
