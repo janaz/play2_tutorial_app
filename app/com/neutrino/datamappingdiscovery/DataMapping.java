@@ -32,6 +32,7 @@ public class DataMapping {
     private class ProfilingResultValueListener implements QueryListener<ProfilingResultValue> {
         private final Map<Integer, Integer> regexComplianceCount = new HashMap<>();
         private final Map<Integer, Integer> refDataComplianceCount = new HashMap<>();
+        private final Map<Integer, Integer> minMaxComplianceCount = new HashMap<>();
         private final Map<String, Set<String>> refValues = new HashMap<>();
 
 
@@ -41,6 +42,10 @@ public class DataMapping {
 
         public Map<Integer, Integer> getRegexComplianceCount() {
             return regexComplianceCount;
+        }
+
+        public Map<Integer, Integer> getMinMaxComplianceCount() {
+            return minMaxComplianceCount;
         }
 
 
@@ -79,11 +84,21 @@ public class DataMapping {
                     refDataComplianceCount.put(rule.id, refCount);
                 }
 
-                Integer regexCountInt = regexComplianceCount.get(rule.id);
-                int regexCount = (regexCountInt == null) ? 0 : regexCountInt.intValue();
                 if (rule.regexPatternCompiled() != null && rule.regexPatternCompiled().matcher(profilingResultValue.value.trim()).find()) {
+                    Integer regexCountInt = regexComplianceCount.get(rule.id);
+                    int regexCount = (regexCountInt == null) ? 0 : regexCountInt.intValue();
                     regexCount += profilingResultValue.cardinality;
                     regexComplianceCount.put(rule.id, regexCount);
+                }
+
+                if (rule.maximumValue != null && rule.minimumValue != null) {
+                    if (profilingResultValue.value.compareTo(rule.minimumValue) >= 0 &&
+                            profilingResultValue.value.compareTo(rule.maximumValue) <= 0) {
+                        Integer minMaxCountInt = minMaxComplianceCount.get(rule.id);
+                        int minMaxCount = (minMaxCountInt == null) ? 0 : minMaxCountInt.intValue();
+                        minMaxCount += profilingResultValue.cardinality;
+                        minMaxComplianceCount.put(rule.id, minMaxCount);
+                    }
                 }
             }
         }
@@ -124,24 +139,6 @@ public class DataMapping {
         }
     }
 
-    private class ProfilingResultColumnListener implements QueryListener<ProfilingResultColumn> {
-        private final Map<Integer, Boolean> nameMatching = new HashMap<>();
-
-        private final Map<String, Set<String>> formats = new HashMap<>();
-
-
-        public ProfilingResultColumnListener() {
-        }
-
-        @Override
-        public void process(ProfilingResultColumn profilingResultColumn) {
-            for (MappingDiscoveryRule rule : MappingDiscoveryRule.find.all()) {
-                nameMatching.put(rule.id, rule.isNameMatching(profilingResultColumn.columnName));
-            }
-        }
-    }
-
-
     public void processColumn(DataColumn dataColumn) {
         ProfilingResultValueListener valueListener = new ProfilingResultValueListener();
         ProfilingResultFormatListener formatListener = new ProfilingResultFormatListener();
@@ -156,16 +153,19 @@ public class DataMapping {
         Map<Integer,Double> results = new HashMap<>();
         for (MappingDiscoveryRule rule : MappingDiscoveryRule.find.all()) {
             double score = 0.0f;
+
+            //column name match
             if (rule.isNameMatching(dataColumn.name)) {
                 score += rule.nameScore;
             }
 
+            //reference data match
             int refMatchCount = valueListener.getRefDataComplianceCount().get(rule.id);
             if (rule.refFullScorePercThresh != null && rule.refFullScore != null && rule.refMinimumPercMatch != null && ((float)refMatchCount > profilingColRes.totalCount * rule.refMinimumPercMatch.floatValue())) {
                 double multiplier;
                 if (profilingColRes.totalCount == 0) {
                     multiplier = 0;
-                } rule.refFullScorePercThresh.equals(new BigDecimal("0.0"))) {
+                } else if (rule.refFullScorePercThresh.equals(new BigDecimal("0.0"))) {
                     multiplier = 1;
                 } else {
                     multiplier = (refMatchCount - profilingColRes.totalCount * rule.refMinimumPercMatch.floatValue()) / (profilingColRes.totalCount * rule.refFullScorePercThresh.floatValue());
@@ -178,6 +178,7 @@ public class DataMapping {
 
             }
 
+            //null match
             if (rule.nullMaximumPerc != null && rule.nullMinimumPerc != null && rule.nullPenalty != null) {
                 double nullPerc = 1.0 - profilingColRes.percentagePopulated.doubleValue();
                 if (nullPerc > rule.nullMaximumPerc.doubleValue() || nullPerc < rule.nullMinimumPerc.doubleValue()) {
@@ -186,10 +187,32 @@ public class DataMapping {
             }
 
             //min - max ??? - what about data parsing / data type stuff for dates ????
+            if (rule.maximumValue != null && rule.minimumValue != null) {
+                Integer minMaxCount = valueListener.getMinMaxComplianceCount().get(rule.id);
+                if (minMaxCount == null) {
+                    score += rule.valPenalty;
+                } else if (minMaxCount >= profilingColRes.totalCount * rule.allowedExcPerc.doubleValue()) {
+                    score += rule.valScore;
+                } else {
+                    score += rule.valPenalty;
+                }
+            }
 
+            //regex match
+            if (rule.regexPattern != null && rule.regexMetScore != null && rule.regexMinimumPercThresh != null) {
+                Integer regexCount = valueListener.getRegexComplianceCount().get(rule.id);
+                if (regexCount != null && regexCount >= profilingColRes.totalCount * rule.regexMinimumPercThresh.doubleValue()) {
+                    score += rule.regexMetScore;
+                }
+            }
 
             //formats
-
+            if (rule.formatsCode != null && rule.formatsMetScore != null && rule.formatsMinimumPercThresh != null) {
+                Integer formatCount = formatListener.getFormatComplianceCount().get(rule.id);
+                if (formatCount != null && formatCount >= profilingColRes.totalCount * rule.formatsMinimumPercThresh.doubleValue()) {
+                    score += rule.formatsMetScore;
+                }
+            }
 
             results.put(rule.id, score);
         }
