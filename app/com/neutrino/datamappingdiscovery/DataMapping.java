@@ -69,8 +69,8 @@ public class DataMapping {
         @Override
         public void process(ProfilingResultValue profilingResultValue) {
             String val = profilingResultValue.value;
-            if (val == null) {
-                val = "";
+            if (val == null || val.isEmpty()) {
+                return;
             }
             String[] tokens = val.split("\\s");
             //go through the config
@@ -89,7 +89,6 @@ public class DataMapping {
                 }
 
                 if (rule.regexPatternCompiled() != null && rule.regexPatternCompiled().matcher(val.trim()).find()) {
-                    System.out.println("Found match for "+val);
                     Integer regexCountInt = regexComplianceCount.get(rule.id);
                     int regexCount = (regexCountInt == null) ? 0 : regexCountInt.intValue();
                     regexCount += profilingResultValue.cardinality;
@@ -167,15 +166,16 @@ public class DataMapping {
 
             //reference data match
             Integer refMatchCount = valueListener.getRefDataComplianceCount().get(rule.id);
-            int refMatchCountInt = (refMatchCount == null) ? 0 : refMatchCount;
-            if (rule.refFullScorePercThresh != null && rule.refFullScore != null && rule.refMinimumPercMatch != null && ((float)refMatchCountInt >= profilingColRes.totalCount * rule.refMinimumPercMatch.floatValue())) {
+            int refMatchCountInt = (refMatchCount == null) ? 0 : refMatchCount.intValue();
+            double totalPopulated = profilingColRes.percentagePopulated.doubleValue()*0.01*profilingColRes.totalCount;
+            if (rule.refFullScorePercThresh != null && rule.refFullScore != null && rule.refMinimumPercMatch != null && ((float)refMatchCountInt >= totalPopulated* rule.refMinimumPercMatch.floatValue())) {
                 double multiplier;
-                if (profilingColRes.totalCount == 0) {
+                if (totalPopulated < 0.1) {
                     multiplier = 0;
                 } else if (rule.refFullScorePercThresh.equals(new BigDecimal("0.0"))) {
                     multiplier = 1;
                 } else {
-                    multiplier = ((float)refMatchCountInt - profilingColRes.totalCount * rule.refMinimumPercMatch.floatValue()) / (profilingColRes.totalCount * rule.refFullScorePercThresh.floatValue());
+                    multiplier = ((float)refMatchCountInt - totalPopulated * rule.refMinimumPercMatch.floatValue()) / (totalPopulated * rule.refFullScorePercThresh.floatValue());
                 }
                 if (multiplier > 1) {
                     multiplier = 1;
@@ -205,7 +205,8 @@ public class DataMapping {
                     System.out.println("Adding " + rule.valPenalty +" points for value penalty minmaxcnt = null");
 
                     score += rule.valPenalty;
-                } else if (minMaxCount >= profilingColRes.totalCount * rule.allowedExcPerc.doubleValue()) {
+
+                } else if (minMaxCount >= profilingColRes.percentagePopulated.doubleValue()*0.01*profilingColRes.totalCount * rule.allowedExcPerc.doubleValue()) {
                     System.out.println("Adding " + rule.valScore +" points for value");
                     score += rule.valScore;
                 } else {
@@ -218,7 +219,7 @@ public class DataMapping {
             //regex match
             if (rule.regexPattern != null && rule.regexMetScore != null && rule.regexMinimumPercThresh != null) {
                 Integer regexCount = valueListener.getRegexComplianceCount().get(rule.id);
-                if (regexCount != null && regexCount >= profilingColRes.totalCount * rule.regexMinimumPercThresh.doubleValue()) {
+                if (regexCount != null && regexCount >= profilingColRes.percentagePopulated.doubleValue()*0.01*profilingColRes.totalCount * rule.regexMinimumPercThresh.doubleValue()) {
                     System.out.println("Adding " + rule.regexMetScore +" points for regex");
 
                     score += rule.regexMetScore;
@@ -228,7 +229,7 @@ public class DataMapping {
             //formats
             if (rule.formatsCode != null && rule.formatsMetScore != null && rule.formatsMinimumPercThresh != null) {
                 Integer formatCount = formatListener.getFormatComplianceCount().get(rule.id);
-                if (formatCount != null && formatCount >= profilingColRes.totalCount * rule.formatsMinimumPercThresh.doubleValue()) {
+                if (formatCount != null && formatCount >= profilingColRes.percentagePopulated.doubleValue()*0.01*profilingColRes.totalCount * rule.formatsMinimumPercThresh.doubleValue()) {
                     System.out.println("Adding " + rule.formatsMetScore +" points for format");
                     score += rule.formatsMetScore;
                 }
