@@ -68,14 +68,18 @@ public class DataMapping {
 
         @Override
         public void process(ProfilingResultValue profilingResultValue) {
-            String[] tokens = profilingResultValue.value.split("\\s");
+            String val = profilingResultValue.value;
+            if (val == null) {
+                val = "";
+            }
+            String[] tokens = val.split("\\s");
             //go through the config
             for (MappingDiscoveryRule rule : MappingDiscoveryRule.find.all()) {
                 Integer refCountInt = refDataComplianceCount.get(rule.id);
                 int refCount = (refCountInt == null) ? 0 : refCountInt.intValue();
                 boolean refCountChanged = false;
                 for (String token : tokens) {
-                    if (refValuesByCode(rule.refCode).contains(token.trim().toUpperCase())) {
+                    if (refValuesByCode(rule.refCode) != null && refValuesByCode(rule.refCode).contains(token.trim().toUpperCase())) {
                         refCount += profilingResultValue.cardinality;
                         refCountChanged = true;
                     }
@@ -84,7 +88,8 @@ public class DataMapping {
                     refDataComplianceCount.put(rule.id, refCount);
                 }
 
-                if (rule.regexPatternCompiled() != null && rule.regexPatternCompiled().matcher(profilingResultValue.value.trim()).find()) {
+                if (rule.regexPatternCompiled() != null && rule.regexPatternCompiled().matcher(val.trim()).find()) {
+                    System.out.println("Found match for "+val);
                     Integer regexCountInt = regexComplianceCount.get(rule.id);
                     int regexCount = (regexCountInt == null) ? 0 : regexCountInt.intValue();
                     regexCount += profilingResultValue.cardinality;
@@ -92,8 +97,8 @@ public class DataMapping {
                 }
 
                 if (rule.maximumValue != null && rule.minimumValue != null) {
-                    if (profilingResultValue.value.compareTo(rule.minimumValue) >= 0 &&
-                            profilingResultValue.value.compareTo(rule.maximumValue) <= 0) {
+                    if (val.compareTo(rule.minimumValue) >= 0 &&
+                            val.compareTo(rule.maximumValue) <= 0) {
                         Integer minMaxCountInt = minMaxComplianceCount.get(rule.id);
                         int minMaxCount = (minMaxCountInt == null) ? 0 : minMaxCountInt.intValue();
                         minMaxCount += profilingResultValue.cardinality;
@@ -131,7 +136,7 @@ public class DataMapping {
             for (MappingDiscoveryRule rule : MappingDiscoveryRule.find.all()) {
                 Integer formatCountInt = formatComplianceCount.get(rule.id);
                 int formatCount = (formatCountInt == null) ? 0 : formatCountInt.intValue();
-                if (formats.get(rule.formatsCode).contains(profilingResultFormat.format)) {
+                if (formats.get(rule.formatsCode) != null && formats.get(rule.formatsCode).contains(profilingResultFormat.format)) {
                     formatCount += profilingResultFormat.cardinality;
                     formatComplianceCount.put(rule.id, formatCount);
                 }
@@ -156,23 +161,27 @@ public class DataMapping {
 
             //column name match
             if (rule.isNameMatching(dataColumn.name)) {
+                System.out.println("Adding " + rule.nameScore +" points for column name");
                 score += rule.nameScore;
             }
 
             //reference data match
-            int refMatchCount = valueListener.getRefDataComplianceCount().get(rule.id);
-            if (rule.refFullScorePercThresh != null && rule.refFullScore != null && rule.refMinimumPercMatch != null && ((float)refMatchCount > profilingColRes.totalCount * rule.refMinimumPercMatch.floatValue())) {
+            Integer refMatchCount = valueListener.getRefDataComplianceCount().get(rule.id);
+            int refMatchCountInt = (refMatchCount == null) ? 0 : refMatchCount;
+            if (rule.refFullScorePercThresh != null && rule.refFullScore != null && rule.refMinimumPercMatch != null && ((float)refMatchCountInt >= profilingColRes.totalCount * rule.refMinimumPercMatch.floatValue())) {
                 double multiplier;
                 if (profilingColRes.totalCount == 0) {
                     multiplier = 0;
                 } else if (rule.refFullScorePercThresh.equals(new BigDecimal("0.0"))) {
                     multiplier = 1;
                 } else {
-                    multiplier = (refMatchCount - profilingColRes.totalCount * rule.refMinimumPercMatch.floatValue()) / (profilingColRes.totalCount * rule.refFullScorePercThresh.floatValue());
+                    multiplier = ((float)refMatchCountInt - profilingColRes.totalCount * rule.refMinimumPercMatch.floatValue()) / (profilingColRes.totalCount * rule.refFullScorePercThresh.floatValue());
                 }
                 if (multiplier > 1) {
                     multiplier = 1;
                 }
+
+                System.out.println("Adding " + ((double)rule.refFullScore * multiplier) +" points for ref data (multiplier:"+multiplier+")");
 
                 score += (double)rule.refFullScore * multiplier;
 
@@ -180,8 +189,10 @@ public class DataMapping {
 
             //null match
             if (rule.nullMaximumPerc != null && rule.nullMinimumPerc != null && rule.nullPenalty != null) {
-                double nullPerc = 1.0 - profilingColRes.percentagePopulated.doubleValue();
+                double nullPerc = 1.0 - profilingColRes.percentagePopulated.doubleValue()/100.0;
+                System.out.println("Null percentage: " + nullPerc+" for " + dataColumn.name);
                 if (nullPerc > rule.nullMaximumPerc.doubleValue() || nullPerc < rule.nullMinimumPerc.doubleValue()) {
+                    System.out.println("Adding " + rule.nullPenalty +" points for null penalty");
                     score += rule.nullPenalty;
                 }
             }
@@ -189,11 +200,17 @@ public class DataMapping {
             //min - max ??? - what about data parsing / data type stuff for dates ????
             if (rule.maximumValue != null && rule.minimumValue != null) {
                 Integer minMaxCount = valueListener.getMinMaxComplianceCount().get(rule.id);
+                System.out.println("MinMaxCount: "+minMaxCount);
                 if (minMaxCount == null) {
+                    System.out.println("Adding " + rule.valPenalty +" points for value penalty minmaxcnt = null");
+
                     score += rule.valPenalty;
                 } else if (minMaxCount >= profilingColRes.totalCount * rule.allowedExcPerc.doubleValue()) {
+                    System.out.println("Adding " + rule.valScore +" points for value");
                     score += rule.valScore;
                 } else {
+                    System.out.println("Adding " + rule.valPenalty +" points for value penalty");
+
                     score += rule.valPenalty;
                 }
             }
@@ -202,6 +219,8 @@ public class DataMapping {
             if (rule.regexPattern != null && rule.regexMetScore != null && rule.regexMinimumPercThresh != null) {
                 Integer regexCount = valueListener.getRegexComplianceCount().get(rule.id);
                 if (regexCount != null && regexCount >= profilingColRes.totalCount * rule.regexMinimumPercThresh.doubleValue()) {
+                    System.out.println("Adding " + rule.regexMetScore +" points for regex");
+
                     score += rule.regexMetScore;
                 }
             }
@@ -210,18 +229,20 @@ public class DataMapping {
             if (rule.formatsCode != null && rule.formatsMetScore != null && rule.formatsMinimumPercThresh != null) {
                 Integer formatCount = formatListener.getFormatComplianceCount().get(rule.id);
                 if (formatCount != null && formatCount >= profilingColRes.totalCount * rule.formatsMinimumPercThresh.doubleValue()) {
+                    System.out.println("Adding " + rule.formatsMetScore +" points for format");
                     score += rule.formatsMetScore;
                 }
             }
 
             results.put(rule.id, score);
+            if (rule.confPointsThresh.doubleValue() <= score) {
+                System.out.println("Confidence match found for " + dataColumn.name + "rule: "+rule.coreTable+":"+rule.coreColumn+"\tthreshold: "+rule.confPointsThresh+"\tscore:"+score);
+            } else if (rule.maybePointsThresh.doubleValue() <= score) {
+                System.out.println("Maybe match found for " + dataColumn.name + "rule: "+rule.coreTable+":"+rule.coreColumn+ "\tthreshold: "+rule.maybePointsThresh+"\tscore:"+score);
+            } else {
+                System.out.println("No match found for " + dataColumn.name + "rule: "+rule.coreTable+":"+rule.coreColumn+ "\tthreshold: "+rule.maybePointsThresh+"\tscore:"+score);
+            }
         }
-
-
-
-        formatListener.getFormatComplianceCount();
-        valueListener.getRefDataComplianceCount();
-        valueListener.getRegexComplianceCount();
 
     }
 }

@@ -8,14 +8,11 @@ import play.db.ebean.Model;
 import javax.annotation.Nullable;
 import javax.persistence.*;
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Pattern;
 
 @Entity
-@Table(name = "DataFormat")
+@Table(name = "MappingDiscoveryRule")
 public class MappingDiscoveryRule extends Model {
 
 	@Id
@@ -137,7 +134,7 @@ public class MappingDiscoveryRule extends Model {
 
     private List<Pattern> namePatternsCompiled() {
         if (namePatterns == null || namePatterns.trim().isEmpty()) {
-            return null;
+            return Collections.EMPTY_LIST;
         }
         if (_compiledFor_namePatterns == null || !_compiledFor_namePatterns.equals(namePatterns)) {
             _compiledFor_namePatterns = namePatterns;
