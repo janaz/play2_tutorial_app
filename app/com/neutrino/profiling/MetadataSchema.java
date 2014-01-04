@@ -11,6 +11,8 @@ public class MetadataSchema {
             ProfilingResultColumn.class,
             ProfilingResultFormat.class,
             ProfilingResultValue.class,
+            ColumnMapping.class,
+            CoreModelStructure.class,
             DataSet.class,
             File.class,
             DataColumn.class});

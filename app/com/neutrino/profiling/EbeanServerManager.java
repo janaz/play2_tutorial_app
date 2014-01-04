@@ -102,6 +102,8 @@ public class EbeanServerManager {
         if (runDdl || !SERVERS.containsKey(dbName)) {
             ServerConfig config = new ServerConfig();
             config.setName(serverName(dbName));
+            config.setDatabaseBooleanTrue("T");
+            config.setDatabaseBooleanFalse("F");
             DataSourceConfig db = new DataSourceConfig();
             db.setDriver("com.mysql.jdbc.Driver");
             db.setUsername("root");
