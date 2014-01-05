@@ -236,9 +236,23 @@ public class DataMapping {
             }
 
             results.put(rule.id, score);
+            ColumnMapping cm = new ColumnMapping();
+            cm.confidenceFlag = false;
+            cm.maybeFlag = false;
+            cm.manualOverrideFlag = false;
+            cm.dataColumn = dataColumn;
+            cm.dataSet = dataSet;
+            cm.coreAttributeName = rule.coreColumn;
+            cm.coreAttributeType =rule.coreType;
+            cm.coreTableName = rule.coreTable;
+            cm.score = (int)score;
             if (rule.confPointsThresh.doubleValue() <= score) {
+                cm.confidenceFlag = true;
+                cm.save(mtd.server().getName());
                 System.out.println("Confidence match found for " + dataColumn.name + "rule: "+rule.coreTable+":"+rule.coreColumn+"\tthreshold: "+rule.confPointsThresh+"\tscore:"+score);
             } else if (rule.maybePointsThresh.doubleValue() <= score) {
+                cm.maybeFlag = true;
+                cm.save(mtd.server().getName());
                 System.out.println("Maybe match found for " + dataColumn.name + "rule: "+rule.coreTable+":"+rule.coreColumn+ "\tthreshold: "+rule.maybePointsThresh+"\tscore:"+score);
             } else {
                 System.out.println("No match found for " + dataColumn.name + "rule: "+rule.coreTable+":"+rule.coreColumn+ "\tthreshold: "+rule.maybePointsThresh+"\tscore:"+score);

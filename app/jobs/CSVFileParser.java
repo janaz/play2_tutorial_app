@@ -1,6 +1,7 @@
 package jobs;
 
 import akka.actor.Cancellable;
+import com.neutrino.datamappingdiscovery.DataMapping;
 import com.neutrino.profiling.MetadataSchema;
 import com.neutrino.models.metadata.DataSet;
 import com.google.common.base.Joiner;
@@ -88,6 +89,12 @@ public class CSVFileParser {
             }
 
             model.save(met.server().getName());
+            DataMapping dm = new DataMapping(model);
+            try {
+                dm.process();
+            } catch (Exception e) {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
 
         }
     };

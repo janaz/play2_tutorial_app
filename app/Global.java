@@ -3,13 +3,14 @@ import com.feth.play.module.pa.PlayAuthenticate.Resolver;
 import com.feth.play.module.pa.exceptions.AccessDeniedException;
 import com.feth.play.module.pa.exceptions.AuthException;
 import controllers.routes;
+import jobs.CSVFileParser;
 import play.Application;
 import play.GlobalSettings;
 import play.mvc.Call;
 
 public class Global extends GlobalSettings {
     public void beforeStart(Application app) {
-        //new CSVFileParser();
+        new CSVFileParser();
     }
         public void onStart(Application app) {
 		PlayAuthenticate.setResolver(new Resolver() {

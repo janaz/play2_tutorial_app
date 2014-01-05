@@ -9,10 +9,10 @@ import play.mvc.Result;
 public class BasicFlow extends Controller {
 
     public static Result index() {
-        MetadataSchema mtd = new MetadataSchema(8);
-        DataSet ds = DataSet.find(mtd.server().getName()).where().eq("id", 10).findUnique();
+        MetadataSchema mtd = new MetadataSchema(1);
+        DataSet ds = DataSet.find(mtd.server().getName()).where().eq("id", 1).findUnique();
         DataMapping dm = new DataMapping(ds);
-        dm.process();
+//        dm.process();
         return ok(views.html.neutrino.index.render());
     }
 
