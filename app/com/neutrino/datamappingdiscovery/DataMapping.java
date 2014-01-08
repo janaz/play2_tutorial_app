@@ -56,8 +56,9 @@ public class DataMapping {
                     Set<String> set = refValues.get(referenceData.code);
                     if (set == null) {
                         set = new HashSet<>();
+                        refValues.put(referenceData.code, set);
                     }
-                    set.add(referenceData.value);
+                    set.add(referenceData.value.trim().toUpperCase());
                 }
             }).findList();
         }
@@ -124,8 +125,9 @@ public class DataMapping {
                     Set<String> set = formats.get(dataFormat.code);
                     if (set == null) {
                         set = new HashSet<>();
+                        formats.put(dataFormat.code, set);
                     }
-                    set.add(dataFormat.format);
+                    set.add(dataFormat.format.trim());
                 }
             }).findList();
         }
@@ -135,7 +137,7 @@ public class DataMapping {
             for (MappingDiscoveryRule rule : MappingDiscoveryRule.find.all()) {
                 Integer formatCountInt = formatComplianceCount.get(rule.id);
                 int formatCount = (formatCountInt == null) ? 0 : formatCountInt.intValue();
-                if (formats.get(rule.formatsCode) != null && formats.get(rule.formatsCode).contains(profilingResultFormat.format)) {
+                if (formats.get(rule.formatsCode) != null && formats.get(rule.formatsCode).contains(profilingResultFormat.format.trim())) {
                     formatCount += profilingResultFormat.cardinality;
                     formatComplianceCount.put(rule.id, formatCount);
                 }
