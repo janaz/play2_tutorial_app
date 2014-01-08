@@ -134,6 +134,9 @@ public class DataMapping {
 
         @Override
         public void process(ProfilingResultFormat profilingResultFormat) {
+            if (profilingResultFormat.format == null) {
+                return;
+            }
             for (MappingDiscoveryRule rule : MappingDiscoveryRule.find.all()) {
                 Integer formatCountInt = formatComplianceCount.get(rule.id);
                 int formatCount = (formatCountInt == null) ? 0 : formatCountInt.intValue();
