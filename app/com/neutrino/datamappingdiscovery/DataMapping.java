@@ -185,6 +185,11 @@ public class DataMapping {
                 if (multiplier > 1) {
                     multiplier = 1;
                 }
+                System.out.println("totalPopulated: "+totalPopulated);
+                System.out.println("percentagePopulated: "+profilingColRes.percentagePopulated.doubleValue());
+                System.out.println("refMatchCountInt: "+refMatchCountInt);
+                System.out.println("refMinimumPercMatch: "+rule.refMinimumPercMatch.floatValue());
+                System.out.println("refFullScorePercThresh: "+rule.refFullScorePercThresh.floatValue());
 
                 System.out.println("Adding " + ((double)rule.refFullScore * multiplier) +" points for ref data (multiplier:"+multiplier+")");
 
