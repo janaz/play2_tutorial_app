@@ -63,7 +63,7 @@ public class StagingSchema {
             @Override
             public String getQuery() {
                 StringBuilder sb = new StringBuilder();
-                return sb.append("INSERT INTO ").append(rejectsTableName()).append("(Line, Content) values(?,?)").toString();
+                return sb.append("INSERT INTO ").append(databaseName()).append(".").append(rejectsTableName()).append("(Line, Content) values(?,?)").toString();
             }
 
             @Override
