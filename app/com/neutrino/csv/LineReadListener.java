@@ -10,6 +10,6 @@ import java.util.List;
  * To change this template use File | Settings | File Templates.
  */
 public interface LineReadListener {
-    public Object lineRead(long lineNumber, String[] line, String raw, List<DataCategory> categories);
+    public Object lineRead(long lineNumber, String[] line, String raw, List<CSVDataHeader> headers);
     public boolean finished();
 }

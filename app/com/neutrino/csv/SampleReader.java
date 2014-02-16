@@ -10,12 +10,12 @@ import java.util.List;
 
 public class SampleReader implements LineReadListener {
     private final List<String[]> sampleLines;
-    private List<DataCategory> header;
+    private List<CSVDataHeader> dataHeaders;
     private long limit;
 
     public SampleReader(long limit) {
         sampleLines = new ArrayList<>();
-        header = null;
+        dataHeaders = null;
         this.limit = limit;
     }
 
@@ -23,29 +23,29 @@ public class SampleReader implements LineReadListener {
         return sampleLines;
     }
 
-    public List<DataCategory> getHeader() {
-        return header;
+    public List<CSVDataHeader> getHeaders() {
+        return dataHeaders;
     }
 
-    public List<String> getStringHeader() {
-        return Lists.transform(header, new Function<DataCategory, String>() {
+    public List<String> getStringHeaders() {
+        return Lists.transform(dataHeaders, new Function<CSVDataHeader, String>() {
 
             @Nullable
             @Override
-            public String apply(@Nullable DataCategory dataCategory) {
-                return dataCategory.name();
+            public String apply(@Nullable CSVDataHeader header) {
+                return header.name();
             }
         });
     }
 
     @Override
-    public Object lineRead(long lineNumber, String[] line, String raw, List<DataCategory> categories) {
+    public Object lineRead(long lineNumber, String[] line, String raw, List<CSVDataHeader> headers) {
         if (line != null) {
             sampleLines.add(line);
         }
 
-        if (header == null) {
-            header = categories;
+        if (dataHeaders == null) {
+            dataHeaders = headers;
         }
         return null;
     }

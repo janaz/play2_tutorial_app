@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class ColumnStatistics {
-    private final DataCategory column;
+    private final CSVDataHeader header;
     private int populated;
     private int count;
     private int minLength;
@@ -14,15 +14,15 @@ public class ColumnStatistics {
     private Comparable<?> maxValue;
     Set<Object> distinct;
 
-    public ColumnStatistics(DataCategory column) {
+    public ColumnStatistics(CSVDataHeader header) {
         this.minLength = -1;
         this.maxLength = -1;
         distinct = new HashSet<>();
-        this.column = column;
+        this.header = header;
     }
 
-    public DataCategory getColumn() {
-        return column;
+    public CSVDataHeader getHeader() {
+        return header;
     }
 
     public void add(Comparable<?> parsedValue) {

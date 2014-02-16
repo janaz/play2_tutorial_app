@@ -33,40 +33,38 @@ public abstract class UploadedFilePersistService {
         final StagingSchema stg = new StagingSchema(dataSet.userId, dataSet.id);
         final MetadataSchema mtd = new MetadataSchema(dataSet.userId);
         for (final DataColumn col : dataSet.getColumns()) {
-            if (col.dataType != DataCategory.UNKNOWN) {
-                for (final ProfilingTemplate template : ProfilingTemplate.find.all()) {
-                    EbeanServerManager.getManager().executeQuery(mtd.server(), new QueryCallable<Boolean>() {
-                        @Override
-                        public Boolean call(PreparedStatement pstmt) throws SQLException {
-                            return pstmt.execute();
+            for (final ProfilingTemplate template : ProfilingTemplate.find.all()) {
+                EbeanServerManager.getManager().executeQuery(mtd.server(), new QueryCallable<Boolean>() {
+                    @Override
+                    public Boolean call(PreparedStatement pstmt) throws SQLException {
+                        return pstmt.execute();
+                    }
+
+                    @Override
+                    public String getQuery() {
+                        String subQuery = template.templateQuery.replaceAll("#SchemaName#", stg.databaseName()).
+                                replaceAll("#TableName#", stg.dataSetTableName()).
+                                replaceAll("#ColumnName#", col.name);
+                        String columnList = null;
+                        if (template.targetTableName.equals("ProfilingResultColumn")) {
+                            columnList = "TotalCount,DistinctCount,NullCount,PercentagePopulated,PercentageUnique,MinimumLength,MaximumLength,MinimumValue,MaximumValue";
+                        } else if (template.targetTableName.equals("ProfilingResultFormat")) {
+                            columnList = "Format, Cardinality";
+                        } else if (template.targetTableName.equals("ProfilingResultValue")) {
+                            columnList = "Value, Cardinality";
                         }
+                        String query = "INSERT INTO " + template.targetTableName + "(ProfilingTemplateID, TableName,ColumnName,DataColumnID,CreationTimestamp, " + columnList +
+                                ") SELECT " + template.id + ",'" + stg.dataSetTableName() + "','" + col.name + "'," + col.id + ",CURRENT_TIMESTAMP," + columnList + " FROM (" + subQuery + ") profiling_subquery";
 
-                        @Override
-                        public String getQuery() {
-                            String subQuery = template.templateQuery.replaceAll("#SchemaName#", stg.databaseName()).
-                                    replaceAll("#TableName#", stg.dataSetTableName()).
-                                    replaceAll("#ColumnName#", col.name);
-                            String columnList = null;
-                            if (template.targetTableName.equals("ProfilingResultColumn")) {
-                                columnList = "TotalCount,DistinctCount,NullCount,PercentagePopulated,PercentageUnique,MinimumLength,MaximumLength,MinimumValue,MaximumValue";
-                            } else if (template.targetTableName.equals("ProfilingResultFormat")) {
-                                columnList = "Format, Cardinality";
-                            } else if (template.targetTableName.equals("ProfilingResultValue")) {
-                                columnList = "Value, Cardinality";
-                            }
-                            String query = "INSERT INTO " + template.targetTableName + "(ProfilingTemplateID, TableName,ColumnName,DataColumnID,CreationTimestamp, " + columnList +
-                                    ") SELECT " + template.id + ",'" + stg.dataSetTableName() + "','" + col.name + "'," + col.id + ",CURRENT_TIMESTAMP," + columnList + " FROM (" + subQuery + ") profiling_subquery";
+                        System.out.println("PROFILE QUERY " + query);
+                        return query;
+                    }
 
-                            System.out.println("PROFILE QUERY " + query);
-                            return query;
-                        }
+                    @Override
+                    public void setup(PreparedStatement pstmt) throws SQLException {
+                    }
+                });
 
-                        @Override
-                        public void setup(PreparedStatement pstmt) throws SQLException {
-                        }
-                    });
-
-                }
             }
         }
     }

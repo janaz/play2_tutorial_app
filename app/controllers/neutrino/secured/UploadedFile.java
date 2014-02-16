@@ -1,7 +1,10 @@
 package controllers.neutrino.secured;
 
 import com.avaje.ebean.Query;
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import com.neutrino.csv.*;
+import com.neutrino.models.configuration.MappingDiscoveryRule;
 import com.neutrino.profiling.MetadataSchema;
 import com.neutrino.models.metadata.DataColumn;
 import com.neutrino.models.metadata.DataSet;
@@ -15,6 +18,7 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Date;
@@ -63,13 +67,13 @@ public class UploadedFile extends Secured {
 
             model.getColumns().clear();
             model.save(met.server().getName());
-            for (DataCategory cat : csvFile.categoriesInFirstLine()) {
+            for (CSVDataHeader header : csvFile.headers()) {
                 DataColumn col = new DataColumn();
                 col.creationTimestamp = new Date();
                 col.modificationTimestamp = new Date();
-                col.dataType = cat;
+                col.dataType = header.dataType();
                 col.length = "256";
-                col.name = cat.name();
+                col.name = header.name();
                 model.getColumns().add(col);
                 col.setDataSet(model);
                 col.save(met.server().getName());
@@ -120,13 +124,13 @@ public class UploadedFile extends Secured {
             }
             model.getColumns().clear();
             for (String colName : data) {
-                DataCategory cat = DataCategory.valueOf(colName);
+                CSVDataHeader header = new CSVDataHeader(colName);
                 DataColumn col = new DataColumn();
                 col.creationTimestamp = new Date();
                 col.modificationTimestamp = new Date();
-                col.dataType = cat;
+                col.dataType = header.dataType();
                 col.length = "256";
-                col.name = cat.name();
+                col.name = header.name();
                 model.getColumns().add(col);
                 col.setDataSet(model);
                 col.save(met.server().getName());
@@ -160,7 +164,7 @@ public class UploadedFile extends Secured {
         try {
             csvFile.readFile();
 
-            headers = Json.toJson(sampleReader.getStringHeader());
+            headers = Json.toJson(sampleReader.getStringHeaders());
             sample = Json.toJson(sampleReader.getSampleLines());
             population = Json.toJson(stats.getPercentagePopulated());
 
@@ -173,7 +177,13 @@ public class UploadedFile extends Secured {
                 Json.stringify(headers),
                 Json.stringify(sample),
                 Json.stringify(population),
-                Json.stringify(Json.toJson(DataCategory.names())),
+                Json.stringify(Json.toJson(Lists.transform(MappingDiscoveryRule.find.all(), new Function<MappingDiscoveryRule, String>() {
+                    @Nullable
+                    @Override
+                    public String apply(@Nullable MappingDiscoveryRule mappingDiscoveryRule) {
+                        return mappingDiscoveryRule.coreType;
+                    }
+                }))),
                 model
         ));
 

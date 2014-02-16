@@ -1,9 +1,9 @@
 package com.neutrino.profiling;
 
 import com.avaje.ebean.EbeanServer;
-import com.neutrino.csv.CSVError;
-import com.neutrino.csv.DataCategory;
 import com.google.common.base.Joiner;
+import com.neutrino.csv.CSVDataHeader;
+import com.neutrino.csv.CSVError;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -43,12 +43,12 @@ public class StagingSchema {
         return EbeanServerManager.getManager().createDatabase(databaseName());
     }
 
-    public void createTables(final List<DataCategory> categories) {
+    public void createTables(final List<CSVDataHeader> headers) {
         if (dataSetId == null) {
             throw new IllegalArgumentException("DataSet id not passed");
         }
         dropDatasetTable();
-        createDataSetTable(categories);
+        createDataSetTable(headers);
         dropRejectsTable();
         createRejectsTable();
     }
@@ -75,7 +75,7 @@ public class StagingSchema {
 
     }
 
-    public boolean insertIntoStagingTable(final List<DataCategory> categories, final List<?> values) {
+    public boolean insertIntoStagingTable(final List<CSVDataHeader> headers, final List<?> values) {
         final List<String> colValues = new ArrayList<>(values.size());
 
         return EbeanServerManager.getManager().executeQuery(server(), new QueryCallable<Boolean>() {
@@ -86,20 +86,18 @@ public class StagingSchema {
 
             @Override
             public String getQuery() {
-                final List<String> colNames = new ArrayList<>(categories.size());
+                final List<String> colNames = new ArrayList<>(headers.size());
                 StringBuilder sb = new StringBuilder();
                 List<String> colValuesPlaceholder = new ArrayList<>(values.size());
-                if (categories.size() != values.size()) {
+                if (headers.size() != values.size()) {
                     throw new RuntimeException("Lists should have the same number of elements");
                 }
-                for (int i = 0; i < categories.size(); i++) {
-                    DataCategory cat = categories.get(i);
-                    if (cat != DataCategory.UNKNOWN) {
-                        String value = cat.dbValue(values.get(i));
-                        colNames.add(cat.name());
-                        colValues.add(value);
-                        colValuesPlaceholder.add("?");
-                    }
+                for (int i = 0; i < headers.size(); i++) {
+                    CSVDataHeader header = headers.get(i);
+                    String value = header.dbValue(values.get(i));
+                    colNames.add(header.name());
+                    colValues.add(value);
+                    colValuesPlaceholder.add("?");
                 }
                 sb.append("INSERT INTO ").append(databaseName()).append(".").append(dataSetTableName()).append("(");
                 sb.append(Joiner.on(',').join(colNames));
@@ -119,7 +117,7 @@ public class StagingSchema {
 
     }
 
-    private boolean createDataSetTable(final List<DataCategory> categories) {
+    private boolean createDataSetTable(final List<CSVDataHeader> headers) {
         return EbeanServerManager.getManager().executeQuery(server(), new QueryCallable<Boolean>() {
             @Override
             public Boolean call(PreparedStatement pstmt) throws SQLException {
@@ -131,10 +129,8 @@ public class StagingSchema {
                 StringBuilder sb = new StringBuilder();
                 sb.append("CREATE TABLE ").append(databaseName()).append(".").append(dataSetTableName()).append("(");
                 sb.append("ID bigint(20) NOT NULL AUTO_INCREMENT,");
-                for (DataCategory cat : categories) {
-                    if (cat != DataCategory.UNKNOWN) {
-                        sb.append(cat.name()).append(" ").append(cat.dbType()).append(",");
-                    }
+                for (CSVDataHeader cat : headers) {
+                    sb.append(cat.name()).append(" ").append(cat.dbType()).append(",");
                 }
                 sb.append("PRIMARY KEY (ID) )");
                 return sb.toString();
@@ -165,6 +161,7 @@ public class StagingSchema {
         });
 
     }
+
     private boolean dropDatasetTable() {
         return dropTable(dataSetTableName());
     }

@@ -18,6 +18,8 @@ public class CSVFile {
     private DataSet model;
     private String firstLine;
     List<LineReadListener> lineReadListeners;
+    private List<CSVDataHeader> memoizedHeaders;
+    private List<CSVDataHeader> memoizedUnknownHeaders;
 
     public CSVFile(DataSet model) {
         this.model = model;
@@ -42,17 +44,6 @@ public class CSVFile {
         }
     }
 
-    public List<DataCategory> categoriesInFirstLine() throws IOException {
-        List<DataCategory> retVal = Lists.transform(originalHeaders(), new Function<String, DataCategory>() {
-            @Nullable
-            @Override
-            public DataCategory apply(@Nullable String s) {
-                return DataCategory.detect(s, null);
-            }
-        });
-        return retVal;
-    }
-
     public char getSeparator() throws IOException {
         int maxFieldsNumber = 0;
         char separator = ',';
@@ -69,32 +60,51 @@ public class CSVFile {
 
     public boolean dataIncludesHeader() throws IOException {
         int unknowns = 0;
-        for (DataCategory cat : categoriesInFirstLine()) {
-            if (cat == DataCategory.UNKNOWN) {
+        int all = 0;
+        for (CSVDataHeader h : internalHeaders()) {
+            if (h.category() == DataColumnCategory.UNKNOWN) {
                 unknowns++;
             }
+            all++;
         }
-        if (unknowns * 100 / categoriesInFirstLine().size() > 30) {
+        if (unknowns * 100 / all > 30) {
             return false;
         } else {
             return true;
         }
     }
 
-    private List<String> originalHeaders() throws IOException {
-        CSVParser parser = new CSVParser(getSeparator());
-        return Lists.newArrayList(parser.parseLine(this.getFirstLine()));
+    public List<CSVDataHeader> headers() throws IOException {
+        if (dataIncludesHeader()) {
+            return internalHeaders();
+        } else {
+            return internalUnknownHeaders();
+        }
     }
 
-
-    public List<DataCategory> categories() throws IOException {
-        return Lists.transform(model.getColumns(), new Function<DataColumn, DataCategory>() {
-            @Nullable
-            @Override
-            public DataCategory apply(@Nullable DataColumn dataColumn) {
-                return dataColumn.dataType;
+    private List<CSVDataHeader> internalUnknownHeaders() throws IOException {
+        if (this.memoizedUnknownHeaders == null) {
+            this.memoizedUnknownHeaders = new ArrayList<>(internalHeaders().size());
+            for (int i = 1; i <= internalHeaders().size(); i++) {
+                this.memoizedUnknownHeaders.add(new CSVDataHeader("UNKNOWN_" + i));
             }
-        });
+        }
+        return this.memoizedUnknownHeaders;
+    }
+
+    private List<CSVDataHeader> internalHeaders() throws IOException {
+        if (this.memoizedHeaders == null) {
+            CSVParser parser = new CSVParser(getSeparator());
+            List<String> list = Lists.newArrayList(parser.parseLine(this.getFirstLine()));
+            this.memoizedHeaders = Lists.transform(list, new Function<String, CSVDataHeader>() {
+                @Nullable
+                @Override
+                public CSVDataHeader apply(@Nullable String s) {
+                    return new CSVDataHeader(s);
+                }
+            });
+        }
+        return this.memoizedHeaders;
     }
 
     public void addReadListener(LineReadListener l) {
@@ -103,7 +113,7 @@ public class CSVFile {
 
     private void lineRead(long lineNumber, String[] line, String raw) throws IOException {
         for (LineReadListener l : lineReadListeners) {
-            l.lineRead(lineNumber, line, raw, categories());
+            l.lineRead(lineNumber, line, raw, headers());
         }
     }
 

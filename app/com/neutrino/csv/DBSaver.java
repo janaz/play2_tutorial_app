@@ -25,27 +25,27 @@ public class DBSaver implements LineReadListener {
     }
 
 
-    private void createTable(List<DataCategory> columns){
+    private void createTable(List<CSVDataHeader> headers){
         if (tableCreated) {
             return;
         }
-        realCreateTable(columns);
+        realCreateTable(headers);
         tableCreated = true;
     }
 
-    private void realCreateTable(List<DataCategory> columns) {
-        stg.createTables(columns);
+    private void realCreateTable(List<CSVDataHeader> headers) {
+        stg.createTables(headers);
     }
 
     @Override
-    public Object lineRead(long lineNumber, String[] line, String raw, List<DataCategory> categories) {
-        createTable(categories);
-        List<Comparable<?>> parsedValues = (List<Comparable<?>>)statsGatherer.lineRead(lineNumber, line, raw, categories);
+    public Object lineRead(long lineNumber, String[] line, String raw, List<CSVDataHeader> headers) {
+        createTable(headers);
+        List<Comparable<?>> parsedValues = (List<Comparable<?>>)statsGatherer.lineRead(lineNumber, line, raw, headers);
         if (parsedValues == null) {
             CSVError lastError = statsGatherer.getErrors().get(statsGatherer.getErrors().size() - 1);
             insertError(lastError);
         } else {
-            insertRecord(parsedValues, categories);
+            insertRecord(parsedValues, headers);
 
         }
         return null;
@@ -56,8 +56,8 @@ public class DBSaver implements LineReadListener {
         return false;
     }
 
-    private void insertRecord(List<Comparable<?>> parsedValues, List<DataCategory> categories) {
-        stg.insertIntoStagingTable(categories, parsedValues);
+    private void insertRecord(List<Comparable<?>> parsedValues, List<CSVDataHeader> headers) {
+        stg.insertIntoStagingTable(headers, parsedValues);
     }
 
     private void insertError(CSVError lastError) {

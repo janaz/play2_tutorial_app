@@ -19,8 +19,7 @@ public class DataColumn extends Model {
     public String name;
 
     @Column(name="ColumnDataType", length = 64)
-    @Enumerated(EnumType.STRING)
-    public DataCategory dataType;
+    public String dataType;
 
     @Column(name="ColumnLength", length = 10)
     public String length;

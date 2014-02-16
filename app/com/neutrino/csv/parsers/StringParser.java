@@ -1,6 +1,12 @@
 package com.neutrino.csv.parsers;
 
 public class StringParser implements DataCategoryParser {
+    private final static StringParser INSTANCE = new StringParser();
+
+    private StringParser() {
+
+    }
+
     @Override
     public String parse(String value) {
         String trimmed = value.trim();
@@ -21,6 +27,10 @@ public class StringParser implements DataCategoryParser {
             return null;
         }
         return o.toString();
+    }
+
+    public static StringParser instance() {
+        return INSTANCE;
     }
 
 }

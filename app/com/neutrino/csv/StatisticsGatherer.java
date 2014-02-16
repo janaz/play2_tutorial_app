@@ -34,9 +34,9 @@ public class StatisticsGatherer implements LineReadListener {
     }
 
     @Override
-    public Object lineRead(long lineNumber, String[] line, String raw, List<DataCategory> categories) {
-        initStats(categories);
-        List<Comparable<?>> parsedValues = parsedLine(lineNumber, line, raw, categories);
+    public Object lineRead(long lineNumber, String[] line, String raw, List<CSVDataHeader> headers) {
+        initStats(headers);
+        List<Comparable<?>> parsedValues = parsedLine(lineNumber, line, raw, headers);
         if (parsedValues != null) {
             linesRead++;
             for (int idx = 0; idx < stats.size(); idx++) {
@@ -46,10 +46,10 @@ public class StatisticsGatherer implements LineReadListener {
         return parsedValues;
     }
 
-    private void initStats(List<DataCategory> categories) {
+    private void initStats(List<CSVDataHeader> headers) {
         if(stats.isEmpty()) {
-            for (DataCategory cat : categories) {
-                stats.add(new ColumnStatistics(cat));
+            for (CSVDataHeader header : headers) {
+                stats.add(new ColumnStatistics(header));
             }
         }
     }
@@ -61,19 +61,19 @@ public class StatisticsGatherer implements LineReadListener {
         return linesRead >= limit;
     }
 
-    private List<Comparable<?>> parsedLine(long lineNumber, String[] line, String raw, List<DataCategory> categories){
-        if (line == null || categories.size() != line.length) {
-            System.out.println("Error "+ categories +" " +line);
+    private List<Comparable<?>> parsedLine(long lineNumber, String[] line, String raw, List<CSVDataHeader> headers){
+        if (line == null || headers.size() != line.length) {
+            System.out.println("Error "+ headers +" " +line);
             errors.clear();
             errors.add(new CSVError(lineNumber, raw));
             return null;
         } else {
             try {
-                List<Comparable<?>> parsedValues = new ArrayList<>(categories.size());
+                List<Comparable<?>> parsedValues = new ArrayList<>(headers.size());
 
                 for (int idx = 0; idx < stats.size(); idx++) {
                     String stringValue = line[idx];
-                    Comparable<?> parsedValue = categories.get(idx).parsedValue(stringValue);
+                    Comparable<?> parsedValue = headers.get(idx).parsedValue(stringValue);
                     parsedValues.add(parsedValue);
                 }
                 return parsedValues;

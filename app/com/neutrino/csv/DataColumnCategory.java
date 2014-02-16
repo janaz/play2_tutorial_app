@@ -9,7 +9,7 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.regex.Pattern;
 
-public enum DataCategory {
+enum DataColumnCategory {
     SOURCE(Pattern.compile("source", Pattern.CASE_INSENSITIVE), null),
     FULL_NAME(Pattern.compile("^(full)?name$", Pattern.CASE_INSENSITIVE), null),
     FIRST_NAME(Pattern.compile("(^(first|given).*name)|(^f[_\\s]*name)|(^(first|given)[_\\s]*n)", Pattern.CASE_INSENSITIVE), null),
@@ -51,30 +51,30 @@ public enum DataCategory {
     DRIVERS_LICENSE_NUMBER(Pattern.compile("^(driv.*lic.*)", Pattern.CASE_INSENSITIVE), null),
     PASSPORT_NUMBER(Pattern.compile("passport", Pattern.CASE_INSENSITIVE), null),
     ARNO(Pattern.compile("^arno$", Pattern.CASE_INSENSITIVE), null),
-    UNKNOWN(null,null);
+    UNKNOWN(null, null);
 
     private final Pattern namePattern;
     private final Pattern dataPattern;
     private final DataCategoryParser parser;
 
     public static List<String> names() {
-       Collection<String> n = Collections2.transform(Arrays.asList(values()), new Function<DataCategory, String>() {
-           @Nullable
-           @Override
-           public String apply(@Nullable DataCategory dataCategory) {
-               return dataCategory.name();
-           }
-       });
-       List<String> listNames = Lists.newArrayList(n);
-       Collections.sort(listNames);
-       return listNames;
+        Collection<String> n = Collections2.transform(Arrays.asList(values()), new Function<DataColumnCategory, String>() {
+            @Nullable
+            @Override
+            public String apply(@Nullable DataColumnCategory dataCategory) {
+                return dataCategory.name();
+            }
+        });
+        List<String> listNames = Lists.newArrayList(n);
+        Collections.sort(listNames);
+        return listNames;
     }
 
-    DataCategory(Pattern namePattern, Pattern dataPatten) {
-        this(namePattern, dataPatten, new StringParser());
+    DataColumnCategory(Pattern namePattern, Pattern dataPatten) {
+        this(namePattern, dataPatten, StringParser.instance());
     }
 
-    DataCategory(Pattern namePattern, Pattern dataPatten, DataCategoryParser parser) {
+    DataColumnCategory(Pattern namePattern, Pattern dataPatten, DataCategoryParser parser) {
         this.namePattern = namePattern;
         this.dataPattern = dataPatten;
         this.parser = parser;
@@ -105,15 +105,15 @@ public enum DataCategory {
         }
         int matching = 0;
         for (String s : dataSample) {
-                if (dataPattern.matcher(s).find()){
-                    matching++;
-                }
+            if (dataPattern.matcher(s).find()) {
+                matching++;
+            }
         }
         return (matching * 100 / dataSample.size()) > 80;
     }
 
-    public static DataCategory detect(String columnName, Collection<String> dataSample) {
-        for (DataCategory category : DataCategory.values()) {
+    public static DataColumnCategory detect(String columnName, Collection<String> dataSample) {
+        for (DataColumnCategory category : DataColumnCategory.values()) {
             if (category.isHeaderMatching(columnName) && category.isDataMatching(dataSample)) {
                 return category;
             }
