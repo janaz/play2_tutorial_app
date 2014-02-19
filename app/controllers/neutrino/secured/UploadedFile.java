@@ -25,11 +25,20 @@ import java.util.Date;
 import java.util.List;
 
 public class UploadedFile extends Secured {
-    public static Result myFiles() {
+
+    private static List<DataSet> currentUserFiles() {
         final User localUser = Application.getLocalUser(session());
         final MetadataSchema met = new MetadataSchema(localUser.id);
-        List<DataSet> list = DataSet.find(met.server().getName()).all();
+        return DataSet.find(met.server().getName()).all();
 
+    }
+
+    public static Result myFilesJSON() {
+        return ok(Json.toJson(currentUserFiles()));
+    }
+
+    public static Result myFiles() {
+        List<DataSet> list = currentUserFiles();
         System.out.println("My Files: " + list);
         return ok(views.html.neutrino.my_files.render(list));
     }

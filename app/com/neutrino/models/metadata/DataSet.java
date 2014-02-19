@@ -1,6 +1,9 @@
 package com.neutrino.models.metadata;
 
 import com.avaje.ebean.annotation.EnumValue;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import play.data.format.Formats;
 import play.db.ebean.Model;
 
@@ -15,20 +18,27 @@ public class DataSet extends Model {
     public enum Type {
         @EnumValue("FILE")
         FILE,
-
         @EnumValue("TABLE")
         TABLE
     }
 
     public enum State {
-        @EnumValue("PARSING")
-        PARSING,
-
-        @EnumValue("PARSED")
-        PARSED,
-
-        @EnumValue("ERROR")
-        ERROR
+        @EnumValue("LOADED")
+        LOADED,
+        @EnumValue("PROFILING")
+        PROFILING,
+        @EnumValue("PROFILING_DONE")
+        PROFILING_DONE,
+        @EnumValue("PROFILING_ERROR")
+        PROFILING_ERROR,
+        @EnumValue("AUTO_MAPPING")
+        AUTO_MAPPING,
+        @EnumValue("AUTO_MAPPING_DONE")
+        AUTO_MAPPING_DONE,
+        @EnumValue("AUTO_MAPPING_ERROR")
+        AUTO_MAPPING_ERROR,
+        @EnumValue("MANUAL_MAPPING_DONE")
+        MANUAL_MAPPING_DONE
     }
 
     @Id
@@ -39,10 +49,10 @@ public class DataSet extends Model {
     @Column(name="UserID")
     public Integer userId;
 
-    @Column(name="State")
+    @Column(name="State", length=30)
     public State state;
 
-    @Column(name="Type")
+    @Column(name="Type", length=30)
     public Type type;
 
     @OneToMany(mappedBy="dataSet", cascade=CascadeType.ALL)
@@ -65,6 +75,7 @@ public class DataSet extends Model {
                 serverName, Integer.class, DataSet.class);
     }
 
+    @JsonIgnore
     public File getFile() {
         return file;
     }
@@ -73,6 +84,7 @@ public class DataSet extends Model {
         this.file = file;
     }
 
+    @JsonIgnore
     public List<DataColumn> getColumns() {
         return columns;
     }

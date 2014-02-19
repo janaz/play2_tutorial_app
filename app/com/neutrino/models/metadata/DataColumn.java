@@ -1,6 +1,5 @@
 package com.neutrino.models.metadata;
 
-import com.neutrino.csv.DataCategory;
 import play.data.format.Formats;
 import play.db.ebean.Model;
 

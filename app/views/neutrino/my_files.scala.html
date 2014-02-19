@@ -49,7 +49,7 @@
                     </td>
                 </tr>
             @for((item, idx) <- dataSet.sortBy(_.creationTimestamp).reverse.zipWithIndex) {
-                <tr>
+                <tr class="my-file-id-@{item.id}">
                     <td>
                        @{idx + 1}
                     </td>
@@ -61,7 +61,10 @@
                     </td>
                     <td>
                         <a data-pjax type="button" class="btn btn-default" href="@controllers.neutrino.secured.routes.UploadedFile.showFile(item.id)"><span class="glyphicon glyphicon-expand"></span> @Messages("neutrino.my_files.action.view")</a>
-
+                        <span class="info-profiling hidden">Profiling...</span>
+                        <span class="info-profiling-done hidden">Profiling done ...</span>
+                        <span class="info-auto-mapping hidden">Auto mapping...</span>
+                        <a data-pjax type="button" class="info-auto-mapping-done hidden btn btn-default" href="@controllers.neutrino.secured.routes.UploadedFile.showFile(item.id)"><span class="glyphicon glyphicon-expand"></span> Manual mapping</a>
                     </td>
                 </tr>
             }
@@ -70,6 +73,9 @@
         </table>
     <script>
     $(initUpload);
+    new MyFiles();
     </script>
+
+</script>
 
 }

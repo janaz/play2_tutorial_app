@@ -13,6 +13,7 @@ POST        /neutrino/upload                     controllers.neutrino.secured.Up
 GET         /neutrino/show/:id                       controllers.neutrino.secured.UploadedFile.showFile(id: Integer)
 POST        /neutrino/update_columns/:id                       controllers.neutrino.secured.UploadedFile.updateColumns(id: Integer)
 GET         /neutrino/my_files                   controllers.neutrino.secured.UploadedFile.myFiles()
+GET         /neutrino/my_files_json                   controllers.neutrino.secured.UploadedFile.myFilesJSON()
 GET         /neutrino/dashboard                  controllers.neutrino.secured.Dashboard.dashboard()
 GET         /neutrino/test_action                controllers.neutrino.BasicFlow.testAction()
 
