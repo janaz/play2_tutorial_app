@@ -170,7 +170,7 @@ neutrino.dashboard.option.upload=Manage Files
 
 neutrino.navbar.upload=Upload file
 neutrino.navbar.view=View file
-neutrino.navbar.profile=Profile
+neutrino.navbar.mapping=Mapping
 neutrino.navbar.test=Test
 neutrino.navbar.my_files=My files
 
@@ -189,3 +189,9 @@ neutrino.upload.bytes=bytes
 neutrino.upload.file_uploaded_successfully=File uploaded successfully
 neutrino.upload.uploading=Uploading
 neutrino.upload.complete=complete
+
+neutrino.mapping.header.page_header=Mapping
+neutrino.mapping.header.dataset=Data Set
+neutrino.mapping.header.mapped_type=Mapped type
+neutrino.mapping.header.column=Source column
+neutrino.mapping.header.confidence=Confidence

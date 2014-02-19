@@ -15,7 +15,7 @@ public class ColumnMapping extends Model {
     @JoinColumn(name="DataSetID")
     public DataSet dataSet;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name="DataColumnID")
     public DataColumn dataColumn;
 
@@ -49,9 +49,22 @@ public class ColumnMapping extends Model {
         return dataSet;
     }
 
+    public DataColumn getDataColumn() {
+        return dataColumn;
+    }
+
     public void setDataSet(DataSet dataSet) {
         this.dataSet = dataSet;
     }
 
+    public String getConfidence() {
+        if (confidenceFlag) {
+            return "Confident ("+score+")";
+        }else if (maybeFlag) {
+            return "Maybe ("+score+")";
+        } else {
+            return "Gave up ("+score+")";
+        }
+    }
 
 }

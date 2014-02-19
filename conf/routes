@@ -17,6 +17,8 @@ GET         /neutrino/my_files_json                   controllers.neutrino.secur
 GET         /neutrino/dashboard                  controllers.neutrino.secured.Dashboard.dashboard()
 GET         /neutrino/test_action                controllers.neutrino.BasicFlow.testAction()
 
+GET         /neutrino/mapping/index                   controllers.neutrino.secured.ManualMapping.index()
+
 GET     /restricted                 controllers.Application.restricted
 #GET     /assets/javascript/routes.js    controllers.Application.jsRoutes
 

@@ -1,0 +1,47 @@
+@(files: List[com.neutrino.models.metadata.DataSet])
+@import org.joda.time.format.DateTimeFormat
+@import org.joda.time.DateTime
+
+@admin {
+    @_navbar()
+        <h4>@Messages("neutrino.mapping.header.page_header")</h4>
+
+
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>@Messages("neutrino.mapping.header.dataset")</th>
+                    <th>@Messages("neutrino.mapping.header.column")</th>
+                    <th>@Messages("neutrino.mapping.header.mapped_type")</th>
+                    <th>@Messages("neutrino.mapping.header.confidence")</th>
+                </tr>
+            </thead>
+            <tbody>
+            @for((dataSet, idx) <- files.sortBy(_.creationTimestamp).reverse.zipWithIndex) {
+              @for(mapping <- dataSet.getMappings()) {
+                <tr>
+                    <td>
+                       @{dataSet.getFile().getOriginalFileName()}
+                    </td>
+                    <td>
+                        @{mapping.getDataColumn().getName()}
+                    </td>
+                    <td>
+                        @{mapping.coreAttributeName}
+                    </td>
+                    <td>
+                        @{mapping.getConfidence}
+                    </td>
+                </tr>
+                }
+            }
+            </tbody>
+        </table>
+    <script>
+    $(initUpload);
+    new MyFiles();
+    </script>
+
+</script>
+
+}

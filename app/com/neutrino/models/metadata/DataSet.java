@@ -58,6 +58,9 @@ public class DataSet extends Model {
     @OneToMany(mappedBy="dataSet", cascade=CascadeType.ALL)
     public List<DataColumn> columns;
 
+    @OneToMany(mappedBy="dataSet", cascade=CascadeType.ALL)
+    public List<ColumnMapping> mappings;
+
     @OneToOne(mappedBy="dataSet", cascade=CascadeType.ALL, optional = true)
     public File file;
 
@@ -93,5 +96,9 @@ public class DataSet extends Model {
         this.columns = columns;
     }
 
+    @JsonIgnore
+    public List<ColumnMapping> getMappings() {
+        return mappings;
+    }
 
 }

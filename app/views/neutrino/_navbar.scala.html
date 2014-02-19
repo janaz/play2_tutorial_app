@@ -1,6 +1,6 @@
 <ul class="nav nav-tabs">
     <li @if(request.path.contains("/my_files")) {class="active"} ><a data-pjax href="@controllers.neutrino.secured.routes.UploadedFile.myFiles()">@Messages("neutrino.navbar.my_files")</a></li>
     <li @if(request.path.contains("/show")) {class="active"} ><a href="#">@Messages("neutrino.navbar.view")</a></li>
-    <li class="disabled"><a href="#">@Messages("neutrino.navbar.profile")</a></li>
+    <li @if(request.path.contains("/mapping/index")) {class="active"} ><a data-pjax href="@controllers.neutrino.secured.routes.ManualMapping.index()">@Messages("neutrino.navbar.mapping")</a></li>
     <li @if(request.path.contains("/test_action")) {class="active"} ><a data-pjax href="@controllers.neutrino.routes.BasicFlow.testAction()">@Messages("neutrino.navbar.test")</a></li>
 </ul>
