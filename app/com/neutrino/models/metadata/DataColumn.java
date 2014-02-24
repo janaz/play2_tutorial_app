@@ -82,4 +82,7 @@ public class DataColumn extends Model {
         this.resultsFormats = resultsFormats;
     }
 
+    public String getName() {
+      return name;
+    }
 }
