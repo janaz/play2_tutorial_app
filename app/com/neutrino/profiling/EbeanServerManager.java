@@ -108,7 +108,7 @@ public class EbeanServerManager {
             db.setDriver("com.mysql.jdbc.Driver");
             db.setUsername("root");
             db.setPassword("");
-            db.setUrl("jdbc:mysql://localhost:3306/" + dbName);
+            db.setUrl("jdbc:mysql://localhost:3306/" + dbName + "?characterEncoding=UTF-8&sessionVariables=storage_engine=InnoDB");
             db.setHeartbeatSql("select 1");
             config.setDefaultServer(false);
             config.setRegister(true);
