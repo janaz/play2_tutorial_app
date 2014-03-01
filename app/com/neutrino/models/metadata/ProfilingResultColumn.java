@@ -42,11 +42,11 @@ public class ProfilingResultColumn extends Model {
     public Integer nullCount;
 
     @NotNull
-    @Column(name="PercentagePopulated", length = 10, precision = 5)
+    @Column(name="PercentagePopulated", precision = 3, scale=2)
     public BigDecimal percentagePopulated;
 
     @NotNull
-    @Column(name="PercentageUnique", length = 10, precision = 5)
+    @Column(name="PercentageUnique", precision = 3, scale=2)
     public BigDecimal percentageUnique;
 
     @NotNull
