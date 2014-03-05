@@ -10,7 +10,7 @@ import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "PersonExternalIdentifierType")
-public class PersonExternalIdentifierType extends Model {
+public class PersonExternalIdentifierType extends Model implements CoreType {
     @Id
     @Column(name = "ExternalIdentifierTypeID")
     public Integer id;
@@ -22,6 +22,16 @@ public class PersonExternalIdentifierType extends Model {
     public static Finder<Integer, PersonExternalIdentifierType> find(final String serverName) {
         return new Finder<Integer, PersonExternalIdentifierType>(
                 serverName, Integer.class, PersonExternalIdentifierType.class);
+    }
+
+    @Override
+    public Integer getId() {
+        return id;
+    }
+
+    @Override
+    public String getType() {
+        return type;
     }
 
 

@@ -19,7 +19,8 @@ public class PersonGender extends Model {
     @JoinColumn(name="HeaderID")
     public PersonHeader header;
 
-    @Column(name="GenderCode")
+    @SelectableAttribute
+    @Column(name="GenderCode", length = 20)
     public String genderCode;
 
     @NotNull

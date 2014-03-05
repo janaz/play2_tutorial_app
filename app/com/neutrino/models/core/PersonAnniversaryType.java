@@ -10,7 +10,7 @@ import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "PersonAnniversaryType")
-public class PersonAnniversaryType extends Model {
+public class PersonAnniversaryType extends Model implements CoreType {
     @Id
     @Column(name = "AnniversaryTypeID")
     public Integer id;
@@ -25,4 +25,13 @@ public class PersonAnniversaryType extends Model {
     }
 
 
+    @Override
+    public Integer getId() {
+        return id;
+    }
+
+    @Override
+    public String getType() {
+        return type;
+    }
 }

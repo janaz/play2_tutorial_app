@@ -54,6 +54,6 @@ public class CoreSchema {
     }
 
     public void populateTables() {
-        (new Initializer(userId)).createReferenceData();
+        (new ReferenceData(userId)).createReferenceData();
     }
 }

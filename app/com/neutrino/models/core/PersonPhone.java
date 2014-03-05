@@ -24,9 +24,11 @@ public class PersonPhone extends Model {
     @JoinColumn(name="PhoneTypeID")
     public PersonPhoneType phoneType;
 
+    @SelectableAttribute
     @Column(name="CountryCode")
     public Short countryCode;
 
+    @SelectableAttribute
     @Column(name="AreaCode")
     public Short areaCode;
 

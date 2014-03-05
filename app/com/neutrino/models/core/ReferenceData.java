@@ -1,17 +1,49 @@
 package com.neutrino.models.core;
 
 import com.neutrino.profiling.CoreSchema;
+import org.reflections.Reflections;
+import play.db.ebean.Model;
+
+import javax.persistence.Column;
+import javax.persistence.Table;
+import java.lang.reflect.Field;
+
+//-> and table_name not like '%Type'
+//        -> and table_name <> 'PersonHeader'
+//        -> and column_name not like '%ID'
+//        -> and column_name not like '%Timestamp'
+//        -> and column_name not like 'Full%'import java.lang.reflect.Field;
 
 /**
  * Created by tomasz.janowski on 2/03/14.
  */
-public class Initializer {
+public class ReferenceData {
+
     private final String serverName;
 
-    public Initializer(int userId) {
+    public ReferenceData(int userId) {
         this.serverName = (new CoreSchema(userId)).server().getName();
     }
 
+    public void aTest(){
+        Package pkg = this.getClass().getPackage();
+
+        String packagename = pkg.getName();
+
+        final Reflections reflections = new Reflections(packagename);
+
+        for (Class clz : reflections.getSubTypesOf(Model.class)) {
+            System.out.println("Got class " + clz.getName());
+            Table t = (Table)clz.getAnnotation(Table.class);
+            for (Field f : clz.getFields()) {
+                if (f.getAnnotation(SelectableAttribute.class) != null) {
+                    Column c = f.getAnnotation(Column.class);
+                    System.out.println("Got annotated field " + f.getName() + "["+c.name()+"]" + t.name());
+                }
+            }
+
+        }
+    }
     private void createPersonNameType(Integer id, String type) {
         PersonNameType t = new PersonNameType();
         t.id = id;
