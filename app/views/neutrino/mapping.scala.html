@@ -1,4 +1,4 @@
-@(files: List[com.neutrino.models.metadata.DataSet])
+@(files: List[com.neutrino.models.metadata.DataSet], options: List[com.neutrino.models.core.Option])
 @import org.joda.time.format.DateTimeFormat
 @import org.joda.time.DateTime
 
@@ -28,6 +28,33 @@
                     </td>
                     <td>
                         @{mapping.coreAttributeName}
+                        <select>
+                            @for(option <- options.sortBy(row => (row.getTableName(), row.getColumnName()))) {
+                                if(option.getTypes.isEmpty) {
+                                        @defining(
+                                           if (option.matches(mapping, null)) {
+                                                "selected='true'"
+                                            } else {
+                                                ""
+                                            }
+                                        ) { selected =>
+                                          <option @Html(selected)>@{option.getTableName}/@{option.getColumnName}</option>
+                                        }
+                                } else {
+                                    @for(t <- option.getTypes.sorted) {
+                                        @defining(
+                                            if (option.matches(mapping, t)) {
+                                                "selected='true'"
+                                            } else {
+                                                ""
+                                            }
+                                        ) { selected =>
+                                            <option @Html(selected)>@{option.getTableName}/@{option.getColumnName}/@{t}</option>
+                                        }
+                                    }
+                                }
+                            }
+                        </select>
                     </td>
                     <td>
                         @{mapping.getConfidence}

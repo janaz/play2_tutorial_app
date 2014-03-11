@@ -1,6 +1,7 @@
 package controllers.neutrino.secured;
 
 import com.neutrino.models.configuration.User;
+import com.neutrino.models.core.ReferenceData;
 import com.neutrino.models.metadata.DataSet;
 import com.neutrino.profiling.MetadataSchema;
 import controllers.Application;
@@ -24,7 +25,7 @@ public class ManualMapping extends Secured {
     }
 
     public static Result index() {
-        return ok(views.html.neutrino.mapping.render(automappedFiles()));
+        return ok(views.html.neutrino.mapping.render(automappedFiles(), new ReferenceData(currentUser().id).getOptions()));
     }
 
 

@@ -25,21 +25,27 @@ public class PersonName extends Model {
     @JoinColumn(name="NameTypeID")
     public PersonNameType nameType;
 
+    @SelectableAttribute(type=PersonNameType.class)
     @Column(name="Salutation", length = 30)
     public String salutation;
 
+    @SelectableAttribute(type=PersonNameType.class)
     @Column(name="FirstName", length = 30)
     public String firstName;
 
+    @SelectableAttribute(type=PersonNameType.class)
     @Column(name="MiddleName", length = 30)
     public String middleName;
 
+    @SelectableAttribute(type=PersonNameType.class)
     @Column(name="Surname", length = 60)
     public String surname;
 
+    @SelectableAttribute(type=PersonNameType.class)
     @Column(name="Generation", length = 30)
     public String generation;
 
+    @SelectableAttribute(type=PersonNameType.class)
     @Column(name="Suffix", length = 30)
     public String suffix;
 

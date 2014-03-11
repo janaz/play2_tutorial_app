@@ -1,49 +1,69 @@
 package com.neutrino.models.core;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import com.neutrino.profiling.CoreSchema;
 import org.reflections.Reflections;
 import play.db.ebean.Model;
 
+import javax.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Table;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 
 //-> and table_name not like '%Type'
 //        -> and table_name <> 'PersonHeader'
 //        -> and column_name not like '%ID'
 //        -> and column_name not like '%Timestamp'
 //        -> and column_name not like 'Full%'import java.lang.reflect.Field;
-
-/**
- * Created by tomasz.janowski on 2/03/14.
- */
 public class ReferenceData {
 
     private final String serverName;
+    private final static List<Option> globalOptions;
+    private List<Option> options;
 
     public ReferenceData(int userId) {
         this.serverName = (new CoreSchema(userId)).server().getName();
     }
 
-    public void aTest(){
-        Package pkg = this.getClass().getPackage();
+    static {
+        globalOptions = new ArrayList<>();
+        Package pkg = ReferenceData.class.getPackage();
 
-        String packagename = pkg.getName();
-
-        final Reflections reflections = new Reflections(packagename);
+        final Reflections reflections = new Reflections(pkg.getName());
 
         for (Class clz : reflections.getSubTypesOf(Model.class)) {
-            System.out.println("Got class " + clz.getName());
-            Table t = (Table)clz.getAnnotation(Table.class);
+            Table t = (Table) clz.getAnnotation(Table.class);
             for (Field f : clz.getFields()) {
-                if (f.getAnnotation(SelectableAttribute.class) != null) {
+                SelectableAttribute attr = f.getAnnotation(SelectableAttribute.class);
+                if (attr != null) {
                     Column c = f.getAnnotation(Column.class);
-                    System.out.println("Got annotated field " + f.getName() + "["+c.name()+"]" + t.name());
+                    addOption(t.name(), c.name(), attr.type());
                 }
             }
-
         }
     }
+
+    public List<Option> getOptions() {
+        if (options == null) {
+            options = Lists.transform(globalOptions, new Function<Option, Option>() {
+                @Nullable
+                @Override
+                public Option apply(@Nullable Option option) {
+                    return option.forServerName(serverName);
+                }
+            });
+        }
+        return options;
+    }
+
+    private static void addOption(String tableName, String columnName, Class<? extends CoreType> coreTypeClz) {
+        globalOptions.add(new Option(tableName, columnName, coreTypeClz));
+    }
+
+
     private void createPersonNameType(Integer id, String type) {
         PersonNameType t = new PersonNameType();
         t.id = id;

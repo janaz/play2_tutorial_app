@@ -160,6 +160,16 @@ public class DataMapping {
 
         ProfilingResultColumn profilingColRes = mtd.server().createQuery(ProfilingResultColumn.class).setAutofetch(false).where().eq("dataColumn", dataColumn).findUnique();
         Map<Integer,Double> results = new HashMap<>();
+        ColumnMapping cm = new ColumnMapping();
+        cm.confidenceFlag = false;
+        cm.maybeFlag = false;
+        cm.manualOverrideFlag = false;
+        cm.dataColumn = dataColumn;
+        cm.setDataSet(dataSet);
+        cm.confidenceFlag = false;
+        cm.maybeFlag = false;
+        cm.manualOverrideFlag = false;
+
         for (MappingDiscoveryRule rule : MappingDiscoveryRule.find.all()) {
             double score = 0.0f;
 
@@ -245,29 +255,27 @@ public class DataMapping {
                 }
             }
 
-            results.put(rule.id, score);
-            ColumnMapping cm = new ColumnMapping();
-            cm.confidenceFlag = false;
-            cm.maybeFlag = false;
-            cm.manualOverrideFlag = false;
-            cm.dataColumn = dataColumn;
-            cm.dataSet = dataSet;
-            cm.coreAttributeName = rule.coreColumn;
-            cm.coreAttributeType =rule.coreType;
-            cm.coreTableName = rule.coreTable;
-            cm.score = (int)score;
+//            results.put(rule.id, score);
             if (rule.confPointsThresh.doubleValue() <= score) {
-                cm.confidenceFlag = true;
-                cm.save(mtd.server().getName());
+                cm.coreAttributeName = rule.coreColumn;
+                cm.coreAttributeType =rule.coreType;
+                cm.coreTableName = rule.coreTable;
+                cm.score = (int)score;
+                cm.confidenceFlag = false;
                 System.out.println("Confidence match found for " + dataColumn.name + "rule: "+rule.coreTable+":"+rule.coreColumn+"\tthreshold: "+rule.confPointsThresh+"\tscore:"+score);
+                break; // found confidence match
             } else if (rule.maybePointsThresh.doubleValue() <= score) {
+                cm.coreAttributeName = rule.coreColumn;
+                cm.coreAttributeType =rule.coreType;
+                cm.coreTableName = rule.coreTable;
+                cm.score = (int)score;
                 cm.maybeFlag = true;
-                cm.save(mtd.server().getName());
+                cm.confidenceFlag = false;
                 System.out.println("Maybe match found for " + dataColumn.name + "rule: "+rule.coreTable+":"+rule.coreColumn+ "\tthreshold: "+rule.maybePointsThresh+"\tscore:"+score);
             } else {
                 System.out.println("No match found for " + dataColumn.name + "rule: "+rule.coreTable+":"+rule.coreColumn+ "\tthreshold: "+rule.maybePointsThresh+"\tscore:"+score);
             }
         }
-
+        cm.save(mtd.server().getName());
     }
 }

@@ -19,6 +19,7 @@ public class PersonOccupation extends Model {
     @JoinColumn(name = "HeaderID")
     public PersonHeader header;
 
+    @SelectableAttribute
     @Column(name = "OccupationCode", length = 30)
     public String occupationCode;
 

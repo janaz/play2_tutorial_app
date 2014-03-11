@@ -24,7 +24,6 @@ public class PersonAnniversaryType extends Model implements CoreType {
                 serverName, Integer.class, PersonAnniversaryType.class);
     }
 
-
     @Override
     public Integer getId() {
         return id;

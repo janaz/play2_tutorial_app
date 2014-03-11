@@ -19,6 +19,7 @@ public class PersonLanguage extends Model {
     @JoinColumn(name = "HeaderID")
     public PersonHeader header;
 
+    @SelectableAttribute
     @Column(name = "LanguageCode", length = 30)
     public String languageCode;
 

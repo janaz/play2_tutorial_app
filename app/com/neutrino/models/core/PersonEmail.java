@@ -19,6 +19,7 @@ public class PersonEmail extends Model {
     @JoinColumn(name = "HeaderID")
     public PersonHeader header;
 
+    @SelectableAttribute
     @Column(name = "EmailAddress", length = 128)
     public String salutation;
 

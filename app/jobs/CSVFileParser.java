@@ -43,7 +43,7 @@ public class CSVFileParser {
 //                }
 
                 if (QUEUE.isEmpty()) {
-                    System.out.println("Queue is empty. Waiting 10 sec");
+                    //System.out.println("Queue is empty. Waiting 10 sec");
 
                     try {
                         Thread.sleep(10 * 1000);

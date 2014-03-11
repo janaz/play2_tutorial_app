@@ -24,6 +24,7 @@ public class PersonAnniversary extends Model {
     @JoinColumn(name = "AnniversaryTypeID")
     public PersonAnniversaryType anniversaryType;
 
+    @SelectableAttribute(type=PersonAnniversaryType.class)
     @Column(name = "AnniversaryDate")
     @Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
     public Date anniversaryDate;

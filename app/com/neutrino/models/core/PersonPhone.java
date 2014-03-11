@@ -24,17 +24,19 @@ public class PersonPhone extends Model {
     @JoinColumn(name="PhoneTypeID")
     public PersonPhoneType phoneType;
 
-    @SelectableAttribute
+    @SelectableAttribute(type=PersonPhoneType.class)
     @Column(name="CountryCode")
     public Short countryCode;
 
-    @SelectableAttribute
+    @SelectableAttribute(type=PersonPhoneType.class)
     @Column(name="AreaCode")
     public Short areaCode;
 
+    @SelectableAttribute(type=PersonPhoneType.class)
     @Column(name="PhoneNumber")
     public Long phoneNumber;
 
+    @SelectableAttribute(type=PersonPhoneType.class)
     @Column(name="Extension")
     public Integer extension;
 

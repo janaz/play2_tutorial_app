@@ -19,6 +19,7 @@ public class PersonMaritalStatus extends Model {
     @JoinColumn(name = "HeaderID")
     public PersonHeader header;
 
+    @SelectableAttribute
     @Column(name = "MaritalStatusCode", length = 30)
     public String maritalStatusCode;
 

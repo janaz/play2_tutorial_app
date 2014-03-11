@@ -24,9 +24,11 @@ public class PersonExternalIdentifier extends Model {
     @JoinColumn(name = "ExternalIdentifierTypeID")
     public PersonExternalIdentifierType externalIdentifierType;
 
+    @SelectableAttribute(type=PersonExternalIdentifierType.class)
     @Column(name = "Identifier", length = 30)
     public String Identifier;
 
+    @SelectableAttribute(type=PersonExternalIdentifierType.class)
     @Column(name = "ExpiryDate")
     @Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
     public Date expiryDate;
