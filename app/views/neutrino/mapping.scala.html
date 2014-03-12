@@ -1,4 +1,4 @@
-@(files: List[com.neutrino.models.metadata.DataSet], options: List[com.neutrino.models.core.Option])
+@(files: List[com.neutrino.models.metadata.DataSet], options: List[com.neutrino.models.core_common.Option])
 @import org.joda.time.format.DateTimeFormat
 @import org.joda.time.DateTime
 
@@ -6,7 +6,7 @@
     @_navbar()
         <h4>@Messages("neutrino.mapping.header.page_header")</h4>
 
-
+        <form method="POST" action="">
         <table class="table table-striped">
             <thead>
                 <tr>
@@ -27,10 +27,10 @@
                         @{mapping.getDataColumn().getName()}
                     </td>
                     <td>
-                        @{mapping.coreAttributeName}
-                        <select>
+                        @{mapping.coreTableName}/@{mapping.coreAttributeName}
+                        <select name="mapping[@{mapping.id}]">
                             @for(option <- options.sortBy(row => (row.getTableName(), row.getColumnName()))) {
-                                if(option.getTypes.isEmpty) {
+                                 @if(option.getTypes.isEmpty) {
                                         @defining(
                                            if (option.matches(mapping, null)) {
                                                 "selected='true'"
@@ -38,7 +38,7 @@
                                                 ""
                                             }
                                         ) { selected =>
-                                          <option @Html(selected)>@{option.getTableName}/@{option.getColumnName}</option>
+                                          <option @Html(selected) data-mapping-id="@{mapping.id}" data-mapping-core-table="@{mapping.coreTableName}" data-mapping-core-type="" value="@{option.getTableName}/@{option.getColumnName}">@{option.getTableName}/@{option.getColumnName}</option>
                                         }
                                 } else {
                                     @for(t <- option.getTypes.sorted) {
@@ -49,7 +49,7 @@
                                                 ""
                                             }
                                         ) { selected =>
-                                            <option @Html(selected)>@{option.getTableName}/@{option.getColumnName}/@{t}</option>
+                                            <option @Html(selected) data-mapping-id="@{mapping.id}" value="@{option.getTableName}/@{option.getColumnName}/@{t}">@{option.getTableName}/@{option.getColumnName}/@{t}</option>
                                         }
                                     }
                                 }
@@ -64,6 +64,7 @@
             }
             </tbody>
         </table>
+        </form>
     <script>
     $(initUpload);
     new MyFiles();

@@ -1,4 +1,4 @@
-package com.neutrino.models.core;
+package com.neutrino.models.core_common;
 
 import play.data.format.Formats;
 import play.db.ebean.Model;
@@ -8,10 +8,10 @@ import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 @Entity
-@Table(name = "PersonEmail")
-public class PersonEmail extends Model {
+@Table(name = "PersonMaritalStatus")
+public class PersonMaritalStatus extends Model {
     @Id
-    @Column(name = "EmailID")
+    @Column(name = "MaritalStatusID")
     public Integer id;
 
     @NotNull
@@ -20,8 +20,8 @@ public class PersonEmail extends Model {
     public PersonHeader header;
 
     @SelectableAttribute
-    @Column(name = "EmailAddress", length = 128)
-    public String salutation;
+    @Column(name = "MaritalStatusCode", length = 30)
+    public String maritalStatusCode;
 
     @NotNull
     @Column(name = "CreationTimestamp")
@@ -32,9 +32,9 @@ public class PersonEmail extends Model {
     @Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
     public Date modificationTimestamp;
 
-    public static Finder<Integer, PersonEmail> find(final String serverName) {
-        return new Finder<Integer, PersonEmail>(
-                serverName, Integer.class, PersonEmail.class);
+    public static Finder<Integer, PersonMaritalStatus> find(final String serverName) {
+        return new Finder<Integer, PersonMaritalStatus>(
+                serverName, Integer.class, PersonMaritalStatus.class);
     }
 
     public PersonHeader getHeader() {

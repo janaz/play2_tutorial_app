@@ -1,10 +1,10 @@
-package com.neutrino.models.core;
+package com.neutrino.models.core_common;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.neutrino.models.metadata.ColumnMapping;
+import com.neutrino.profiling.CoreSchema;
 import play.db.ebean.Model;
-import scala.annotation.meta.getter;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.InvocationTargetException;
@@ -15,23 +15,35 @@ import java.util.List;
 public class Option {
     private final String tableName;
     private final String columnName;
-    private final String serverName;
+    private final int userId;
+    private String serverName;
     private final Class<? extends CoreType> coreTypeClz;
     private List<String> typesList;
 
     public Option(String tableName, String columnName, Class<? extends CoreType> coreTypeClz) {
-        this(tableName, columnName, coreTypeClz, null);
+        this(tableName, columnName, coreTypeClz, -1);
     }
 
-    private Option(String tableName, String columnName, Class<? extends CoreType> coreTypeClz, String serverName) {
+    private Option(String tableName, String columnName, Class<? extends CoreType> coreTypeClz, int userId) {
         this.tableName = tableName;
         this.columnName = columnName;
         this.coreTypeClz = coreTypeClz;
-        this.serverName = serverName;
+        this.userId = userId;
     }
 
-    public Option forServerName(String serverNameParam) {
-        return new Option(tableName, columnName, coreTypeClz, serverNameParam);
+    public String key(String type) {
+        return tableName +"|" + columnName + "|" + type;
+    }
+
+    private String serverName() {
+        if (serverName == null) {
+            serverName = new CoreSchema(userId).server().getName();
+        }
+        return serverName;
+    }
+
+    public Option forUser(int userId) {
+        return new Option(tableName, columnName, coreTypeClz, userId);
     }
 
     public String getColumnName() {
@@ -64,7 +76,7 @@ public class Option {
     }
 
     public List<String> getTypes() {
-        if (serverName == null) {
+        if (serverName() == null) {
             throw new IllegalStateException("Server name is empty. Use forServerName factory method");
         }
         if (typesList != null) {
@@ -75,7 +87,7 @@ public class Option {
             Model.Finder<Integer, CoreType> finder = null;
             try {
                 Method m = coreTypeClz.getMethod("find", String.class);
-                finder = (Model.Finder) m.invoke(null, new Object[]{serverName});
+                finder = (Model.Finder) m.invoke(null, new Object[]{serverName()});
             } catch (NoSuchMethodException e) {
                 throw new RuntimeException(e);
             } catch (InvocationTargetException e) {

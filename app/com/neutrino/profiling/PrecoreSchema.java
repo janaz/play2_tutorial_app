@@ -1,14 +1,14 @@
 package com.neutrino.profiling;
 
 import com.avaje.ebean.EbeanServer;
-import com.neutrino.models.core.PersonAddress;
-import com.neutrino.models.core.PersonName;
+import com.neutrino.models.precore.PersonAddress;
+import com.neutrino.models.precore.PersonName;
 import com.neutrino.models.core_common.*;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class CoreSchema {
+public class PrecoreSchema {
     private static final List<Class<?>> CLASSES = Arrays.asList(new Class<?>[]{
             PersonAddress.class,
             PersonAddressType.class,
@@ -29,12 +29,12 @@ public class CoreSchema {
 
     private final Integer userId;
 
-    public CoreSchema(Integer userId) {
+    public PrecoreSchema(Integer userId) {
         this.userId = userId;
     }
 
     private String databaseName() {
-        return String.format("Core%03d", this.userId);
+        return String.format("Precore%03d", this.userId);
     }
 
     public boolean isCreated() {
@@ -56,6 +56,6 @@ public class CoreSchema {
     }
 
     public void populateTables() {
-        (ReferenceData.forCore(userId)).createReferenceData();
+        (ReferenceData.forPrecore(userId)).createReferenceData();
     }
 }

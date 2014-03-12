@@ -115,7 +115,7 @@ public abstract class PlayAuthenticate {
 	public static UserService getUserService() {
 		if (userService == null) {
 			throw new RuntimeException(
-					Messages.get("playauthenticate.core.exception.no_user_service"));
+					Messages.get("playauthenticate.core_common.exception.no_user_service"));
 		}
 		return userService;
 	}
@@ -422,7 +422,7 @@ public abstract class PlayAuthenticate {
 		final Object id = getUserService().save(u);
 		if (id == null) {
 			throw new AuthException(
-					Messages.get("playauthenticate.core.exception.signupuser_failed"));
+					Messages.get("playauthenticate.core_common.exception.signupuser_failed"));
 		}
 		loginUser = u;
 		return loginUser;
@@ -435,7 +435,7 @@ public abstract class PlayAuthenticate {
 			// Provider wasn't found and/or user was fooling with our stuff -
 			// tell him off:
 			return Controller.notFound(Messages.get(
-					"playauthenticate.core.exception.provider_not_found",
+					"playauthenticate.core_common.exception.provider_not_found",
 					provider));
 		}
 		try {
@@ -517,7 +517,7 @@ public abstract class PlayAuthenticate {
 							if (c == null) {
 								throw new RuntimeException(
 										Messages.get(
-												"playauthenticate.core.exception.merge.controller_undefined",
+												"playauthenticate.core_common.exception.merge.controller_undefined",
 												SETTING_KEY_ACCOUNT_AUTO_MERGE));
 							}
 							storeMergeUser(newUser, session);
@@ -549,7 +549,7 @@ public abstract class PlayAuthenticate {
 						if (c == null) {
 							throw new RuntimeException(
 									Messages.get(
-											"playauthenticate.core.exception.link.controller_undefined",
+											"playauthenticate.core_common.exception.link.controller_undefined",
 											SETTING_KEY_ACCOUNT_AUTO_LINK));
 						}
 						storeLinkUser(newUser, session);
@@ -561,7 +561,7 @@ public abstract class PlayAuthenticate {
 				return loginAndRedirect(context, loginUser);
 			} else {
 				return Controller.internalServerError(Messages
-						.get("playauthenticate.core.exception.general"));
+						.get("playauthenticate.core_common.exception.general"));
 			}
 		} catch (final AuthException e) {
 			final Call c = getResolver().onException(e);

@@ -1,4 +1,4 @@
-package com.neutrino.models.core;
+package com.neutrino.models.core_common;
 
 import play.data.format.Formats;
 import play.db.ebean.Model;

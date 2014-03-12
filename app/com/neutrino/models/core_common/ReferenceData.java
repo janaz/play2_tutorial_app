@@ -1,8 +1,9 @@
-package com.neutrino.models.core;
+package com.neutrino.models.core_common;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.neutrino.profiling.CoreSchema;
+import com.neutrino.profiling.PrecoreSchema;
 import org.reflections.Reflections;
 import play.db.ebean.Model;
 
@@ -10,8 +11,7 @@ import javax.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Table;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 //-> and table_name not like '%Type'
 //        -> and table_name <> 'PersonHeader'
@@ -22,17 +22,27 @@ public class ReferenceData {
 
     private final String serverName;
     private final static List<Option> globalOptions;
+    private final int userId;
     private List<Option> options;
 
-    public ReferenceData(int userId) {
-        this.serverName = (new CoreSchema(userId)).server().getName();
+
+    private ReferenceData(int userId, String serverName) {
+        this.userId = userId;
+        this.serverName = serverName;//(;
+    }
+
+    public static ReferenceData forCore(int userId) {
+        return new ReferenceData(userId, (new CoreSchema(userId)).server().getName());
+    }
+
+    public static ReferenceData forPrecore(int userId) {
+        return new ReferenceData(userId, (new PrecoreSchema(userId)).server().getName());
     }
 
     static {
         globalOptions = new ArrayList<>();
-        Package pkg = ReferenceData.class.getPackage();
 
-        final Reflections reflections = new Reflections(pkg.getName());
+        final Reflections reflections = new Reflections("com.neutrino.models");
 
         for (Class clz : reflections.getSubTypesOf(Model.class)) {
             Table t = (Table) clz.getAnnotation(Table.class);
@@ -46,17 +56,44 @@ public class ReferenceData {
         }
     }
 
+    public Option findByKey(String key) {
+        String[] elements = key.split("|");
+        String type = null;
+        if (elements.length > 2) {
+            type = elements[3];
+        }
+        for (Option o : globalOptions) {
+            if (o.key(type).equals(key)) {
+                return o.forUser(userId);
+            }
+        }
+        return null;
+    }
+
     public List<Option> getOptions() {
         if (options == null) {
             options = Lists.transform(globalOptions, new Function<Option, Option>() {
                 @Nullable
                 @Override
                 public Option apply(@Nullable Option option) {
-                    return option.forServerName(serverName);
+                    return option.forUser(userId);
                 }
             });
         }
         return options;
+    }
+
+    public Map<String, Map<String, List<String>>> toJSON() {
+        Map<String, Map<String, List<String>>> map = new HashMap<>();
+        for (Option o : getOptions()) {
+            Map<String, List<String>> el = map.get(o.getTableName());
+            if (el == null) {
+                el = new HashMap<>();
+                map.put(o.getTableName(), el);
+            }
+            el.put(o.getColumnName(), o.getTypes());
+        }
+        return map;
     }
 
     private static void addOption(String tableName, String columnName, Class<? extends CoreType> coreTypeClz) {

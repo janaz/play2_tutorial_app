@@ -1,4 +1,4 @@
-package com.neutrino.models.core;
+package com.neutrino.models.core_common;
 
 import play.db.ebean.Model;
 
@@ -9,20 +9,21 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
 @Entity
-@Table(name = "PersonPhoneType")
-public class PersonPhoneType extends Model implements CoreType {
+@Table(name = "PersonNameType")
+public class PersonNameType extends Model implements CoreType{
     @Id
-    @Column(name = "PhoneTypeID")
+    @Column(name = "NameTypeID")
     public Integer id;
 
     @NotNull
     @Column(name = "Type", length = 30, unique = true)
     public String type;
 
-    public static Finder<Integer, PersonPhoneType> find(final String serverName) {
-        return new Finder<Integer, PersonPhoneType>(
-                serverName, Integer.class, PersonPhoneType.class);
+    public static Finder<Integer, PersonNameType> find(final String serverName) {
+        return new Finder<Integer, PersonNameType>(
+                serverName, Integer.class, PersonNameType.class);
     }
+
 
     @Override
     public Integer getId() {
@@ -33,5 +34,4 @@ public class PersonPhoneType extends Model implements CoreType {
     public String getType() {
         return type;
     }
-
 }
