@@ -1,4 +1,4 @@
-@(files: List[com.neutrino.models.metadata.DataSet], options: List[com.neutrino.models.core_common.Option])
+@(files: List[com.neutrino.models.metadata.DataSet], options: List[com.neutrino.models.core_common.Option], jsonOpts: String)
 @import org.joda.time.format.DateTimeFormat
 @import org.joda.time.DateTime
 
@@ -13,6 +13,7 @@
                     <th>@Messages("neutrino.mapping.header.dataset")</th>
                     <th>@Messages("neutrino.mapping.header.column")</th>
                     <th>@Messages("neutrino.mapping.header.mapped_type")</th>
+                    <th>@Messages("neutrino.mapping.header.manual_mapping")</th>
                     <th>@Messages("neutrino.mapping.header.confidence")</th>
                 </tr>
             </thead>
@@ -28,32 +29,22 @@
                     </td>
                     <td>
                         @{mapping.coreTableName}/@{mapping.coreAttributeName}
-                        <select name="mapping[@{mapping.id}]">
-                            @for(option <- options.sortBy(row => (row.getTableName(), row.getColumnName()))) {
-                                 @if(option.getTypes.isEmpty) {
-                                        @defining(
-                                           if (option.matches(mapping, null)) {
-                                                "selected='true'"
-                                            } else {
-                                                ""
-                                            }
-                                        ) { selected =>
-                                          <option @Html(selected) data-mapping-id="@{mapping.id}" data-mapping-core-table="@{mapping.coreTableName}" data-mapping-core-type="" value="@{option.getTableName}/@{option.getColumnName}">@{option.getTableName}/@{option.getColumnName}</option>
-                                        }
+                    </td>
+                    <td>
+                        <select name="mapping_@{mapping.id}" id="mapping_@{mapping.id}" class="main-select" data-selected-type="@{mapping.coreAttributeType}" data-mapping-id="@{mapping.id}" >
+                        @for(option <- options.sortBy(row => (row.getTableName(), row.getColumnName()))) {
+                            @defining(
+                                if (option.matches(mapping)) {
+                                    "selected='true'"
                                 } else {
-                                    @for(t <- option.getTypes.sorted) {
-                                        @defining(
-                                            if (option.matches(mapping, t)) {
-                                                "selected='true'"
-                                            } else {
-                                                ""
-                                            }
-                                        ) { selected =>
-                                            <option @Html(selected) data-mapping-id="@{mapping.id}" value="@{option.getTableName}/@{option.getColumnName}/@{t}">@{option.getTableName}/@{option.getColumnName}/@{t}</option>
-                                        }
-                                    }
+                                    ""
                                 }
+                            ) { selected =>
+                                <option @Html(selected) data-core-table="@{option.getTableName}" data-core-attribute="@{option.getColumnName}" value="@{option.getTableName}|@{option.getColumnName}">@{option.getTableName} / @{option.getColumnName}</option>
                             }
+                        }
+                        </select>
+                        <select name="type_@{mapping.id}" id="type_@{mapping.id}" class="type-select hidden" data-mapping-id="@{mapping.id}" >
                         </select>
                     </td>
                     <td>
@@ -64,10 +55,11 @@
             }
             </tbody>
         </table>
+        <button type="button" class="btn btn-success save-changes">Submit</button>
         </form>
     <script>
-    $(initUpload);
-    new MyFiles();
+        var jsonOpts=@Html(jsonOpts);
+        new Mapping(jsonOpts);
     </script>
 
 </script>

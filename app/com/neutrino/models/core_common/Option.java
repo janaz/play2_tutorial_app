@@ -54,25 +54,14 @@ public class Option {
         return tableName;
     }
 
-    public boolean matches(ColumnMapping mapping, String type) {
+    public boolean matches(ColumnMapping mapping) {
         if (!this.tableName.equalsIgnoreCase(mapping.coreTableName)) {
             return false;
         }
         if (!this.columnName.equalsIgnoreCase(mapping.coreAttributeName)) {
             return false;
         }
-        if (type == null) {
-            return getTypes().isEmpty();
-        }
-
-        if (getTypes().contains(type)) {
-            return true;
-        }
-
-        if (type.equals("CHOOSE") && !getTypes().isEmpty()) {
-            return true;
-        }
-        return false;
+        return true;
     }
 
     public List<String> getTypes() {
@@ -95,7 +84,7 @@ public class Option {
             } catch (IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
-            List<CoreType> coreTypes = finder.all();
+            List<CoreType> coreTypes = finder.orderBy("id").findList();
 
             typesList = Lists.transform(coreTypes, new Function<CoreType, String>() {
                 @Nullable
