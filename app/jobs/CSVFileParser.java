@@ -75,27 +75,27 @@ public class CSVFileParser {
 
         private void runJobFor(DataSet model) {
             MetadataSchema met = new MetadataSchema(model.userId);
-            model.state = DataSet.State.PROFILING;
+            model.setState(DataSet.State.PROFILING);
             model.save(met.server().getName());
             final com.neutrino.csv.UploadedFile uploadedFile = new com.neutrino.csv.UploadedFile(model);
             try {
                 uploadedFile.persistService().importToDB(model);
                 uploadedFile.persistService().runProfiling(model);
-                model.state = DataSet.State.PROFILING_DONE;
+                model.setState(DataSet.State.PROFILING_DONE);
             } catch (Exception e) {
-                model.state = DataSet.State.PROFILING_ERROR;
+                model.setState(DataSet.State.PROFILING_ERROR);
                 e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
             }
             model.save(met.server().getName());
 
             DataMapping dm = new DataMapping(model);
             try {
-                model.state = DataSet.State.AUTO_MAPPING;
+                model.setState(DataSet.State.AUTO_MAPPING);
                 model.save(met.server().getName());
                 dm.process();
-                model.state = DataSet.State.AUTO_MAPPING_DONE;
+                model.setState(DataSet.State.AUTO_MAPPING_DONE);
             } catch (Exception e) {
-                model.state = DataSet.State.AUTO_MAPPING_ERROR;
+                model.setState(DataSet.State.AUTO_MAPPING_ERROR);
                 e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
             }
             model.save(met.server().getName());

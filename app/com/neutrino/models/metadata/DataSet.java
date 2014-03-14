@@ -87,6 +87,10 @@ public class DataSet extends Model {
         this.file = file;
     }
 
+    public void setState(State state) {
+        this.state = state;
+    }
+
     @JsonIgnore
     public List<DataColumn> getColumns() {
         return columns;
