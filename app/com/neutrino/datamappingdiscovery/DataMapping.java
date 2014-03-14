@@ -161,10 +161,7 @@ public class DataMapping {
         ProfilingResultColumn profilingColRes = mtd.server().createQuery(ProfilingResultColumn.class).setAutofetch(false).where().eq("dataColumn", dataColumn).findUnique();
         Map<Integer,Double> results = new HashMap<>();
         ColumnMapping cm = new ColumnMapping();
-        cm.confidenceFlag = false;
-        cm.maybeFlag = false;
-        cm.manualOverrideFlag = false;
-        cm.dataColumn = dataColumn;
+        cm.setDataColumn(dataColumn);
         cm.setDataSet(dataSet);
         cm.confidenceFlag = false;
         cm.maybeFlag = false;
@@ -261,7 +258,7 @@ public class DataMapping {
                 cm.coreAttributeType =rule.coreType;
                 cm.coreTableName = rule.coreTable;
                 cm.score = (int)score;
-                cm.confidenceFlag = false;
+                cm.confidenceFlag = true;
                 System.out.println("Confidence match found for " + dataColumn.name + "rule: "+rule.coreTable+":"+rule.coreColumn+"\tthreshold: "+rule.confPointsThresh+"\tscore:"+score);
                 break; // found confidence match
             } else if (rule.maybePointsThresh.doubleValue() <= score) {

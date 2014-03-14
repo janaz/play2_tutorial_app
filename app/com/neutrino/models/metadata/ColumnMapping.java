@@ -57,6 +57,11 @@ public class ColumnMapping extends Model {
         this.dataSet = dataSet;
     }
 
+    public void setDataColumn(DataColumn dataColumn) {
+        this.dataColumn = dataColumn;
+    }
+
+
     public String getConfidence() {
         if (confidenceFlag) {
             return "Confident ("+score+")";
