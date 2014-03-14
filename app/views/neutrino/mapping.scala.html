@@ -13,7 +13,8 @@
                     <th>@Messages("neutrino.mapping.header.dataset")</th>
                     <th>@Messages("neutrino.mapping.header.column")</th>
                     <th>@Messages("neutrino.mapping.header.mapped_type")</th>
-                    <th>@Messages("neutrino.mapping.header.manual_mapping")</th>
+                    <th>@Messages("neutrino.mapping.header.attribute")</th>
+                    <th>@Messages("neutrino.mapping.header.attribute_type")</th>
                     <th>@Messages("neutrino.mapping.header.confidence")</th>
                 </tr>
             </thead>
@@ -38,7 +39,7 @@
                         @{mapping.coreTableName}/@{mapping.coreAttributeName}
                     </td>
                     <td>
-                        <select name="mapping_@{mapping.id}" id="mapping_@{mapping.id}" class="main-select" data-selected-type="@{mapping.coreAttributeType}" data-mapping-id="@{mapping.id}" >
+                        <select name="mapping_@{mapping.id}" id="mapping_@{mapping.id}" class="form-control main-select" data-selected-type="@{mapping.coreAttributeType}" data-mapping-id="@{mapping.id}" >
                         @for(option <- options.sortBy(row => (row.getTableName(), row.getColumnName()))) {
                             @defining(
                                 if (option.matches(mapping)) {
@@ -51,7 +52,9 @@
                             }
                         }
                         </select>
-                        <select name="type_@{mapping.id}" id="type_@{mapping.id}" class="type-select hidden" data-mapping-id="@{mapping.id}" >
+                    </td>
+                    <td>
+                        <select name="type_@{mapping.id}" id="type_@{mapping.id}" class="form-control type-select hidden" data-mapping-id="@{mapping.id}" >
                         </select>
                     </td>
                     <td>

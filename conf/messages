@@ -195,3 +195,5 @@ neutrino.mapping.header.dataset=Data Set
 neutrino.mapping.header.mapped_type=Mapped type
 neutrino.mapping.header.column=Source column
 neutrino.mapping.header.confidence=Confidence
+neutrino.mapping.header.attribute=Attribute
+neutrino.mapping.header.attribute_type=Type
