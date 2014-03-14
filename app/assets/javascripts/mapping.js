@@ -31,28 +31,19 @@ Mapping = function (options) {
                 };
             });
             console.log(data);
-            $.ajax({
-                type: "POST",
-                url: "/neutrino/update_mapping",
-                data: JSON.stringify(data),
-                contentType: "application/json; charset=utf-8",
-                success: function(data, textStatus, jqXHR) {
-                    console.log('ajax success');
-                    console.log(jqXHR);
-                    console.log(textStatus);
-                    console.log(jqXHR);
-
-                    var el = $('.save-update');
-                    el.fadeOut(1, function () {
-                        el.html('Changes saved').css('color', 'green');
-                        el.fadeIn(500, function () {
-                            el.fadeOut(1000, function () {
-                                el.html('');
-                            });
-                        });
-                    });
-                },
-
+//            $.ajax({
+//                type: "POST",
+//                url: "/neutrino/update_mapping",
+//                data: JSON.stringify(data),
+//                contentType: "application/json; charset=utf-8",
+//                success: function(data, textStatus, jqXHR) {
+//                    console.log('ajax success');
+//                    console.log(jqXHR);
+//                    console.log(textStatus);
+//                    console.log(jqXHR);
+//
+//                }
+//            });
            // ev.preventDefault();
 
         });

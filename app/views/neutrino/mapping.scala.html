@@ -20,7 +20,14 @@
             <tbody>
             @for((dataSet, idx) <- files.sortBy(_.creationTimestamp).reverse.zipWithIndex) {
               @for(mapping <- dataSet.getMappings()) {
-                <tr>
+                <tr class="@{if (mapping.confidenceFlag) {
+                        "success"
+                        } else if (mapping.maybeFlag) {
+                        "warning"
+                        } else {
+                        "danger"
+                        }
+                      }">
                     <td>
                        @{dataSet.getFile().getOriginalFileName()}
                     </td>
