@@ -34,16 +34,16 @@ public class MappingDiscoveryRule extends Model {
     @Column(name="RefFullScore")
     public Integer refFullScore;
 
-    @Column(name="RefMinimumPercMatch", precision = 3, scale=2)
+    @Column(name="RefMinimumPercMatch", precision = 5, scale=2)
     public BigDecimal refMinimumPercMatch;
 
-    @Column(name="RefFullScorePercThresh", precision = 3, scale=2)
+    @Column(name="RefFullScorePercThresh", precision = 5, scale=2)
     public BigDecimal refFullScorePercThresh;
 
-    @Column(name="NullMinimumPerc", precision = 3, scale=2)
+    @Column(name="NullMinimumPerc", precision = 5, scale=2)
     public BigDecimal nullMinimumPerc;
 
-    @Column(name="NullMaximumPerc", precision = 3, scale=2)
+    @Column(name="NullMaximumPerc", precision = 5, scale=2)
     public BigDecimal nullMaximumPerc;
 
     @Column(name="NullPenalty")
@@ -61,7 +61,7 @@ public class MappingDiscoveryRule extends Model {
     @Column(name="MaximumValue", length = 30)
     public String maximumValue;
 
-    @Column(name="AllowedExcPerc", precision = 3, scale=2)
+    @Column(name="AllowedExcPerc", precision = 5, scale=2)
     public BigDecimal allowedExcPerc;
 
     @Column(name="ValScore")
@@ -73,7 +73,7 @@ public class MappingDiscoveryRule extends Model {
     @Column(name="FormatsCode", length = 30)
     public String formatsCode;
 
-    @Column(name="FormatsMinimumPercThresh", precision = 3, scale=2)
+    @Column(name="FormatsMinimumPercThresh", precision = 5, scale=2)
     public BigDecimal formatsMinimumPercThresh;
 
     @Column(name="FormatsMetScore")
@@ -85,7 +85,7 @@ public class MappingDiscoveryRule extends Model {
     @Column(name="RegexPattern", length = 256)
     public String regexPattern;
 
-    @Column(name="RegexMinimumPercThresh", precision = 3, scale=2)
+    @Column(name="RegexMinimumPercThresh", precision = 5, scale=2)
     public BigDecimal regexMinimumPercThresh;
 
     @Column(name="RegexMetScore")
