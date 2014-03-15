@@ -33,7 +33,7 @@ public class CSVFileParser {
             System.out.println("Starting main job");
 
             do {
-                System.out.println("Main loop");
+//                System.out.println("Main loop");
 //                try {
 //                    for (DataSet model : CsvFile.getNotParsed()) {
 //                        parseFile(model);
@@ -67,7 +67,7 @@ public class CSVFileParser {
 
                     }
                 }
-                System.out.println("End of main loop");
+//                System.out.println("End of main loop");
 
             } while (true);
 

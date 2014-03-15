@@ -9,7 +9,7 @@
 } else {
     @main("Neutrino") {
 
-        <div class="upload-alert alert alert-success" style="display: none;">
+        <div class="info-alert alert alert-success" style="display: none;">
         </div>
 
         <div class="progress upload-progress progress-striped hidden">
@@ -45,7 +45,7 @@
                 fileName: '',
                 add: function (e, data) {
                     $('.upload-progress').addClass('hidden');
-                    $('.upload-alert').addClass('hidden');
+                    $('.info-alert').addClass('hidden');
                     $('.upload-add-file').addClass('hidden');
                     $('.upload-data-context').removeClass('hidden');
                     $('.upload-data-context .upload-filename').html(data.files[0].name);
@@ -64,7 +64,7 @@
                     var response = data.result;
                     $('.upload-data-context .upload-view-file' ).removeClass('hidden' ).attr('href', response.view_url);
                     $('.upload-progress').addClass('hidden');
-                    $('.upload-alert' ).removeClass('hidden').html('@Messages("neutrino.upload.file_uploaded_successfully") ' +response.message + ' <a href="'+response.view_url+'">Display the content</a>').slideDown();
+                    $('.info-alert').removeClass('hidden').removeClass('alert-danger').addClass('alert-success').html('@Messages("neutrino.upload.file_uploaded_successfully") ' +response.message + ' <a href="'+response.view_url+'">Display the content</a>').slideDown();
                 },
                 progressall: function (e, data) {
                     var progress = parseInt(data.loaded / data.total * 100, 10);

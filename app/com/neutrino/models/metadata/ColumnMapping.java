@@ -3,6 +3,7 @@ package com.neutrino.models.metadata;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
+import java.util.Map;
 
 @Entity
 @Table(name="ColumnMapping")
@@ -71,5 +72,39 @@ public class ColumnMapping extends Model {
             return "Gave up ("+score+")";
         }
     }
+
+    public void updateFromJson(Map<String, String> jsonMapping, String serverName) {
+        String newTable = jsonMapping.get("table_name");
+        String newAttr = jsonMapping.get("attribute_name");
+        String newType = jsonMapping.get("attribute_type");
+        if (!newTable.equals(coreTableName) || !newAttr.equals(coreAttributeName)) {
+            //we have an override
+            setCoreTableName(newTable);
+            setCoreAttributeName(newAttr);
+            setCoreAttributeType(newType);
+            setManualOverrideFlag(true);
+        } else {
+            //change of type
+            setCoreAttributeType(newType);
+        }
+        save(serverName);
+    }
+
+    public void setCoreTableName(String coreTableName) {
+        this.coreTableName = coreTableName;
+    }
+
+    public void setCoreAttributeName(String coreAttributeName) {
+        this.coreAttributeName = coreAttributeName;
+    }
+
+    public void setCoreAttributeType(String coreAttributeType) {
+        this.coreAttributeType = coreAttributeType;
+    }
+
+    public void setManualOverrideFlag(Boolean manualOverrideFlag) {
+        this.manualOverrideFlag = manualOverrideFlag;
+    }
+
 
 }

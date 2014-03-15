@@ -65,11 +65,12 @@
             }
             </tbody>
         </table>
-        <button type="button" class="btn btn-success save-changes">Submit</button>
+        <button type="button" class="btn btn-success save-changes">@Messages("neutrino.mapping.action.submit")</button>
         </form>
     <script>
         var jsonOpts=@Html(jsonOpts);
-        new Mapping(jsonOpts);
+        var m = new Mapping(jsonOpts);
+        m.updateUrl = '@controllers.neutrino.secured.routes.ManualMapping.update';
     </script>
 
 </script>

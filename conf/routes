@@ -18,6 +18,7 @@ GET         /neutrino/dashboard                  controllers.neutrino.secured.Da
 GET         /neutrino/test_action                controllers.neutrino.BasicFlow.testAction()
 
 GET         /neutrino/mapping/index                   controllers.neutrino.secured.ManualMapping.index()
+POST         /neutrino/mapping/update                   controllers.neutrino.secured.ManualMapping.update()
 
 GET     /restricted                 controllers.Application.restricted
 #GET     /assets/javascript/routes.js    controllers.Application.jsRoutes

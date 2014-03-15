@@ -197,3 +197,6 @@ neutrino.mapping.header.column=Source column
 neutrino.mapping.header.confidence=Confidence
 neutrino.mapping.header.attribute=Attribute
 neutrino.mapping.header.attribute_type=Type
+neutrino.mapping.action.submit=Save
+neutrino.mapping.mapping_saved_successfully=Mapping saved successfully
+neutrino.mapping.mapping_save_error=Error saving mapping information

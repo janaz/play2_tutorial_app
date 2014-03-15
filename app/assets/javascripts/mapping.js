@@ -31,22 +31,30 @@ Mapping = function (options) {
                 };
             });
             console.log(data);
-//            $.ajax({
-//                type: "POST",
-//                url: "/neutrino/update_mapping",
-//                data: JSON.stringify(data),
-//                contentType: "application/json; charset=utf-8",
-//                success: function(data, textStatus, jqXHR) {
-//                    console.log('ajax success');
-//                    console.log(jqXHR);
-//                    console.log(textStatus);
-//                    console.log(jqXHR);
-//
-//                }
-//            });
+            $.ajax({
+                type: "POST",
+                url: that.getUpdateUrl(),
+                data: JSON.stringify(data),
+                contentType: "application/json; charset=utf-8",
+                success: function(data, textStatus, jqXHR) {
+                    console.log('ajax success');
+                    console.log(jqXHR);
+                    console.log(textStatus);
+                    console.log(jqXHR);
+                    $('.info-alert').removeClass('hidden').removeClass('alert-danger').addClass('alert-success').html('Mapping saved successfully').slideDown();
+                },
+                error: function(data, textStatus, jqXHR) {
+                    $('.info-alert').removeClass('hidden').removeClass('alert-success').addClass('alert-danger').html('Error saving mapping').slideDown();
+
+                }
+            });
            // ev.preventDefault();
 
         });
+    };
+
+    this.getUpdateUrl = function () {
+        return this.updateUrl;
     };
 
     this.populateTypes = function (main_select_id, type_select_id) {
