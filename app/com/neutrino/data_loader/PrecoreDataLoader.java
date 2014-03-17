@@ -1,8 +1,8 @@
 package com.neutrino.data_loader;
 
+import com.neutrino.models.core_common.CoreTable;
 import com.neutrino.models.core_common.PersonHeader;
 import com.neutrino.models.core_common.ReferenceData;
-import com.neutrino.models.core_common.WithCoreType;
 import com.neutrino.models.metadata.ColumnMapping;
 import com.neutrino.models.metadata.DataColumn;
 import com.neutrino.models.metadata.DataSet;
@@ -37,23 +37,16 @@ public class PrecoreDataLoader {
     private void blah() {
         DataSet ds = DataSet.find(metadataSchema.server().getName()).byId(dataSetId);
         List<ColumnMapping> mappings = ds.getMappings();
-        final Map<String, Map<String, ColumnMapping>> mapmap= new HashMap<>();
-        final Map<String, Map<String, DataColumn>> mapcol= new HashMap<>();
+        final Map<String, Map<String, ColumnMapping>> mapmap = new HashMap<>();
         for (ColumnMapping mapping : mappings) {
             DataColumn col = mapping.getDataColumn();
             col.getName(); // <-> mapping.coreTable/coreAttribute
             Map<String, ColumnMapping> mc = mapmap.get(mapping.coreTableName);
-            Map<String, DataColumn> md = mapcol.get(mapping.coreTableName);
             if (mc == null) {
                 mc = new HashMap<>();
                 mapmap.put(mapping.coreTableName, mc);
             }
-            if (md == null) {
-                md = new HashMap<>();
-                mapcol.put(mapping.coreTableName, md);
-            }
             mc.put(mapping.coreAttributeName, mapping);
-            md.put(mapping.coreAttributeName, col);
         }
 
         EbeanServerManager.getManager().executeQuery(stagingSchema.server(), new QueryCallable<Boolean>() {
@@ -64,38 +57,42 @@ public class PrecoreDataLoader {
                 int columnCount = met.getColumnCount();
                 Map<String, String> data = new HashMap<>();
                 while (rs.next()) {
-                    for (int i = 1; i < columnCount + 1; i++ ) {
+                    for (int i = 1; i < columnCount + 1; i++) {
                         String name = met.getColumnName(i);
                         data.put(name, rs.getString(i));
                     }
-                    String srcName = mapcol.get("PersonHeader").get("SourceID").getName();
+                    String srcName = mapmap.get("PersonHeader").get("SourceID").getDataColumn().getName();
                     String srcVal = data.get(srcName);
                     PersonHeader ph = new PersonHeader();
                     ph.datasetId = dataSetId;
                     ph.creationTimestamp = new Date();
                     ph.sourceId = srcVal;
-                    ph.save();
-                    for (String tabName : mapcol.keySet()) {
+                    ph.save(precoreSchema.server().getName());
+                    for (String tabName : mapmap.keySet()) {
                         if (!"PersonHeader".equals(tabName)) {
-                            Model m = ReferenceData.instantiatePrecoreModelClass(tabName);
-                            WithCoreType iface = (WithCoreType)m;
-                            iface.setHeader(ph);
-                            //create object through reflection
-                            //populate person header
-                            for (String attrName : mapcol.get(tabName).keySet()) {
-                                String stgName = mapcol.get(tabName).get(attrName).getName();
-                                String stgVal = data.get(stgName);
-                                //pouplate attr with stgVal
-                                //populate type
-
+                            Map<String, Model> models = new HashMap<>();
+                            for (String attrName : mapmap.get(tabName).keySet()) {
                                 String type = mapmap.get(tabName).get(attrName).coreAttributeType;
-                                iface.setTypeByName(type, precoreSchema.server().getName());
+                                if (type == null) {
+                                    type = "NULL";
+                                }
 
-                                //get Type value from type class and search
+                                Model m = models.get(type);
+                                if (m == null) {
+                                    m = ReferenceData.instantiatePrecoreModelClass(tabName);
+                                    models.put(type, m);
+                                    CoreTable iface = (CoreTable) m;
+                                    iface.setHeader(ph);
+                                    iface.setTypeByName(type, precoreSchema.server().getName());
+                                }
 
-
+                                String stgName = mapmap.get(tabName).get(attrName).getDataColumn().getName();
+                                String stgVal = data.get(stgName);
+                                ReferenceData.setValue(m, attrName, stgVal);
                             }
-                            //save record
+                            for (String type : models.keySet()) {
+                                models.get(type).save(precoreSchema.server().getName());
+                            }
                         }
                     }
                 }

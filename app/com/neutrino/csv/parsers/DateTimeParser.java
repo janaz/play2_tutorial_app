@@ -7,7 +7,7 @@ public class DateTimeParser implements DataCategoryParser {
     private static final DateTime REF_DT = DateTime.parse("1000-10-10");
     @Override
     public DateTime parse(String value) {
-        if (value.isEmpty()) {
+        if (value == null || value.isEmpty()) {
             return null;
         }
         DateTimeConfig.globalEuropeanDateFormat();

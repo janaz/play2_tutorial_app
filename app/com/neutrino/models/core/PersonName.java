@@ -9,52 +9,52 @@ import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 @Entity
-@Table(name="PersonName")
-public class PersonName extends Model implements WithCoreType{
+@Table(name = "PersonName")
+public class PersonName extends Model implements CoreTable {
     @Id
-    @Column(name="NameID")
+    @Column(name = "NameID")
     public Integer id;
 
     @NotNull
     @ManyToOne
-    @JoinColumn(name="HeaderID")
+    @JoinColumn(name = "HeaderID")
     public PersonHeader header;
 
     @NotNull
     @ManyToOne
-    @JoinColumn(name="NameTypeID")
+    @JoinColumn(name = "NameTypeID")
     public PersonNameType nameType;
 
-    @SelectableAttribute(type=PersonNameType.class)
-    @Column(name="Salutation", length = 30)
+    @SelectableAttribute(type = PersonNameType.class)
+    @Column(name = "Salutation", length = 30)
     public String salutation;
 
-    @SelectableAttribute(type=PersonNameType.class)
-    @Column(name="FirstName", length = 30)
+    @SelectableAttribute(type = PersonNameType.class)
+    @Column(name = "FirstName", length = 30)
     public String firstName;
 
-    @SelectableAttribute(type=PersonNameType.class)
-    @Column(name="MiddleName", length = 30)
+    @SelectableAttribute(type = PersonNameType.class)
+    @Column(name = "MiddleName", length = 30)
     public String middleName;
 
-    @SelectableAttribute(type=PersonNameType.class)
-    @Column(name="Surname", length = 60)
+    @SelectableAttribute(type = PersonNameType.class)
+    @Column(name = "Surname", length = 60)
     public String surname;
 
-    @SelectableAttribute(type=PersonNameType.class)
-    @Column(name="Generation", length = 30)
+    @SelectableAttribute(type = PersonNameType.class)
+    @Column(name = "Generation", length = 30)
     public String generation;
 
-    @SelectableAttribute(type=PersonNameType.class)
-    @Column(name="Suffix", length = 30)
+    @SelectableAttribute(type = PersonNameType.class)
+    @Column(name = "Suffix", length = 30)
     public String suffix;
 
     @NotNull
-    @Column(name="CreationTimestamp")
+    @Column(name = "CreationTimestamp")
     @Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
     public Date creationTimestamp;
 
-    @Column(name="ModificationTimestamp")
+    @Column(name = "ModificationTimestamp")
     @Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
     public Date modificationTimestamp;
 

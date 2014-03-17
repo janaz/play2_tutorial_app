@@ -2,6 +2,7 @@ package com.neutrino.models.core_common;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+import com.neutrino.csv.parsers.DateTimeParser;
 import com.neutrino.profiling.CoreSchema;
 import com.neutrino.profiling.PrecoreSchema;
 import org.reflections.Reflections;
@@ -193,5 +194,57 @@ public class ReferenceData {
         createPersonAddressType(4, "Delivery");
         createPersonAddressType(5, "Summer Residence");
         createPersonAddressType(6, "PO Box");
+    }
+
+    public static void setValue(Model m, String attrName, String stgVal) {
+        for (Field f : m.getClass().getDeclaredFields()) {
+            Column colAnn = f.getAnnotation(Column.class);
+            if (colAnn != null && attrName.equals(colAnn.name())) {
+                Class clz = f.getType();
+                if (clz.equals(String.class)) {
+                    try {
+                        f.set(m, stgVal);
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException(e);
+                    }
+                } else if (clz.equals(Date.class)) {
+                    Date val = new DateTimeParser().parse(stgVal).toDate();
+                    try {
+                        f.set(m, val);
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                }  else if (clz.equals(Short.class)) {
+                    Short val;
+                    try {
+                        val = Short.parseShort(stgVal);
+                    } catch (NumberFormatException e) {
+                        val = null;
+                    }
+                    try {
+                        f.set(m, val);
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                }  else if (clz.equals(Integer.class)) {
+                    Integer val;
+                    try {
+                        val = Integer.parseInt(stgVal);
+                    } catch (NumberFormatException e) {
+                        val = null;
+                    }
+                    try {
+                        f.set(m, val);
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException(e);
+                    }
+                }  else {
+                    throw new RuntimeException("Unexpected type : " + clz.getName() + " for " + attrName);
+                }
+            }
+
+        }
     }
 }

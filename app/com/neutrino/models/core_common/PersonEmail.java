@@ -9,7 +9,7 @@ import java.util.Date;
 
 @Entity
 @Table(name = "PersonEmail")
-public class PersonEmail extends Model {
+public class PersonEmail extends Model implements CoreTable{
     @Id
     @Column(name = "EmailID")
     public Integer id;
@@ -41,4 +41,18 @@ public class PersonEmail extends Model {
         return header;
     }
 
+    @Override
+    public Class<? extends CoreType> getCoreTypeClass() {
+        return EmptyType.class;
+    }
+
+    @Override
+    public void setTypeByName(String typeName, String serverName) {
+
+    }
+
+    @Override
+    public void setHeader(PersonHeader header) {
+        this.header = header;
+    }
 }

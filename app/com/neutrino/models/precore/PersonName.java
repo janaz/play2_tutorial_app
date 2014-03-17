@@ -1,9 +1,9 @@
 package com.neutrino.models.precore;
 
+import com.neutrino.models.core_common.CoreTable;
 import com.neutrino.models.core_common.CoreType;
 import com.neutrino.models.core_common.PersonHeader;
 import com.neutrino.models.core_common.PersonNameType;
-import com.neutrino.models.core_common.WithCoreType;
 import play.data.format.Formats;
 import play.db.ebean.Model;
 
@@ -12,49 +12,49 @@ import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 @Entity
-@Table(name="PersonName")
-public class PersonName extends Model implements WithCoreType {
+@Table(name = "PersonName")
+public class PersonName extends Model implements CoreTable {
     @Id
-    @Column(name="NameID")
+    @Column(name = "NameID")
     public Integer id;
 
     @NotNull
     @ManyToOne
-    @JoinColumn(name="HeaderID")
+    @JoinColumn(name = "HeaderID")
     public PersonHeader header;
 
     @NotNull
     @ManyToOne
-    @JoinColumn(name="NameTypeID")
+    @JoinColumn(name = "NameTypeID")
     public PersonNameType nameType;
 
-    @Column(name="Salutation", length = 30)
+    @Column(name = "Salutation", length = 30)
     public String salutation;
 
-    @Column(name="FirstName", length = 30)
+    @Column(name = "FirstName", length = 30)
     public String firstName;
 
-    @Column(name="MiddleName", length = 30)
+    @Column(name = "MiddleName", length = 30)
     public String middleName;
 
-    @Column(name="Surname", length = 60)
+    @Column(name = "Surname", length = 60)
     public String surname;
 
-    @Column(name="Generation", length = 30)
+    @Column(name = "Generation", length = 30)
     public String generation;
 
-    @Column(name="Suffix", length = 30)
+    @Column(name = "Suffix", length = 30)
     public String suffix;
 
-    @Column(name="FullName", length = 120)
+    @Column(name = "FullName", length = 120)
     public String fullName;
 
     @NotNull
-    @Column(name="CreationTimestamp")
+    @Column(name = "CreationTimestamp")
     @Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
     public Date creationTimestamp;
 
-    @Column(name="ModificationTimestamp")
+    @Column(name = "ModificationTimestamp")
     @Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
     public Date modificationTimestamp;
 

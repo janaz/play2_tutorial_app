@@ -9,7 +9,7 @@ import java.util.Date;
 
 @Entity
 @Table(name = "PersonAnniversary")
-public class PersonAnniversary extends Model implements WithCoreType {
+public class PersonAnniversary extends Model implements CoreTable {
     @Id
     @Column(name = "AnniversaryID")
     public Integer id;

@@ -1,9 +1,9 @@
 package com.neutrino.models.precore;
 
+import com.neutrino.models.core_common.CoreTable;
 import com.neutrino.models.core_common.CoreType;
 import com.neutrino.models.core_common.PersonAddressType;
 import com.neutrino.models.core_common.PersonHeader;
-import com.neutrino.models.core_common.WithCoreType;
 import play.data.format.Formats;
 import play.db.ebean.Model;
 
@@ -13,7 +13,7 @@ import java.util.Date;
 
 @Entity
 @Table(name = "PersonAddress")
-public class PersonAddress extends Model implements WithCoreType{
+public class PersonAddress extends Model implements CoreTable {
     @Id
     @Column(name = "AddressID")
     public Integer id;

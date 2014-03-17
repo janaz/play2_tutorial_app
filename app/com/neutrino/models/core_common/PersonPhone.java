@@ -8,44 +8,44 @@ import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 @Entity
-@Table(name="PersonPhone")
-public class PersonPhone extends Model implements WithCoreType{
+@Table(name = "PersonPhone")
+public class PersonPhone extends Model implements CoreTable {
     @Id
-    @Column(name="PhoneID")
+    @Column(name = "PhoneID")
     public Integer id;
 
     @NotNull
     @ManyToOne
-    @JoinColumn(name="HeaderID")
+    @JoinColumn(name = "HeaderID")
     public PersonHeader header;
 
     @NotNull
     @ManyToOne
-    @JoinColumn(name="PhoneTypeID")
+    @JoinColumn(name = "PhoneTypeID")
     public PersonPhoneType phoneType;
 
-    @SelectableAttribute(type=PersonPhoneType.class)
-    @Column(name="CountryCode")
+    @SelectableAttribute(type = PersonPhoneType.class)
+    @Column(name = "CountryCode")
     public Short countryCode;
 
-    @SelectableAttribute(type=PersonPhoneType.class)
-    @Column(name="AreaCode")
+    @SelectableAttribute(type = PersonPhoneType.class)
+    @Column(name = "AreaCode")
     public Short areaCode;
 
-    @SelectableAttribute(type=PersonPhoneType.class)
-    @Column(name="PhoneNumber")
+    @SelectableAttribute(type = PersonPhoneType.class)
+    @Column(name = "PhoneNumber")
     public Long phoneNumber;
 
-    @SelectableAttribute(type=PersonPhoneType.class)
-    @Column(name="Extension")
+    @SelectableAttribute(type = PersonPhoneType.class)
+    @Column(name = "Extension")
     public Integer extension;
 
     @NotNull
-    @Column(name="CreationTimestamp")
+    @Column(name = "CreationTimestamp")
     @Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
     public Date creationTimestamp;
 
-    @Column(name="ModificationTimestamp")
+    @Column(name = "ModificationTimestamp")
     @Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
     public Date modificationTimestamp;
 

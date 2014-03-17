@@ -9,7 +9,7 @@ import java.util.Date;
 
 @Entity
 @Table(name = "PersonExternalIdentifier")
-public class PersonExternalIdentifier extends Model implements  WithCoreType{
+public class PersonExternalIdentifier extends Model implements CoreTable {
     @Id
     @Column(name = "ExternalIdentifierID")
     public Integer id;
@@ -24,11 +24,11 @@ public class PersonExternalIdentifier extends Model implements  WithCoreType{
     @JoinColumn(name = "ExternalIdentifierTypeID")
     public PersonExternalIdentifierType externalIdentifierType;
 
-    @SelectableAttribute(type=PersonExternalIdentifierType.class)
+    @SelectableAttribute(type = PersonExternalIdentifierType.class)
     @Column(name = "Identifier", length = 30)
     public String Identifier;
 
-    @SelectableAttribute(type=PersonExternalIdentifierType.class)
+    @SelectableAttribute(type = PersonExternalIdentifierType.class)
     @Column(name = "ExpiryDate")
     @Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
     public Date expiryDate;
