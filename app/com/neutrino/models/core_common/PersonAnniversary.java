@@ -9,7 +9,7 @@ import java.util.Date;
 
 @Entity
 @Table(name = "PersonAnniversary")
-public class PersonAnniversary extends Model {
+public class PersonAnniversary extends Model implements WithCoreType {
     @Id
     @Column(name = "AnniversaryID")
     public Integer id;
@@ -49,6 +49,26 @@ public class PersonAnniversary extends Model {
 
     public PersonHeader getHeader() {
         return header;
+    }
+
+
+    public void setAnniversaryType(PersonAnniversaryType anniversaryType) {
+        this.anniversaryType = anniversaryType;
+    }
+
+    @Override
+    public void setTypeByName(String typeName, String serverName) {
+        this.setAnniversaryType(PersonAnniversaryType.find(serverName).where().eq("name", typeName).findUnique());
+    }
+
+    @Override
+    public Class<? extends CoreType> getCoreTypeClass() {
+        return PersonAnniversaryType.class;
+    }
+
+    @Override
+    public void setHeader(PersonHeader header) {
+        this.header = header;
     }
 
 }

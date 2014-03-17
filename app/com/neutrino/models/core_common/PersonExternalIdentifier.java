@@ -9,7 +9,7 @@ import java.util.Date;
 
 @Entity
 @Table(name = "PersonExternalIdentifier")
-public class PersonExternalIdentifier extends Model {
+public class PersonExternalIdentifier extends Model implements  WithCoreType{
     @Id
     @Column(name = "ExternalIdentifierID")
     public Integer id;
@@ -54,6 +54,25 @@ public class PersonExternalIdentifier extends Model {
 
     public PersonHeader getHeader() {
         return header;
+    }
+
+    public void setExternalIdentifierType(PersonExternalIdentifierType externalIdentifierType) {
+        this.externalIdentifierType = externalIdentifierType;
+    }
+
+    @Override
+    public void setTypeByName(String typeName, String serverName) {
+        this.setExternalIdentifierType(PersonExternalIdentifierType.find(serverName).where().eq("name", typeName).findUnique());
+    }
+
+    @Override
+    public Class<? extends CoreType> getCoreTypeClass() {
+        return PersonExternalIdentifierType.class;
+    }
+
+    @Override
+    public void setHeader(PersonHeader header) {
+        this.header = header;
     }
 
 }

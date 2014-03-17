@@ -47,6 +47,10 @@ public class ManualMapping extends Secured {
 
         Map<String, Map<String, String>> data = Json.fromJson(reqNode, Map.class);
 
+        /*validation
+        [ ] there has to be exactly one sourceID column selected
+        [ ] unique values per dataset
+        */
         for (String mappingId : data.keySet()) {
             ColumnMapping mapping = ColumnMapping.find(metadataServerName()).byId(Integer.parseInt(mappingId));
             Map<String, String> jsonMapping = data.get(mappingId);

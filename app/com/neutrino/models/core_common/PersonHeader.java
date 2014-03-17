@@ -23,6 +23,7 @@ public class PersonHeader extends Model {
     public Integer datasetId;
 
     @NotNull
+    @SelectableAttribute
     @Column(name="SourceID", length = 60, unique = true)
     public String sourceId;
 

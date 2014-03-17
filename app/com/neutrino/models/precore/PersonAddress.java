@@ -1,8 +1,9 @@
 package com.neutrino.models.precore;
 
+import com.neutrino.models.core_common.CoreType;
 import com.neutrino.models.core_common.PersonAddressType;
 import com.neutrino.models.core_common.PersonHeader;
-import com.neutrino.models.core_common.SelectableAttribute;
+import com.neutrino.models.core_common.WithCoreType;
 import play.data.format.Formats;
 import play.db.ebean.Model;
 
@@ -12,7 +13,7 @@ import java.util.Date;
 
 @Entity
 @Table(name = "PersonAddress")
-public class PersonAddress extends Model {
+public class PersonAddress extends Model implements WithCoreType{
     @Id
     @Column(name = "AddressID")
     public Integer id;
@@ -104,6 +105,25 @@ public class PersonAddress extends Model {
 
     public PersonHeader getHeader() {
         return header;
+    }
+
+    public void setAddressType(PersonAddressType addressType) {
+        this.addressType = addressType;
+    }
+
+    @Override
+    public void setTypeByName(String typeName, String serverName) {
+        this.setAddressType(PersonAddressType.find(serverName).where().eq("name", typeName).findUnique());
+    }
+
+    @Override
+    public Class<? extends CoreType> getCoreTypeClass() {
+        return PersonAddressType.class;
+    }
+
+    @Override
+    public void setHeader(PersonHeader header) {
+        this.header = header;
     }
 
 }

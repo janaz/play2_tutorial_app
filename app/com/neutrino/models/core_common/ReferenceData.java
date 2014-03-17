@@ -56,6 +56,37 @@ public class ReferenceData {
         }
     }
 
+    public static Model instantiatePrecoreModelClass(String className) {
+        Class<Model> clz = getPrecoreModelClassByName(className);
+        try {
+            Model m = clz.newInstance();
+            return m;
+        } catch (InstantiationException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Class<Model> getPrecoreModelClassByName(String className) {
+        Class<Model> retVal = getModelClassByName(className, "com.neutrino.models.precore");
+        if (retVal != null) {
+            return retVal;
+        } else {
+            return getModelClassByName(className, "com.neutrino.models.core_common");
+        }
+    }
+
+    private static Class<Model> getModelClassByName(String className, String pkg) {
+        final Reflections reflections = new Reflections(pkg);
+        for (Class clz : reflections.getSubTypesOf(Model.class)) {
+            if (clz.getSimpleName().equals(className)) {
+                return clz;
+            }
+        }
+        return null;
+    }
+
     public Option findByKey(String key) {
         String[] elements = key.split("|");
         String type = null;

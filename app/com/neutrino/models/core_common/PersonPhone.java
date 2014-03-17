@@ -9,7 +9,7 @@ import java.util.Date;
 
 @Entity
 @Table(name="PersonPhone")
-public class PersonPhone extends Model {
+public class PersonPhone extends Model implements WithCoreType{
     @Id
     @Column(name="PhoneID")
     public Integer id;
@@ -61,6 +61,25 @@ public class PersonPhone extends Model {
 
     public PersonHeader getHeader() {
         return header;
+    }
+
+    public void setPhoneType(PersonPhoneType phoneType) {
+        this.phoneType = phoneType;
+    }
+
+    @Override
+    public void setTypeByName(String typeName, String serverName) {
+        this.setPhoneType(PersonPhoneType.find(serverName).where().eq("name", typeName).findUnique());
+    }
+
+    @Override
+    public Class<? extends CoreType> getCoreTypeClass() {
+        return PersonPhoneType.class;
+    }
+
+    @Override
+    public void setHeader(PersonHeader header) {
+        this.header = header;
     }
 
 }
