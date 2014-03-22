@@ -11,7 +11,7 @@ import java.util.List;
 public class SampleReader implements LineReadListener {
     private final List<String[]> sampleLines;
     private List<CSVDataHeader> dataHeaders;
-    private long limit;
+    private final long limit;
 
     public SampleReader(long limit) {
         sampleLines = new ArrayList<>();
@@ -28,14 +28,14 @@ public class SampleReader implements LineReadListener {
     }
 
     public List<String> getStringHeaders() {
-        return Lists.transform(dataHeaders, new Function<CSVDataHeader, String>() {
+        return Lists.newArrayList(Lists.transform(dataHeaders, new Function<CSVDataHeader, String>() {
 
             @Nullable
             @Override
             public String apply(@Nullable CSVDataHeader header) {
                 return header.name();
             }
-        });
+        }));
     }
 
     @Override
@@ -52,8 +52,6 @@ public class SampleReader implements LineReadListener {
 
     @Override
     public boolean finished() {
-        System.out.println("Sample" + limit + " " +sampleLines.size());
-
         return sampleLines.size() >= limit;
     }
 

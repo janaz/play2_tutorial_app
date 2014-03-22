@@ -86,13 +86,13 @@ public class Option {
             }
             List<CoreType> coreTypes = finder.orderBy("id").findList();
 
-            typesList = Lists.transform(coreTypes, new Function<CoreType, String>() {
+            typesList = Lists.newArrayList(Lists.transform(coreTypes, new Function<CoreType, String>() {
                 @Nullable
                 @Override
                 public String apply(@Nullable CoreType coreType) {
                     return coreType.getType();
                 }
-            });
+            }));
         }
         return typesList;
     }

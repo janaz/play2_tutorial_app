@@ -28,7 +28,7 @@ public class ProfilingResultFormat extends Model {
     @Column(name="ColumnName", length = 64)
     public String columnName;
 
-    @Column(name="Format", length = 128)
+    @Column(name="Format", length = 256)
     public String format;
 
     @NotNull

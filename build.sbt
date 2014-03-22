@@ -21,10 +21,12 @@ libraryDependencies ++= Seq(
   "net.sf.opencsv" % "opencsv" % "2.3",
   "com.amazonaws" % "aws-java-sdk" % "1.6.2",
   "com.google.guava" % "guava" % "r09",
+  "com.google.gdata" % "core" % "1.47.1",
   "mysql" % "mysql-connector-java" % "5.1.6",
   "be.objectify" %% "deadbolt-java" % "2.2-RC2",
   "net.sf.supercsv" % "super-csv" % "2.1.0",
   "org.pojava" % "pojava" % "2.9.0",
+  "com.googlecode.juniversalchardet" % "juniversalchardet" % "1.0.3",
   cache
 )     
 

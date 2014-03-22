@@ -104,13 +104,13 @@ public class ReferenceData {
 
     public List<Option> getOptions() {
         if (options == null) {
-            options = Lists.transform(globalOptions, new Function<Option, Option>() {
+            options = Lists.newArrayList(Lists.transform(globalOptions, new Function<Option, Option>() {
                 @Nullable
                 @Override
                 public Option apply(@Nullable Option option) {
                     return option.forUser(userId);
                 }
-            });
+            }));
         }
         return options;
     }

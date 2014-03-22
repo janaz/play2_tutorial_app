@@ -28,6 +28,9 @@ public class MappingDiscoveryRule extends Model {
     @Column(name="CoreType", length = 30)
     public String coreType;
 
+    @Column(name="MandatoryFlag")
+    public Boolean mandatoryFlag;
+
     @Column(name="RefCode", length = 30)
     public String refCode;
 
@@ -48,6 +51,15 @@ public class MappingDiscoveryRule extends Model {
 
     @Column(name="NullPenalty")
     public Integer nullPenalty;
+
+    @Column(name="UniqueMinimumPerc", precision = 5, scale=2)
+    public BigDecimal uniqueMinimumPerc;
+
+    @Column(name="UniqueMaximumPerc", precision = 5, scale=2)
+    public BigDecimal uniqueMaximumPerc;
+
+    @Column(name="uniqueScore")
+    public Integer uniqueScore;
 
     @Column(name="NamePatterns", length = 256)
     public String namePatterns;
@@ -112,24 +124,15 @@ public class MappingDiscoveryRule extends Model {
             Integer.class, MappingDiscoveryRule.class);
 
     @Transient
-    private String _compiledFor_regexPattern;
-    @Transient
-    private Pattern _regexPatternCompiled;
-    @Transient
     private String _compiledFor_namePatterns;
     @Transient
     private List<Pattern> _namePatternsCompiled;
 
     public Pattern regexPatternCompiled() {
-        if (regexPattern == null || namePatterns.trim().isEmpty()) {
+        if (regexPattern == null || regexPattern.trim().isEmpty()) {
             return null;
         }
-        if (_compiledFor_regexPattern == null || !_compiledFor_regexPattern.equals(regexPattern)) {
-            _compiledFor_regexPattern = regexPattern;
-            _regexPatternCompiled = Pattern.compile(regexPattern, Pattern.CASE_INSENSITIVE);
-        }
-        return _regexPatternCompiled;
-
+        return Pattern.compile(regexPattern, Pattern.CASE_INSENSITIVE);
     }
 
     private List<Pattern> namePatternsCompiled() {
@@ -139,14 +142,14 @@ public class MappingDiscoveryRule extends Model {
         if (_compiledFor_namePatterns == null || !_compiledFor_namePatterns.equals(namePatterns)) {
             _compiledFor_namePatterns = namePatterns;
             List<String> tokens = Arrays.asList(namePatterns.split(","));
-            _namePatternsCompiled = Lists.transform(tokens, new Function<String, Pattern>() {
+            _namePatternsCompiled = Lists.newArrayList(Lists.transform(tokens, new Function<String, Pattern>() {
                 @Nullable
                 @Override
                 public Pattern apply(@Nullable String s) {
                     String patternStr = s.trim().replaceAll("%", ".*?");
                     return Pattern.compile(patternStr, Pattern.CASE_INSENSITIVE);
                 }
-            });
+            }));
 
         }
         return _namePatternsCompiled;

@@ -29,6 +29,18 @@ public class CSVDataHeader {
         this.category = DataColumnCategory.detect(this.originalColumnName, null);
     }
 
+    @Override
+    public int hashCode() {
+        return columnName.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (!(other instanceof CSVDataHeader)) {
+            return false;
+        }
+        return columnName == ((CSVDataHeader) other).columnName;
+    }
     private static String cleanupString(String s) {
         return s.trim().toUpperCase().replaceAll("[^\\w\\d]", "_").replaceAll("_+", "_");
     }

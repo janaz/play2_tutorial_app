@@ -75,8 +75,26 @@ public class StagingSchema {
 
     }
 
-    public boolean insertIntoStagingTable(final List<CSVDataHeader> headers, final List<?> values) {
-        final List<String> colValues = new ArrayList<>(values.size());
+    public String getInsertIntoStagingQuery(final List<CSVDataHeader> headers){
+        final List<String> colNames = new ArrayList<>(headers.size());
+        final List<String> colValuesPlaceholder = new ArrayList<>(headers.size());
+        for (CSVDataHeader header : headers) {
+            colNames.add(header.name());
+            colValuesPlaceholder.add("?");
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append("INSERT INTO ").append(databaseName()).append(".").append(dataSetTableName()).append("(");
+        sb.append(Joiner.on(',').join(colNames));
+        sb.append(") VALUES (");
+        sb.append(Joiner.on(',').join(colValuesPlaceholder));
+        sb.append(")");
+        return sb.toString();
+    }
+
+    public boolean insertIntoStagingTable(final String query, final List<CSVDataHeader> headers, final String[] values) {
+        if (headers.size() != values.length) {
+            throw new RuntimeException("Lists should have the same number of elements");
+        }
 
         return EbeanServerManager.getManager().executeQuery(server(), new QueryCallable<Boolean>() {
             @Override
@@ -86,31 +104,16 @@ public class StagingSchema {
 
             @Override
             public String getQuery() {
-                final List<String> colNames = new ArrayList<>(headers.size());
-                StringBuilder sb = new StringBuilder();
-                List<String> colValuesPlaceholder = new ArrayList<>(values.size());
-                if (headers.size() != values.size()) {
-                    throw new RuntimeException("Lists should have the same number of elements");
-                }
-                for (int i = 0; i < headers.size(); i++) {
-                    CSVDataHeader header = headers.get(i);
-                    String value = header.dbValue(values.get(i));
-                    colNames.add(header.name());
-                    colValues.add(value);
-                    colValuesPlaceholder.add("?");
-                }
-                sb.append("INSERT INTO ").append(databaseName()).append(".").append(dataSetTableName()).append("(");
-                sb.append(Joiner.on(',').join(colNames));
-                sb.append(") VALUES (");
-                sb.append(Joiner.on(',').join(colValuesPlaceholder));
-                sb.append(")");
-                return sb.toString();
+                return query;
             }
 
             @Override
             public void setup(PreparedStatement pstmt) throws SQLException {
-                for (int i = 0; i < colValues.size(); i++) {
-                    pstmt.setString(i + 1, colValues.get(i));
+                int i = 0;
+                for (CSVDataHeader header : headers) {
+                    String value = header.dbValue(header.parsedValue(values[i]));
+                    i++;
+                    pstmt.setString(i, value);
                 }
             }
         });

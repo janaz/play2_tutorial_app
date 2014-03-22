@@ -89,13 +89,13 @@ public class StatisticsGatherer implements LineReadListener {
     }
 
     public List<Float> getPercentagePopulated() {
-        return Lists.transform(getStats(), new Function<ColumnStatistics, Float>() {
+        return Lists.newArrayList(Lists.transform(getStats(), new Function<ColumnStatistics, Float>() {
             @Nullable
             @Override
             public Float apply(@Nullable ColumnStatistics columnStatistics) {
                 return columnStatistics.getPopulatedPercentage();
             }
-        });
+        }));
 
     }
 }

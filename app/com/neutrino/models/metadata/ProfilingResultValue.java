@@ -28,7 +28,7 @@ public class ProfilingResultValue extends Model {
     @Column(name="ColumnName", length = 64)
     public String columnName;
 
-    @Column(name="Value", length = 128)
+    @Column(name="Value", length = 256)
     public String value;
 
     @NotNull

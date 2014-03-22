@@ -1,6 +1,7 @@
 package com.neutrino.csv;
 
 import com.amazonaws.services.s3.model.S3Object;
+import com.google.gdata.util.io.base.UnicodeReader;
 import com.neutrino.AppConfiguration;
 import com.neutrino.aws.S3Client;
 import com.neutrino.profiling.EbeanServerManager;
@@ -82,7 +83,7 @@ public abstract class UploadedFilePersistService {
         }
     }
 
-    public abstract Reader getReader(DataSet model) throws IOException;
+    public abstract InputStream getInputStream(DataSet model) throws IOException;
 
     private static class FileSystemPersistService extends UploadedFilePersistService {
         private final String root;
@@ -107,9 +108,9 @@ public abstract class UploadedFilePersistService {
         }
 
         @Override
-        public Reader getReader(DataSet model) throws FileNotFoundException {
+        public InputStream getInputStream(DataSet model) throws IOException {
             System.out.println("opening " + fullPath(model.getFile().getFileLocation()));
-            return new FileReader(fullPath(model.getFile().getFileLocation()));
+            return new FileInputStream(fullPath(model.getFile().getFileLocation()));
         }
     }
 
@@ -128,9 +129,10 @@ public abstract class UploadedFilePersistService {
         }
 
         @Override
-        public Reader getReader(DataSet model) throws FileNotFoundException {
+        public InputStream getInputStream(DataSet model) throws FileNotFoundException {
             S3Object object = s3client.get(model.getFile().fileLocation);
-            return new InputStreamReader(object.getObjectContent());
+
+            return object.getObjectContent();
         }
     }
 

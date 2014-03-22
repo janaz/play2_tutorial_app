@@ -72,10 +72,9 @@ public class EbeanServerManager {
 
     public <V> V executeQuery(EbeanServer s, QueryCallable<V> query) {
         PreparedStatement pstmt = null;
-        Connection conn = null;
         Transaction t = s.createTransaction();
         try {
-            conn = t.getConnection();
+            Connection conn = t.getConnection();
             pstmt = conn.prepareStatement(query.getQuery());
             query.setup(pstmt);
             return query.call(pstmt);
@@ -108,7 +107,7 @@ public class EbeanServerManager {
             db.setDriver("com.mysql.jdbc.Driver");
             db.setUsername("root");
             db.setPassword("");
-            db.setUrl("jdbc:mysql://localhost:3306/" + dbName + "?characterEncoding=UTF-8&sessionVariables=storage_engine=InnoDB");
+            db.setUrl("jdbc:mysql://localhost:3306/" + dbName + "?useUnicode=true&characterResultSets=utf8&characterEncoding=utf8&sessionVariables=storage_engine=InnoDB");
             db.setHeartbeatSql("select 1");
             config.setDefaultServer(false);
             config.setRegister(true);

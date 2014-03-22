@@ -186,13 +186,13 @@ public class UploadedFile extends Secured {
                 Json.stringify(headers),
                 Json.stringify(sample),
                 Json.stringify(population),
-                Json.stringify(Json.toJson(Lists.transform(MappingDiscoveryRule.find.all(), new Function<MappingDiscoveryRule, String>() {
+                Json.stringify(Json.toJson(Lists.newArrayList(Lists.transform(MappingDiscoveryRule.find.all(), new Function<MappingDiscoveryRule, String>() {
                     @Nullable
                     @Override
                     public String apply(@Nullable MappingDiscoveryRule mappingDiscoveryRule) {
                         return mappingDiscoveryRule.coreType;
                     }
-                }))),
+                })))),
                 model
         ));
 

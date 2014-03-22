@@ -18,7 +18,7 @@ public class StringParser implements DataCategoryParser {
 
     @Override
     public String dbType() {
-        return "Varchar(255)";
+        return "Varchar(256)";
     }
 
     @Override
