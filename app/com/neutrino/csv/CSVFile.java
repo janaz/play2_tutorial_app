@@ -74,6 +74,7 @@ public class CSVFile {
             // (3)
             detector.dataEnd();
         } finally {
+            detector.reset();
             fis.close();
         }
         // (4)
@@ -85,8 +86,6 @@ public class CSVFile {
             System.out.println("No encoding detected.");
         }
 
-        // (5)
-        detector.reset();
         return encoding;
     }
 
