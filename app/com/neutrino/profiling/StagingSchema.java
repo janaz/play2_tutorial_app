@@ -2,14 +2,12 @@ package com.neutrino.profiling;
 
 import com.avaje.ebean.EbeanServer;
 import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
 import com.neutrino.csv.CSVDataHeader;
 import com.neutrino.csv.CSVError;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class StagingSchema {
