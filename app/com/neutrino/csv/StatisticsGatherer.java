@@ -34,7 +34,7 @@ public class StatisticsGatherer implements LineReadListener {
     }
 
     @Override
-    public Object lineRead(long lineNumber, String[] line, String raw, List<CSVDataHeader> headers) {
+    public Object lineRead(long lineNumber, String[] line, String raw, List<CSVDataHeader> headers, boolean last) {
         initStats(headers);
         List<Comparable<?>> parsedValues = parsedLine(lineNumber, line, raw, headers);
         if (parsedValues != null) {

@@ -79,8 +79,14 @@ public class CSVFileParser {
             model.save(met.server().getName());
             final com.neutrino.csv.UploadedFile uploadedFile = new com.neutrino.csv.UploadedFile(model);
             try {
+                long point1 = System.currentTimeMillis();
                 uploadedFile.persistService().importToDB(model);
+                long point2 = System.currentTimeMillis();
+                System.out.println("Importing data took " + ((point2 - point1)/1000) + "seconds.");
                 uploadedFile.persistService().runProfiling(model);
+                long point3 = System.currentTimeMillis();
+                System.out.println("Profiling took " + ((point3 - point2)/1000) + "seconds.");
+
                 model.setState(DataSet.State.PROFILING_DONE);
             } catch (Exception e) {
                 model.setState(DataSet.State.PROFILING_ERROR);
@@ -92,7 +98,11 @@ public class CSVFileParser {
             try {
                 model.setState(DataSet.State.AUTO_MAPPING);
                 model.save(met.server().getName());
+                long point4 = System.currentTimeMillis();
                 dm.process();
+                long point5 = System.currentTimeMillis();
+                System.out.println("Data mapping took " + ((point5 - point4)/1000) + "seconds.");
+
                 model.setState(DataSet.State.AUTO_MAPPING_DONE);
             } catch (Exception e) {
                 model.setState(DataSet.State.AUTO_MAPPING_ERROR);

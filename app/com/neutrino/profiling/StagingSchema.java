@@ -2,12 +2,14 @@ package com.neutrino.profiling;
 
 import com.avaje.ebean.EbeanServer;
 import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 import com.neutrino.csv.CSVDataHeader;
 import com.neutrino.csv.CSVError;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class StagingSchema {
@@ -75,7 +77,7 @@ public class StagingSchema {
 
     }
 
-    public String getInsertIntoStagingQuery(final List<CSVDataHeader> headers){
+    public String getInsertIntoStagingQuery(final List<CSVDataHeader> headers) {
         final List<String> colNames = new ArrayList<>(headers.size());
         final List<String> colValuesPlaceholder = new ArrayList<>(headers.size());
         for (CSVDataHeader header : headers) {
@@ -111,7 +113,7 @@ public class StagingSchema {
             public void setup(PreparedStatement pstmt) throws SQLException {
                 int i = 0;
                 for (CSVDataHeader header : headers) {
-                    String value = header.dbValue(header.parsedValue(values[i]));
+                    String value = header.dbParsedValue(values[i]);
                     i++;
                     pstmt.setString(i, value);
                 }
@@ -119,6 +121,44 @@ public class StagingSchema {
         });
 
     }
+
+    public boolean insertIntoStagingTableInBulk(final String query, final List<CSVDataHeader> headers, final List<String[]> valuesList) {
+        return EbeanServerManager.getManager().executeQuery(server(), new QueryCallable<Boolean>() {
+            @Override
+            public Boolean call(PreparedStatement pstmt) throws SQLException {
+                int[] ret = pstmt.executeBatch();
+                for (int i : ret) {
+                    if (i != 0) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            @Override
+            public String getQuery() {
+                return query;
+            }
+
+            @Override
+            public void setup(PreparedStatement pstmt) throws SQLException {
+                for (String[] values : valuesList) {
+                    if (headers.size() != values.length) {
+                        throw new RuntimeException("Lists should have the same number of elements");
+                    }
+                    int i = 0;
+                    for (CSVDataHeader header : headers) {
+                        String value = header.dbParsedValue(values[i]);
+                        i++;
+                        pstmt.setString(i, value);
+                    }
+                    pstmt.addBatch();
+                }
+            }
+        });
+
+    }
+
 
     private boolean createDataSetTable(final List<CSVDataHeader> headers) {
         return EbeanServerManager.getManager().executeQuery(server(), new QueryCallable<Boolean>() {

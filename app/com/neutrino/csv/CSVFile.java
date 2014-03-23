@@ -63,23 +63,24 @@ public class CSVFile {
         InputStream fis = getInputStream();
         // (1)
         UniversalDetector detector = new UniversalDetector(null);
-        int totalread = 0;
+        int totalRead = 0;
+        String encoding;
         try {
             // (2)
             int nread;
-            while ((totalread < limit) && (nread = fis.read(buf)) > 0 && !detector.isDone()) {
+            while ((totalRead < limit) && (nread = fis.read(buf)) > 0 && !detector.isDone()) {
                 detector.handleData(buf, 0, nread);
-                totalread +=nread;
+                totalRead +=nread;
             }
             // (3)
             detector.dataEnd();
         } finally {
+            encoding = detector.getDetectedCharset();
             detector.reset();
             fis.close();
         }
         // (4)
-        System.out.print("Encoding detector read " + totalread + " bytes");
-        String encoding = detector.getDetectedCharset();
+        System.out.print("Encoding detector read " + totalRead + " bytes");
         if (encoding != null) {
             System.out.println("Detected encoding = " + encoding);
         } else {
@@ -164,9 +165,9 @@ public class CSVFile {
         this.lineReadListeners.add(l);
     }
 
-    private void lineRead(long lineNumber, String[] line, String raw) throws IOException {
+    private void lineRead(long lineNumber, String[] line, String raw, boolean last) throws IOException {
         for (LineReadListener l : lineReadListeners) {
-            l.lineRead(lineNumber, line, raw, headers());
+            l.lineRead(lineNumber, line, raw, headers(), last);
         }
     }
 
@@ -191,6 +192,7 @@ public class CSVFile {
 
                 final String line = reader.readLine();
                 if (line == null) {
+                    lineRead(lineNumber, null, null, true);
                     break;
                 }
                 String[] next = null;
@@ -201,7 +203,7 @@ public class CSVFile {
                     System.out.println(e.getStackTrace());
                 }
                 lineNumber++;
-                lineRead(lineNumber, next, line);
+                lineRead(lineNumber, next, line, false);
             } while (!finished());
         } finally {
             reader.close();

@@ -53,6 +53,17 @@ public class CSVDataHeader {
         return parser.dbValue(parsedValue);
     }
 
+    public String dbParsedValue(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        if (trimmed.isEmpty()) {
+            return null;
+        }
+        return trimmed;
+    }
+
     public String dbType() {
         return parser.dbType();
     }
