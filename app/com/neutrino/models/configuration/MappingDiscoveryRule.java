@@ -91,9 +91,6 @@ public class MappingDiscoveryRule extends Model {
     @Column(name="FormatsMetScore")
     public Integer formatsMetScore;
 
-    @Column(name="MappingDiscoveryRulecol", length = 45)
-    public String mappingDiscoveryRulecol;
-
     @Column(name="RegexPattern", length = 256)
     public String regexPattern;
 
