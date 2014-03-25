@@ -1,8 +1,8 @@
 package com.neutrino.models.metadata;
 
+import com.neutrino.models.configuration.ProfilingTemplate;
 import com.neutrino.profiling.MetadataSchema;
 import com.neutrino.profiling.StagingSchema;
-import com.neutrino.models.configuration.ProfilingTemplate;
 import play.data.format.Formats;
 import play.db.ebean.Model;
 
@@ -13,62 +13,62 @@ import java.util.Date;
 import java.util.Map;
 
 @Entity
-@Table(name="ProfilingResultColumn")
+@Table(name = "ProfilingResultColumn")
 public class ProfilingResultColumn extends Model {
     @Id
-    @Column(name="ID")
+    @Column(name = "ID")
     public Integer id;
 
     @NotNull
-    @Column(name="ProfilingTemplateID")
+    @Column(name = "ProfilingTemplateID")
     public Integer profilingTemplateId;
 
-    @Column(name="TableName", length = 64)
+    @Column(name = "TableName", length = 64)
     public String tableName;
 
-    @Column(name="ColumnName", length = 64)
+    @Column(name = "ColumnName", length = 64)
     public String columnName;
 
     @NotNull
-    @Column(name="TotalCount")
+    @Column(name = "TotalCount")
     public Integer totalCount;
 
     @NotNull
-    @Column(name="DistinctCount")
+    @Column(name = "DistinctCount")
     public Integer distinctCount;
 
     @NotNull
-    @Column(name="NullCount")
+    @Column(name = "NullCount")
     public Integer nullCount;
 
     @NotNull
-    @Column(name="PercentagePopulated", precision = 5, scale=2)
+    @Column(name = "PercentagePopulated", precision = 5, scale = 2)
     public BigDecimal percentagePopulated;
 
     @NotNull
-    @Column(name="PercentageUnique", precision = 5, scale=2)
+    @Column(name = "PercentageUnique", precision = 5, scale = 2)
     public BigDecimal percentageUnique;
 
     @NotNull
-    @Column(name="MinimumLength")
+    @Column(name = "MinimumLength")
     public Integer minimumLength;
 
     @NotNull
-    @Column(name="MaximumLength")
+    @Column(name = "MaximumLength")
     public Integer maximumLength;
 
-    @Column(name="MinimumValue", length = 512)
+    @Column(name = "MinimumValue", length = 512)
     public String minimumValue;
 
-    @Column(name="MaximumValue", length = 512)
+    @Column(name = "MaximumValue", length = 512)
     public String maximumValue;
 
     @ManyToOne
     @NotNull
-    @JoinColumn(name="DataColumnID")
+    @JoinColumn(name = "DataColumnID")
     public DataColumn dataColumn;
 
-    @Column(name="CreationTimestamp")
+    @Column(name = "CreationTimestamp")
     @Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
     public Date creationTimestamp;
 
@@ -80,28 +80,33 @@ public class ProfilingResultColumn extends Model {
         this.dataColumn = dataColumn;
     }
 
+    public static Finder<Integer, ProfilingResultColumn> find(final String serverName) {
+        return new Finder<Integer, ProfilingResultColumn>(
+                serverName, Integer.class, ProfilingResultColumn.class);
+    }
+
 
     public static void addResult(MetadataSchema mtd, StagingSchema stg, ProfilingTemplate template, DataColumn col, Map<String, String> results) {
         ProfilingResultColumn res = new ProfilingResultColumn();
         col.getResultsColumns().add(res);
 
-        for (String k:results.keySet()) {
-            System.out.println("DEBUG PRofiing results: "+k+" -> "+ results.get(k));
+        for (String k : results.keySet()) {
+            System.out.println("DEBUG PRofiing results: " + k + " -> " + results.get(k));
         }
         try {
             res.totalCount = Integer.valueOf(results.get("TotalCount"));
-        }catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             res.totalCount = 0;
         }
         try {
             res.distinctCount = Integer.valueOf(results.get("DistinctCount"));
-        }catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             res.distinctCount = 0;
         }
 
         try {
             res.nullCount = Integer.valueOf(results.get("NullCount"));
-        }catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             res.nullCount = 0;
         }
 
@@ -110,13 +115,13 @@ public class ProfilingResultColumn extends Model {
 
         try {
             res.minimumLength = Integer.valueOf(results.get("MinimumLength"));
-        }catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             res.minimumLength = 0;
         }
 
         try {
             res.maximumLength = Integer.valueOf(results.get("MaximumLength"));
-        }catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             res.maximumLength = 0;
         }
 
@@ -129,5 +134,9 @@ public class ProfilingResultColumn extends Model {
         res.setDataColumn(col);
         res.save(mtd.server().getName());
         col.save(mtd.server().getName());
+    }
+
+    public Integer getMaximumLength() {
+        return maximumLength;
     }
 }

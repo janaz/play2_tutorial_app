@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.*;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.List;
 
 
 public abstract class UploadedFilePersistService {
@@ -34,7 +35,7 @@ public abstract class UploadedFilePersistService {
         final StagingSchema stg = new StagingSchema(dataSet.userId, dataSet.id);
         final MetadataSchema mtd = new MetadataSchema(dataSet.userId);
         for (final DataColumn col : dataSet.getColumns()) {
-            for (final ProfilingTemplate template : ProfilingTemplate.find.all()) {
+            for (final ProfilingTemplate template : ProfilingTemplate.find.orderBy("id").findList()) {
                 EbeanServerManager.getManager().executeQuery(mtd.server(), new QueryCallable<Boolean>() {
                     @Override
                     public Boolean call(PreparedStatement pstmt) throws SQLException {
@@ -43,8 +44,19 @@ public abstract class UploadedFilePersistService {
 
                     @Override
                     public String getQuery() {
+                        int maxLen = 256;
+                        List<ProfilingResultColumn> resCols = ProfilingResultColumn.find(mtd.server().getName()).where().eq("dataColumn", col).findList();
+                        if (resCols.size() > 0) {
+                            ProfilingResultColumn resCol = resCols.get(0);
+                            Integer maxLenInt = resCol.getMaximumLength();
+                            if (maxLenInt != null) {
+                                maxLen = maxLenInt.intValue();
+                            } 
+                        }
+
                         String subQuery = template.templateQuery.replaceAll("#SchemaName#", stg.databaseName()).
                                 replaceAll("#TableName#", stg.dataSetTableName()).
+                                replaceAll("#ColumnMaxLength#", String.valueOf(maxLen)).
                                 replaceAll("#ColumnName#", col.name);
                         String columnList = null;
                         if (template.targetTableName.equals("ProfilingResultColumn")) {
