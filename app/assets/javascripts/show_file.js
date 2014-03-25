@@ -19,76 +19,7 @@ ShowFile = function (myData, myHeaders, myPopulation, myNames, modelId) {
     $("#myGrid").handsontable({
         data: myData,
 
-        colHeaders: function (col) {
-            var DIV = $('<div><span class="original-value"></span><select id="sel-' + col + '"></select></div>');
-            var SELECT = $('select', DIV);
-            _(OPTIONS).each(function (el) {
-                OPTION = $('<option value="' + el + '">' + el + '</option>');
-                if (el == myHeaders[col]) {
-                    $(OPTION).attr('selected', true);
-                }
-                $(SELECT).append($(OPTION));
-            });
-            return $(DIV).html();
-        },
-        afterGetColHeader: function (col, TH) {
-            var that = this;
-            $('select', TH).select2({
-                width: 'copy'
-            }).on("change", function (e) {
-                    myHeaders[col] = e.val;
-                    $.ajax({
-                        type: "POST",
-                        url: "/neutrino/update_columns/"+modelId,
-                        data: JSON.stringify(myHeaders),
-                        contentType: "application/json; charset=utf-8",
-                        success: function(data, textStatus, jqXHR) {
-                            console.log('ajax success');
-                            console.log(jqXHR);
-                            console.log(textStatus);
-                            console.log(jqXHR);
-
-                            var el = $('.save-update');
-                            el.fadeOut(1, function () {
-                                el.html('Changes saved').css('color', 'green');
-                                el.fadeIn(500, function () {
-                                    el.fadeOut(1000, function () {
-                                        el.html('');
-                                    });
-                                });
-                            });
-                        },
-                        error: function(jqXHR, textStatus, errorThrown) {
-                            console.log('ajax error');
-
-                            console.log(jqXHR);
-                            console.log(textStatus);
-                            console.log(errorThrown);
-                            var el = $('.save-update');
-                            el.fadeOut(1, function () {
-                                el.html('Error saving changes: ').css('color', 'red');
-                                el.fadeIn(500, function () {
-                                    el.fadeOut(1000, function () {
-//                                        el.html('');
-                                    });
-                                });
-                            });
-                        }
-                    });
-//                    console.log(this.columns);
-//                    that.columns = _(myHeaders).map(function (el) {
-//                        if (el == 'UNKNOWN') {
-//                            return {type: {renderer: new Renderer('yellow').getRenderer}};
-//                        } else {
-//                            return {};
-//                        }
-//                    });
-                    console.log(e);
-                    that.render();
-//                    $('.original-value', TH).html('change');
-                });
-
-        },
+        colHeaders: myHeaders,
         cells: function (row, col, prop) {
             var cellProperties = {};
             if (myHeaders[col] == 'UNKNOWN') {
@@ -109,13 +40,6 @@ ShowFile = function (myData, myHeaders, myPopulation, myNames, modelId) {
             }
             return cellProperties;
         },
-//        columns: _(myHeaders).map(function (el) {
-//            if (el == 'UNKNOWN') {
-//                return {type: {renderer: new Renderer('yellow').getRenderer}};
-//            } else {
-//                return {};
-//            }
-//        }),
         autoWrapRow: false,
         columnWidth: 80,
         rowHeaders: true,

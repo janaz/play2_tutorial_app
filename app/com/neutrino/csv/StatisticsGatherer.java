@@ -57,7 +57,6 @@ public class StatisticsGatherer implements LineReadListener {
     @Override
     public boolean finished() {
         if (limit < 0) return false;
-        System.out.println("Stats" + limit + " " +linesRead);
         return linesRead >= limit;
     }
 

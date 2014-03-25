@@ -55,7 +55,11 @@ public class CSVFileParser {
                 for (DataSet model : QUEUE.keySet()) {
                     if (QUEUE.replace(model, Boolean.TRUE, Boolean.FALSE)) {
                         System.out.println("Starting job for " + model.id);
-                        runJobFor(model);
+                        try {
+                            runJobFor(model);
+                        }catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
                         System.out.println("End of job for " + model.id);
                         System.out.println("QUEUE is " + Joiner.on(',').join(QUEUE.values()));
                         if (QUEUE.remove(model, Boolean.FALSE)) {
