@@ -52,6 +52,24 @@ public class EbeanServerManager {
     }
 
     public boolean createDatabase(final String dbName) {
+        boolean ret = executeQuery(getMysqlServer(), new QueryCallable<Boolean>() {
+            @Override
+            public Boolean call(PreparedStatement pstmt) throws SQLException {
+                return pstmt.execute();
+            }
+
+            @Override
+            public String getQuery() {
+                return "create database `" + dbName +"`";
+            }
+
+            @Override
+            public void setup(PreparedStatement pstmt) throws SQLException {
+            }
+        });
+        if (!ret) {
+            return false;
+        }
         return executeQuery(getMysqlServer(), new QueryCallable<Boolean>() {
             @Override
             public Boolean call(PreparedStatement pstmt) throws SQLException {
@@ -60,13 +78,15 @@ public class EbeanServerManager {
 
             @Override
             public String getQuery() {
-                return "create database " + dbName;
+                return "ALTER DATABASE `" + dbName +"` DEFAULT CHARACTER SET = 'UTF8'";
             }
 
             @Override
             public void setup(PreparedStatement pstmt) throws SQLException {
             }
         });
+
+        //;
 
     }
 
@@ -107,7 +127,7 @@ public class EbeanServerManager {
             db.setDriver("com.mysql.jdbc.Driver");
             db.setUsername("root");
             db.setPassword("");
-            db.setUrl("jdbc:mysql://localhost:3306/" + dbName + "?useUnicode=true&characterResultSets=utf8&characterEncoding=utf8&sessionVariables=storage_engine=InnoDB");
+            db.setUrl("jdbc:mysql://localhost:3306/" + dbName + "?useUnicode=yes&characterEncoding=UTF8&sessionVariables=storage_engine=InnoDB");
             db.setHeartbeatSql("select 1");
             config.setDefaultServer(false);
             config.setRegister(true);

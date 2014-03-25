@@ -13,8 +13,8 @@ public class CSVError {
 
     public CSVError(long lineNumber, String text) {
         this.lineNumber = lineNumber;
-        if (text.length() > 10000) {
-            this.text = text.substring(0, 10000);
+        if (text.length() > 4096) {
+            this.text = text.substring(0, 4096);
         } else {
             this.text = text;
         }

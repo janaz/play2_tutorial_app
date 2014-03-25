@@ -169,11 +169,16 @@ public class StagingSchema {
             public String getQuery() {
                 StringBuilder sb = new StringBuilder();
                 sb.append("CREATE TABLE ").append(databaseName()).append(".").append(dataSetTableName()).append("(");
-                sb.append("ID bigint(20) NOT NULL AUTO_INCREMENT,");
+                boolean first = true;
                 for (CSVDataHeader cat : headers) {
-                    sb.append(cat.name()).append(" ").append(cat.dbType()).append(",");
+                    if (first) {
+                        first = false;
+                    } else {
+                        sb.append(",");
+                    }
+                    sb.append("`").append(cat.name()).append("` ").append(cat.dbType());
                 }
-                sb.append("PRIMARY KEY (ID) )");
+                sb.append(")");
                 return sb.toString();
             }
 
@@ -222,10 +227,8 @@ public class StagingSchema {
             public String getQuery() {
                 StringBuilder sb = new StringBuilder();
                 sb.append("CREATE TABLE ").append(databaseName()).append(".").append(rejectsTableName()).append("(");
-                sb.append("ID bigint(20) NOT NULL AUTO_INCREMENT,");
                 sb.append("Line bigint(20),");
-                sb.append("Content text,");
-                sb.append("PRIMARY KEY (ID) )");
+                sb.append("Content VARCHAR(4096))");
                 return sb.toString();
             }
 
