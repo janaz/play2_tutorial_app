@@ -97,6 +97,11 @@ public class DBSaver implements LineReadListener {
     }
 
     private void insertError(CSVError lastError) {
-        stg.insertIntoRejectsTable(lastError);
+        try {
+            stg.insertIntoRejectsTable(lastError);
+        } catch (PersistenceException ex) {
+            System.out.println("Can't write into filerejects: " + lastError.getText());
+            ex.printStackTrace();
+        }
     }
 }
