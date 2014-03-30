@@ -51,7 +51,7 @@ public abstract class UploadedFilePersistService {
                             Integer maxLenInt = resCol.getMaximumLength();
                             if (maxLenInt != null) {
                                 maxLen = maxLenInt.intValue();
-                            } 
+                            }
                         }
 
                         String subQuery = template.templateQuery.replaceAll("#SchemaName#", stg.databaseName()).

@@ -1,12 +1,23 @@
 package com.neutrino.profiling;
 
-import com.avaje.ebean.EbeanServer;
 import com.google.common.base.Joiner;
 import com.neutrino.csv.CSVDataHeader;
 import com.neutrino.csv.CSVError;
+import com.neutrino.csv.CSVLine;
+import org.polyjdbc.core.PolyJDBC;
+import org.polyjdbc.core.dialect.Dialect;
+import org.polyjdbc.core.dialect.DialectRegistry;
+import org.polyjdbc.core.query.InsertQuery;
+import org.polyjdbc.core.query.QueryFactory;
+import org.polyjdbc.core.schema.SchemaManager;
+import org.polyjdbc.core.schema.model.RelationBuilder;
+import org.polyjdbc.core.schema.model.Schema;
+import org.sql2o.Connection;
+import org.sql2o.Query;
+import org.sql2o.Sql2o;
+import org.sql2o.StatementRunnableWithResult;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.BatchUpdateException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,10 +46,6 @@ public class StagingSchema {
         return EbeanServerManager.getManager().isCreated(databaseName());
     }
 
-    public EbeanServer server() {
-        return EbeanServerManager.getManager().getMysqlServer();
-    }
-
     public boolean createDatabase() {
         return EbeanServerManager.getManager().createDatabase(databaseName());
     }
@@ -47,32 +54,18 @@ public class StagingSchema {
         if (dataSetId == null) {
             throw new IllegalArgumentException("DataSet id not passed");
         }
-        dropDatasetTable();
         createDataSetTable(headers);
-        dropRejectsTable();
         createRejectsTable();
     }
 
     public boolean insertIntoRejectsTable(final CSVError lastError) {
-        return EbeanServerManager.getManager().executeQuery(server(), new QueryCallable<Boolean>() {
-            @Override
-            public Boolean call(PreparedStatement pstmt) throws SQLException {
-                return pstmt.execute();
-            }
-
-            @Override
-            public String getQuery() {
-                StringBuilder sb = new StringBuilder();
-                return sb.append("INSERT INTO ").append(databaseName()).append(".").append(rejectsTableName()).append("(Line, Content) values(?,?)").toString();
-            }
-
-            @Override
-            public void setup(PreparedStatement pstmt) throws SQLException {
-                pstmt.setLong(1, lastError.getLineNumber());
-                pstmt.setString(2, lastError.getText());
-            }
-        });
-
+        Dialect dialect = DialectRegistry.MYSQL.getDialect();
+        PolyJDBC polyjdbc = new PolyJDBC(EbeanServerManager.getManager().dataSource(), dialect);
+        InsertQuery q = QueryFactory.insert().into(databaseName() + "." + rejectsTableName())
+                .value("Line", lastError.getLineNumber())
+                .value("Content", lastError.getText());
+        polyjdbc.simpleQueryRunner().insert(q);
+        return true;
     }
 
     public String getInsertIntoStagingQuery(final List<CSVDataHeader> headers) {
@@ -80,7 +73,7 @@ public class StagingSchema {
         final List<String> colValuesPlaceholder = new ArrayList<>(headers.size());
         for (CSVDataHeader header : headers) {
             colNames.add(header.name());
-            colValuesPlaceholder.add("?");
+            colValuesPlaceholder.add(":" + header.name());
         }
         StringBuilder sb = new StringBuilder();
         sb.append("INSERT INTO ").append(databaseName()).append(".").append(dataSetTableName()).append("(");
@@ -91,152 +84,88 @@ public class StagingSchema {
         return sb.toString();
     }
 
-    public boolean insertIntoStagingTable(final String query, final List<CSVDataHeader> headers, final String[] values) {
-        if (headers.size() != values.length) {
-            throw new RuntimeException("Lists should have the same number of elements");
-        }
+    public int[] insertIntoStagingTableInBulk(final String sql, final List<CSVDataHeader> headers, final List<CSVLine> lines) {
+        Sql2o sql2o = new Sql2o(EbeanServerManager.getManager().dataSource());
 
-        return EbeanServerManager.getManager().executeQuery(server(), new QueryCallable<Boolean>() {
+        final StatementRunnableWithResult statement = new StatementRunnableWithResult() {
             @Override
-            public Boolean call(PreparedStatement pstmt) throws SQLException {
-                return pstmt.execute();
-            }
-
-            @Override
-            public String getQuery() {
-                return query;
-            }
-
-            @Override
-            public void setup(PreparedStatement pstmt) throws SQLException {
-                int i = 0;
-                for (CSVDataHeader header : headers) {
-                    String value = header.dbParsedValue(values[i]);
-                    i++;
-                    pstmt.setString(i, value);
-                }
-            }
-        });
-
-    }
-
-    public boolean insertIntoStagingTableInBulk(final String query, final List<CSVDataHeader> headers, final List<String[]> valuesList) {
-        return EbeanServerManager.getManager().executeQuery(server(), new QueryCallable<Boolean>() {
-            @Override
-            public Boolean call(PreparedStatement pstmt) throws SQLException {
-                int[] ret = pstmt.executeBatch();
-                for (int i : ret) {
-                    if (i != 0) {
-                        return false;
-                    }
-                }
-                return true;
-            }
-
-            @Override
-            public String getQuery() {
-                return query;
-            }
-
-            @Override
-            public void setup(PreparedStatement pstmt) throws SQLException {
-                for (String[] values : valuesList) {
+            public int[] run(Connection connection, Object argument) throws Throwable {
+                Query query = connection.createQuery(sql);
+                for (CSVLine line : lines) {
+                    String[] values = line.getValues();
                     if (headers.size() != values.length) {
                         throw new RuntimeException("Lists should have the same number of elements");
                     }
                     int i = 0;
                     for (CSVDataHeader header : headers) {
                         String value = header.dbParsedValue(values[i]);
-                        i++;
-                        pstmt.setString(i, value);
-                    }
-                    pstmt.addBatch();
-                }
-            }
-        });
 
+                        query.addParameter(header.name(), value);
+                        i++;
+                    }
+                    query.addToBatch();
+                }
+                return query.executeBatch().getBatchResult();
+            }
+        };
+
+        try {
+            return sql2o.runInTransaction(statement);
+        } catch (Throwable e) {
+            while (e != null && !(e instanceof BatchUpdateException)) {
+                e = e.getCause();
+            }
+            if (e instanceof BatchUpdateException) {
+                BatchUpdateException bue = (BatchUpdateException) e;
+                return bue.getUpdateCounts();
+            } else {
+               throw new RuntimeException(e);
+            }
+        }
     }
 
 
     private boolean createDataSetTable(final List<CSVDataHeader> headers) {
-        return EbeanServerManager.getManager().executeQuery(server(), new QueryCallable<Boolean>() {
-            @Override
-            public Boolean call(PreparedStatement pstmt) throws SQLException {
-                return pstmt.execute();
+        Dialect dialect = DialectRegistry.MYSQL.getDialect();
+        PolyJDBC polyjdbc = new PolyJDBC(EbeanServerManager.getManager().dataSource(), dialect);
+
+        final String tableName = databaseName() + "." + dataSetTableName();
+        SchemaManager schemaManager = null;
+        try {
+            schemaManager = polyjdbc.schemaManager();
+
+            Schema schema = new Schema(dialect);
+            RelationBuilder builder = schema.addRelation(tableName);
+            for (CSVDataHeader cat : headers) {
+                builder = builder.withAttribute().string(cat.name()).withMaxLength(256).and();
             }
-
-            @Override
-            public String getQuery() {
-                StringBuilder sb = new StringBuilder();
-                sb.append("CREATE TABLE ").append(databaseName()).append(".").append(dataSetTableName()).append("(");
-                boolean first = true;
-                for (CSVDataHeader cat : headers) {
-                    if (first) {
-                        first = false;
-                    } else {
-                        sb.append(",");
-                    }
-                    sb.append("`").append(cat.name()).append("` ").append(cat.dbType());
-                }
-                sb.append(")");
-                return sb.toString();
-            }
-
-            @Override
-            public void setup(PreparedStatement pstmt) throws SQLException {
-            }
-        });
-
-    }
-
-    private boolean dropTable(final String tableName) {
-        return EbeanServerManager.getManager().executeQuery(server(), new QueryCallable<Boolean>() {
-            @Override
-            public Boolean call(PreparedStatement pstmt) throws SQLException {
-                return pstmt.execute();
-            }
-
-            @Override
-            public String getQuery() {
-                return "DROP TABLE IF EXISTS " + databaseName() + "." + tableName;
-            }
-
-            @Override
-            public void setup(PreparedStatement pstmt) throws SQLException {
-            }
-        });
-
-    }
-
-    private boolean dropDatasetTable() {
-        return dropTable(dataSetTableName());
-    }
-
-    private boolean dropRejectsTable() {
-        return dropTable(rejectsTableName());
+            builder.build();
+            schemaManager.create(schema);
+            return true;
+        } finally {
+            polyjdbc.close(schemaManager);
+        }
     }
 
     private boolean createRejectsTable() {
-        return EbeanServerManager.getManager().executeQuery(server(), new QueryCallable<Boolean>() {
-            @Override
-            public Boolean call(PreparedStatement pstmt) throws SQLException {
-                return pstmt.execute();
-            }
+        Dialect dialect = DialectRegistry.MYSQL.getDialect();
+        PolyJDBC polyjdbc = new PolyJDBC(EbeanServerManager.getManager().dataSource(), dialect);
 
-            @Override
-            public String getQuery() {
-                StringBuilder sb = new StringBuilder();
-                sb.append("CREATE TABLE ").append(databaseName()).append(".").append(rejectsTableName()).append("(");
-                sb.append("Line bigint(20),");
-                sb.append("Content VARCHAR(4096))");
-                return sb.toString();
-            }
+        final String tableName = databaseName() + "." + rejectsTableName();
+        SchemaManager schemaManager = null;
+        try {
+            schemaManager = polyjdbc.schemaManager();
 
-            @Override
-            public void setup(PreparedStatement pstmt) throws SQLException {
-            }
-        });
-
+            Schema schema = new Schema(dialect);
+            schema.addRelation(tableName)
+                    .withAttribute().longAttr("Line").and()
+                    .withAttribute().string("Content").withMaxLength(4096).and()
+                    .build();
+            schemaManager.create(schema);
+            return true;
+        } finally {
+            polyjdbc.close(schemaManager);
+        }
     }
 
 }

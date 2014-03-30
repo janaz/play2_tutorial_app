@@ -39,9 +39,9 @@ public class SampleReader implements LineReadListener {
     }
 
     @Override
-    public Object lineRead(long lineNumber, String[] line, String raw, List<CSVDataHeader> headers, boolean last) {
+    public Object lineRead(CSVLine line, List<CSVDataHeader> headers, boolean last) {
         if (line != null) {
-            sampleLines.add(line);
+            sampleLines.add(line.getValues());
         }
 
         if (dataHeaders == null) {
@@ -54,6 +54,4 @@ public class SampleReader implements LineReadListener {
     public boolean finished() {
         return sampleLines.size() >= limit;
     }
-
-
 }

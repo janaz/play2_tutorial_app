@@ -33,14 +33,15 @@ public class PrecoreDataLoader {
         this.metadataSchema = new MetadataSchema(userId);
     }
 
-
-    private void blah() {
+    public void populate() {
+        //populateSourceID();
+        populatePrecore();
+    }
+    private void populatePrecore() {
         DataSet ds = DataSet.find(metadataSchema.server().getName()).byId(dataSetId);
         List<ColumnMapping> mappings = ds.getMappings();
         final Map<String, Map<String, ColumnMapping>> mapmap = new HashMap<>();
         for (ColumnMapping mapping : mappings) {
-            DataColumn col = mapping.getDataColumn();
-            col.getName(); // <-> mapping.coreTable/coreAttribute
             Map<String, ColumnMapping> mc = mapmap.get(mapping.coreTableName);
             if (mc == null) {
                 mc = new HashMap<>();
@@ -49,7 +50,7 @@ public class PrecoreDataLoader {
             mc.put(mapping.coreAttributeName, mapping);
         }
 
-        EbeanServerManager.getManager().executeQuery(stagingSchema.server(), new QueryCallable<Boolean>() {
+        EbeanServerManager.getManager().executeQuery(null, new QueryCallable<Boolean>() {
             @Override
             public Boolean call(PreparedStatement pstmt) throws SQLException {
                 ResultSet rs = pstmt.executeQuery();
@@ -57,7 +58,7 @@ public class PrecoreDataLoader {
                 int columnCount = met.getColumnCount();
                 Map<String, String> data = new HashMap<>();
                 while (rs.next()) {
-                    for (int i = 1; i < columnCount + 1; i++) {
+                    for (int i = 1; i <= columnCount; i++) {
                         String name = met.getColumnName(i);
                         data.put(name, rs.getString(i));
                     }
@@ -143,26 +144,5 @@ public class PrecoreDataLoader {
         });
     }
 
-    public boolean testExecQry() {
-        return EbeanServerManager.getManager().executeQuery(precoreSchema.server(), new QueryCallable<Boolean>() {
-            @Override
-            public Boolean call(PreparedStatement pstmt) throws SQLException {
-                return pstmt.execute();
-            }
-
-            @Override
-            public String getQuery() {
-                StringBuilder sb = new StringBuilder();
-                return sb.append("INSERT INTO blah(Line, Content) values(?,?)").toString();
-            }
-
-            @Override
-            public void setup(PreparedStatement pstmt) throws SQLException {
-                pstmt.setLong(1, 10);
-                pstmt.setString(2, "blah");
-            }
-        });
-
-    }
 
 }

@@ -7,7 +7,6 @@ public class CSVDataHeader {
 
     private final DataCategoryParser parser;
     private final String columnName;
-    private final String originalColumnName;
     private final DataColumnCategory category;
 
     public String name() {
@@ -23,10 +22,9 @@ public class CSVDataHeader {
     }
 
     public CSVDataHeader(String columnName) {
-        this.originalColumnName = columnName;
         this.parser = StringParser.instance();
         this.columnName = cleanupString(columnName);
-        this.category = DataColumnCategory.detect(this.originalColumnName, null);
+        this.category = DataColumnCategory.detect(columnName, null);
     }
 
     @Override
@@ -41,8 +39,25 @@ public class CSVDataHeader {
         }
         return columnName == ((CSVDataHeader) other).columnName;
     }
+
     private static String cleanupString(String s) {
-        return s.trim().toUpperCase().replaceAll("[^\\w\\d]", "_").replaceAll("_+", "_");
+        return s.trim().toUpperCase().replaceAll("[^\\w\\d\\.-]", "_").replaceAll("_+", "_");
+    }
+
+    public boolean isEmpty() {
+        return columnName == null || columnName.isEmpty() || columnName.equals("_");
+    }
+
+    public boolean isNumber() {
+        if (isEmpty()) {
+            return false;
+        }
+        try {
+            long l = Long.valueOf(columnName);
+            return true;
+        } catch (NumberFormatException npe) {
+            return false;
+        }
     }
 
     public Comparable<?> parsedValue(String value) {
@@ -67,9 +82,9 @@ public class CSVDataHeader {
     public String dbType() {
         return parser.dbType();
     }
-    
+
     public DataColumnCategory category() {
         return this.category;
-        
+
     }
 }

@@ -3,14 +3,23 @@ package com.neutrino.profiling;
 import com.avaje.ebean.EbeanServer;
 import com.avaje.ebean.EbeanServerFactory;
 import com.avaje.ebean.Transaction;
-import com.avaje.ebean.config.DataSourceConfig;
 import com.avaje.ebean.config.ServerConfig;
+import com.jolbox.bonecp.BoneCPDataSource;
+import com.mchange.v2.c3p0.ComboPooledDataSource;
+import org.polyjdbc.core.PolyJDBC;
+import org.polyjdbc.core.dialect.Dialect;
+import org.polyjdbc.core.dialect.DialectRegistry;
+import org.polyjdbc.core.schema.DDLQuery;
+import org.polyjdbc.core.schema.SchemaManager;
+import org.sql2o.Sql2o;
 
 import javax.persistence.PersistenceException;
+import javax.sql.DataSource;
+import java.beans.PropertyVetoException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -18,76 +27,83 @@ import java.util.concurrent.ConcurrentMap;
 public class EbeanServerManager {
     private final static EbeanServerManager INSTANCE = new EbeanServerManager();
     private static final ConcurrentMap<String, EbeanServer> SERVERS = new ConcurrentHashMap<>();
+    private static final ConcurrentMap<String, DataSource> DATA_SOURCES = new ConcurrentHashMap<>();
 
     private EbeanServerManager() {
 
     }
+
     public static EbeanServerManager getManager() {
         return INSTANCE;
     }
 
-    public EbeanServer getMysqlServer() {
-        return getServer("mysql", null, false);
+    public static DataSource dataSource() {
+        return dataSource("mysql");
+    }
+
+    private static DataSource c3p0DS(String dbName) {
+        ComboPooledDataSource cpds = new ComboPooledDataSource();
+        try {
+            cpds.setDriverClass("com.mysql.jdbc.Driver");
+        } catch (PropertyVetoException e) {
+            e.printStackTrace();
+        }
+
+        cpds.setJdbcUrl("jdbc:mysql://localhost:3306/" + dbName + "?useUnicode=yes&characterEncoding=UTF8&sessionVariables=storage_engine=InnoDB");
+        cpds.setUser("root");
+        cpds.setPassword("");
+        cpds.setMinPoolSize(5);
+        cpds.setAcquireIncrement(5);
+        cpds.setMaxPoolSize(20);
+        cpds.setPreferredTestQuery("select 1");
+        cpds.setIdleConnectionTestPeriod(60);
+        return cpds;
+    }
+
+    private static DataSource bonecpDS(String dbName) {
+
+        BoneCPDataSource ds = new BoneCPDataSource();
+        ds.setDriverClass("com.mysql.jdbc.Driver");
+        ds.setJdbcUrl("jdbc:mysql://localhost:3306/" + dbName + "?useUnicode=yes&characterEncoding=UTF8&sessionVariables=storage_engine=InnoDB");
+        ds.setUsername("root");
+        ds.setPassword("");
+        ds.setMaxConnectionAgeInSeconds(3600);
+        ds.setMinConnectionsPerPartition(5);
+        ds.setMaxConnectionsPerPartition(10);
+        ds.setPartitionCount(1);
+        ds.setConnectionTestStatement("select 1");
+        ds.setIdleConnectionTestPeriodInMinutes(1);
+        ds.setStatementsCacheSize(20);
+        return ds;
+    }
+
+    public static DataSource dataSource(String dbName) {
+        if (!DATA_SOURCES.containsKey(dbName)) {
+            DataSource ds = bonecpDS(dbName);
+            DATA_SOURCES.putIfAbsent(dbName, ds);
+        }
+        return DATA_SOURCES.get(dbName);
     }
 
     public boolean isCreated(final String dbName) {
-        return executeQuery(getMysqlServer(), new QueryCallable<Boolean>() {
-            @Override
-            public Boolean call(PreparedStatement pstmt) throws SQLException {
-                ResultSet r = pstmt.executeQuery();
-                return r.next();
-            }
+        String sql = "SHOW DATABASES LIKE :dbName";
 
-            @Override
-            public String getQuery() {
-                return "show databases like ?";
-            }
-
-            @Override
-            public void setup(PreparedStatement pstmt) throws SQLException {
-                pstmt.setString(1, dbName);
-            }
-        });
-
+        List<String> results = new Sql2o(dataSource()).createQuery(sql).addParameter("dbName", dbName).executeScalarList(String.class);
+        return results.size() > 0;
     }
 
     public boolean createDatabase(final String dbName) {
-        boolean ret = executeQuery(getMysqlServer(), new QueryCallable<Boolean>() {
-            @Override
-            public Boolean call(PreparedStatement pstmt) throws SQLException {
-                return pstmt.execute();
-            }
-
-            @Override
-            public String getQuery() {
-                return "create database `" + dbName +"`";
-            }
-
-            @Override
-            public void setup(PreparedStatement pstmt) throws SQLException {
-            }
-        });
-        if (!ret) {
-            return false;
+        Dialect dialect = DialectRegistry.MYSQL.getDialect();
+        PolyJDBC polyjdbc = new PolyJDBC(dataSource(), dialect);
+        SchemaManager schemaManager = null;
+        try {
+            schemaManager = polyjdbc.schemaManager();
+            schemaManager.ddl(DDLQuery.ddl("CREATE DATABASE `" + dbName + "`"));
+            schemaManager.ddl(DDLQuery.ddl("ALTER DATABASE `" + dbName + "` DEFAULT CHARACTER SET = 'UTF8'"));
+            return true;
+        } finally {
+            polyjdbc.close(schemaManager);
         }
-        return executeQuery(getMysqlServer(), new QueryCallable<Boolean>() {
-            @Override
-            public Boolean call(PreparedStatement pstmt) throws SQLException {
-                return pstmt.execute();
-            }
-
-            @Override
-            public String getQuery() {
-                return "ALTER DATABASE `" + dbName +"` DEFAULT CHARACTER SET = 'UTF8'";
-            }
-
-            @Override
-            public void setup(PreparedStatement pstmt) throws SQLException {
-            }
-        });
-
-        //;
-
     }
 
     public <V> V executeQuery(EbeanServer s, QueryCallable<V> query) {
@@ -118,29 +134,32 @@ public class EbeanServerManager {
     }
 
     public EbeanServer getServer(String dbName, List<Class<?>> classes, boolean runDdl) {
-        if (runDdl || !SERVERS.containsKey(dbName)) {
+        return getServer(dbName, classes, runDdl, false);
+    }
+
+    public EbeanServer getDefaultServer() {
+        List<Class<?>> classes = Collections.emptyList();
+        return getServer("Configuration", classes , false, true);
+    }
+
+
+    public EbeanServer getServer(String dbName, List<Class<?>> classes, boolean runDdl, boolean isDefault) {
+        if (isDefault || runDdl || !SERVERS.containsKey(dbName)) {
             ServerConfig config = new ServerConfig();
             config.setName(serverName(dbName));
             config.setDatabaseBooleanTrue("T");
             config.setDatabaseBooleanFalse("F");
-            DataSourceConfig db = new DataSourceConfig();
-            db.setDriver("com.mysql.jdbc.Driver");
-            db.setUsername("root");
-            db.setPassword("");
-            db.setUrl("jdbc:mysql://localhost:3306/" + dbName + "?useUnicode=yes&characterEncoding=UTF8&sessionVariables=storage_engine=InnoDB");
-            db.setHeartbeatSql("select 1");
-            config.setDefaultServer(false);
+            config.setDefaultServer(isDefault);
             config.setRegister(true);
-            config.setDataSourceConfig(db);
             config.setEnhanceLogLevel(10);
-            if (classes != null) {
-                config.setClasses(classes);
-            }
+            config.setDataSource(dataSource(dbName));
             if (runDdl) {
                 config.setDdlGenerate(true);
                 config.setDdlRun(true);
                 config.setRegister(false);
-                return EbeanServerFactory.create(config);
+            }
+            if (classes != null) {
+                config.setClasses(classes);
             }
             SERVERS.putIfAbsent(dbName, EbeanServerFactory.create(config));
         }

@@ -195,14 +195,6 @@ public class User extends Model implements Subject {
     private void createDatabases() {
         StagingSchema stg = new StagingSchema(id, null);
         MetadataSchema mtd = new MetadataSchema(id);
-        CoreSchema core = new CoreSchema(id);
-        PrecoreSchema precore = new PrecoreSchema(id);
-        core.createDatabase();
-        core.createTables();
-        core.populateTables();
-        precore.createDatabase();
-        precore.createTables();
-        precore.populateTables();
         mtd.createDatabase();
         mtd.createTables();
         stg.createDatabase();

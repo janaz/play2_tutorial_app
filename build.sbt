@@ -18,14 +18,15 @@ libraryDependencies ++= Seq(
   "org.apache.commons" % "commons-exec" % "1.2",
   "org.apache.commons" % "commons-lang3" % "3.2.1",
   "com.typesafe" %% "play-plugins-mailer" % "2.2.0",
-  "net.sf.opencsv" % "opencsv" % "2.3",
   "com.amazonaws" % "aws-java-sdk" % "1.6.2",
   "com.google.guava" % "guava" % "r09",
   "com.google.gdata" % "core" % "1.47.1",
   "mysql" % "mysql-connector-java" % "5.1.6",
   "be.objectify" %% "deadbolt-java" % "2.2-RC2",
-  "net.sf.supercsv" % "super-csv" % "2.1.0",
   "org.pojava" % "pojava" % "2.9.0",
+  "org.polyjdbc" % "polyjdbc" % "0.3.0",
+  "c3p0" % "c3p0" % "0.9.1.2",
+  "org.sql2o" % "sql2o" % "1.3.0",
   "com.googlecode.juniversalchardet" % "juniversalchardet" % "1.0.3",
   cache
 )     

@@ -1,6 +1,5 @@
 package com.neutrino.csv;
 
-import au.com.bytecode.opencsv.CSVParser;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.gdata.util.io.base.UnicodeReader;
@@ -8,9 +7,14 @@ import com.neutrino.models.metadata.DataSet;
 import org.mozilla.universalchardet.UniversalDetector;
 
 import javax.annotation.Nullable;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class CSVFile {
     private final DataSet model;
@@ -41,16 +45,14 @@ public class CSVFile {
         if (this.firstLine != null) {
             return this.firstLine;
         }
-        BufferedReader reader = new BufferedReader(getReader());
-        try {
+        try (BufferedReader reader = new BufferedReader(getReader())) {
             this.firstLine = reader.readLine();
             return this.firstLine;
-        } finally {
-            reader.close();
         }
     }
+
     private String encoding() throws IOException {
-        if (!doEncodingPerformed){
+        if (!doEncodingPerformed) {
             encodingValue = doEncoding();
             doEncodingPerformed = true;
         }
@@ -58,8 +60,8 @@ public class CSVFile {
     }
 
     private String doEncoding() throws IOException {
-        byte[] buf = new byte[4096];
-        int limit = 1024*1024*64; //64MB should be enough
+        byte[] buf = new byte[1024 * 32];
+        int limit = 1024 * 1024 * 64; //64MB should be enough
         InputStream fis = getInputStream();
         // (1)
         UniversalDetector detector = new UniversalDetector(null);
@@ -70,7 +72,7 @@ public class CSVFile {
             int nread;
             while ((totalRead < limit) && (nread = fis.read(buf)) > 0 && !detector.isDone()) {
                 detector.handleData(buf, 0, nread);
-                totalRead +=nread;
+                totalRead += nread;
             }
             // (3)
             detector.dataEnd();
@@ -94,7 +96,7 @@ public class CSVFile {
         int maxFieldsNumber = 0;
         char separator = ',';
         for (char c : new char[]{',', ';', '|', '\t'}) {
-            CSVParser parser = new CSVParser(c);
+            StolenCSVParser parser = new StolenCSVParser(c);
             int fieldsNumber = parser.parseLine(this.getFirstLine()).length;
             if (fieldsNumber > maxFieldsNumber) {
                 maxFieldsNumber = fieldsNumber;
@@ -108,21 +110,31 @@ public class CSVFile {
         if (memoizeDataIcludesHeader != null) {
             return memoizeDataIcludesHeader;
         }
-        int unknowns = 0;
-        int all = 0;
+        Set<String> uniq = new HashSet<>();
         for (CSVDataHeader h : internalHeaders()) {
-            if (h.category() == DataColumnCategory.UNKNOWN) {
-                unknowns++;
+            if (h.isEmpty()) {
+                System.out.println("Found empty value - not a header");
+                memoizeDataIcludesHeader = false;
+                return memoizeDataIcludesHeader;
             }
-            System.out.println("Got category " + h.category() + " for column " + h.name());
-            all++;
+            if (h.isNumber()) {
+                System.out.println("Found a number " + h.name() + " - not a header");
+
+                memoizeDataIcludesHeader = false;
+                return memoizeDataIcludesHeader;
+            }
+            if (uniq.contains(h.name())) {
+                System.out.println("Found non unique name " + h.name() + " - not a header");
+
+                memoizeDataIcludesHeader = false; // non unique
+                return memoizeDataIcludesHeader;
+            } else {
+                uniq.add(h.name());
+            }
         }
-        System.out.println("Percentage unknown: " + (unknowns * 100 / all));
-        if (unknowns * 100 / all > 40) {
-            memoizeDataIcludesHeader = false;
-        } else {
-            memoizeDataIcludesHeader = true;
-        }
+        System.out.println("There is a header");
+
+        memoizeDataIcludesHeader = true;
         return memoizeDataIcludesHeader;
     }
 
@@ -146,7 +158,7 @@ public class CSVFile {
 
     private List<CSVDataHeader> internalHeaders() throws IOException {
         if (this.memoizedHeaders == null) {
-            CSVParser parser = new CSVParser(getSeparator());
+            StolenCSVParser parser = new StolenCSVParser(getSeparator());
             List<String> list = Lists.newArrayList(parser.parseLine(this.getFirstLine()));
 
             List<CSVDataHeader> transformed = Lists.transform(list, new Function<String, CSVDataHeader>() {
@@ -165,48 +177,45 @@ public class CSVFile {
         this.lineReadListeners.add(l);
     }
 
-    private void lineRead(long lineNumber, String[] line, String raw, boolean last) throws IOException {
+    private void lineRead(CSVLine line, boolean last) throws IOException {
         for (LineReadListener l : lineReadListeners) {
-            l.lineRead(lineNumber, line, raw, headers(), last);
+            l.lineRead(line, headers(), last);
         }
     }
 
     private boolean finished() {
-        boolean fin = true;
         for (LineReadListener l : lineReadListeners) {
-            if (fin) fin = l.finished();
+            if (!l.finished()) {
+                return false;
+            }
         }
-        return fin;
+        return true;
     }
 
     public void readFile() throws IOException {
         long lineNumber = 0;
-        final BufferedReader reader = new BufferedReader(getReader());
-        try {
+
+        try (final BufferedReader reader = new BufferedReader(getReader(), 1024 * 32)) {
             if (dataIncludesHeader()) {
                 reader.readLine();
                 lineNumber++;
             }
-            final CSVParser parser = new CSVParser(getSeparator());
+            final StolenCSVParser parser = new StolenCSVParser(getSeparator());
             do {
-
                 final String line = reader.readLine();
                 if (line == null) {
-                    lineRead(lineNumber, null, null, true);
+                    lineRead(new CSVLine(lineNumber, null, null), true);
                     break;
                 }
-                String[] next = null;
-                try {
-                    next = parser.parseLine(line);
-                } catch (Exception e) {
-                    System.out.println(e);
-                    System.out.println(e.getStackTrace());
-                }
                 lineNumber++;
-                lineRead(lineNumber, next, line, false);
+                try {
+                    String[] next = parser.parseLine(line);
+                    lineRead(new CSVLine(lineNumber, next, line), false);
+                } catch (IOException e) {
+                    lineRead(new CSVLine(lineNumber, null, line), false);
+                    System.out.println(e);
+                }
             } while (!finished());
-        } finally {
-            reader.close();
         }
     }
 

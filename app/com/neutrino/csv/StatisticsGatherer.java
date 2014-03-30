@@ -34,9 +34,9 @@ public class StatisticsGatherer implements LineReadListener {
     }
 
     @Override
-    public Object lineRead(long lineNumber, String[] line, String raw, List<CSVDataHeader> headers, boolean last) {
+    public Object lineRead(CSVLine line, List<CSVDataHeader> headers, boolean last) {
         initStats(headers);
-        List<Comparable<?>> parsedValues = parsedLine(lineNumber, line, raw, headers);
+        List<Comparable<?>> parsedValues = parsedLine(line, headers);
         if (parsedValues != null) {
             linesRead++;
             for (int idx = 0; idx < stats.size(); idx++) {
@@ -60,18 +60,18 @@ public class StatisticsGatherer implements LineReadListener {
         return linesRead >= limit;
     }
 
-    private List<Comparable<?>> parsedLine(long lineNumber, String[] line, String raw, List<CSVDataHeader> headers){
-        if (line == null || headers.size() != line.length) {
+    private List<Comparable<?>> parsedLine(CSVLine line, List<CSVDataHeader> headers){
+        if (line == null || headers.size() != line.getValues().length) {
             System.out.println("Error "+ headers +" " +line);
             errors.clear();
-            errors.add(new CSVError(lineNumber, raw));
+            errors.add(new CSVError(line));
             return null;
         } else {
             try {
                 List<Comparable<?>> parsedValues = new ArrayList<>(headers.size());
 
                 for (int idx = 0; idx < stats.size(); idx++) {
-                    String stringValue = line[idx];
+                    String stringValue = line.getValues()[idx];
                     Comparable<?> parsedValue = headers.get(idx).parsedValue(stringValue);
                     parsedValues.add(parsedValue);
                 }
@@ -80,11 +80,10 @@ public class StatisticsGatherer implements LineReadListener {
                 System.out.println(e);
                 System.out.println(e.getStackTrace());
                 errors.clear();
-                errors.add(new CSVError(lineNumber, raw));
+                errors.add(new CSVError(line));
                 return null;
             }
         }
-
     }
 
     public List<Float> getPercentagePopulated() {
