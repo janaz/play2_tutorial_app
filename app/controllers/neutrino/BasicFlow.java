@@ -3,6 +3,7 @@ package controllers.neutrino;
 import com.jolbox.bonecp.BoneCPDataSource;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import com.neutrino.data_loader.RefData;
+import com.neutrino.datamappingdiscovery.DataMapping;
 import org.polyjdbc.core.PolyJDBC;
 import org.polyjdbc.core.dialect.Dialect;
 import org.polyjdbc.core.dialect.DialectRegistry;
@@ -125,7 +126,7 @@ public class BasicFlow extends Controller {
 
     }
     public static Result index() {
-
+        DataMapping.createPrecoreSchema(8);
         //test("Staging008.StgTest07");
         return ok(views.html.neutrino.index.render());
     }

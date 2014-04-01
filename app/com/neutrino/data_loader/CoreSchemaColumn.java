@@ -16,6 +16,7 @@ public class CoreSchemaColumn{
     private boolean selectable = false;
     private int length;
     private CoreSchemaTable foreignKey;
+    private boolean selected;
 
     public CoreSchemaColumn(String name, String type) {
         this(name, type, -1);
@@ -116,6 +117,21 @@ public class CoreSchemaColumn{
         nc.primary = primary;
         nc.selectable = selectable;
         nc.foreignKey = foreignKey;
+        nc.selected = selected;
         return nc;
+    }
+
+    public void select() {
+        if (selectable) {
+            selected = true;
+        }
+    }
+
+    public boolean isSelected() {
+        return selected || !selectable;
+    }
+
+    public void adjustLength(int length) {
+        this.length = length;
     }
 }

@@ -9,29 +9,34 @@ import org.polyjdbc.core.schema.model.Schema;
 
 import javax.sql.DataSource;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
-/**
- * Created by tomasz.janowski on 31/03/14.
- */
 public class CoreSchema {
     private final List<CoreSchemaTable> tables = new ArrayList<>();
     private final int userId;
+    private final String dbName;
 
-    private CoreSchema(int userId) {
+    private CoreSchema(String dbName, int userId) {
         this.userId = userId;
+        this.dbName = dbName;
     }
 
-    public CoreSchema() {
-        this(-1);
+    public CoreSchema(String dbName) {
+        this(dbName, -1);
+    }
+
+    private String fullDbName() {
+        if (userId <= 0) {
+            throw new IllegalStateException("User ID should be > 0");
+        }
+        return String.format("%s%03d", this.dbName, this.userId);
     }
 
     public CoreSchema forUser(int userId) {
-        CoreSchema s = new CoreSchema(userId);
-        for (CoreSchemaTable t: tables) {
-            s.addTable(t.forUser(userId));
+        CoreSchema s = new CoreSchema(dbName, userId);
+        for (CoreSchemaTable t : tables) {
+            s.addTable(t.forDb(s.fullDbName()));
         }
         return s;
     }
@@ -46,7 +51,6 @@ public class CoreSchema {
         for (CoreSchemaTable t : tables) {
             t.populateTypes(ds);
         }
-
     }
 
     public void create(DataSource ds) {
@@ -70,10 +74,20 @@ public class CoreSchema {
             for (String ddl : ddls) {
                 schemaManager.ddl(DDLQuery.ddl(ddl));
             }
+        } catch (Throwable th) {
+            th.printStackTrace();
         } finally {
             polyjdbc.close(schemaManager);
         }
 
     }
 
+    public CoreSchemaTable getTable(String tabName) {
+        for (CoreSchemaTable t : tables) {
+            if (tabName.equals(t.getName())){
+                return t;
+            }
+        }
+        return null;
+    }
 }

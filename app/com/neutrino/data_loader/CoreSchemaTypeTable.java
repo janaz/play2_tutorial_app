@@ -1,6 +1,5 @@
 package com.neutrino.data_loader;
 
-import com.neutrino.profiling.EbeanServerManager;
 import org.polyjdbc.core.PolyJDBC;
 import org.polyjdbc.core.dialect.Dialect;
 import org.polyjdbc.core.dialect.DialectRegistry;
@@ -56,8 +55,8 @@ public class CoreSchemaTypeTable {
         return underlyingTable.updateSchema(schema);
     }
 
-    public CoreSchemaTypeTable forUser(int userId) {
-        CoreSchemaTable newUnderlaying = underlyingTable.forUser(userId);
+    public CoreSchemaTypeTable forDb(String dbName) {
+        CoreSchemaTable newUnderlaying = underlyingTable.forDb(dbName);
         CoreSchemaTypeTable newTable = new CoreSchemaTypeTable(newUnderlaying, idColumnName);
         for (Integer id : values.keySet()) {
             newTable.addValue(id, values.get(id));

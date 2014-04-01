@@ -1,10 +1,16 @@
 package com.neutrino.data_loader;
 
+import com.google.common.collect.Lists;
+
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Created by tomasz.janowski on 31/03/14.
  */
 public class RefData {
     public static final CoreSchema CORE_SCHEMA;
+    public static final CoreSchema PRECORE_SCHEMA;
     public static final CoreSchemaTypeTable PERSON_NAME_TYPE;
     public static final CoreSchemaTypeTable PERSON_PHONE_TYPE;
     public static final CoreSchemaTypeTable PERSON_EXTERNAL_IDENTIFIER_TYPE;
@@ -13,6 +19,8 @@ public class RefData {
     public static final CoreSchemaTable PERSON_HEADER;
     public static final CoreSchemaTable PERSON_ADDRESS;
     public static final CoreSchemaTable PERSON_NAME;
+    public static final CoreSchemaTable PERSON_ADDRESS_CORE;
+    public static final CoreSchemaTable PERSON_NAME_CORE;
     public static final CoreSchemaTable PERSON_ANNIVERSARY;
     public static final CoreSchemaTable PERSON_EMAIL;
     public static final CoreSchemaTable PERSON_EXTERNAL_IDENTIFIER;
@@ -21,6 +29,10 @@ public class RefData {
     public static final CoreSchemaTable PERSON_MARITAL_STATUS;
     public static final CoreSchemaTable PERSON_OCCUPATION;
     public static final CoreSchemaTable PERSON_PHONE;
+
+
+    public static final List<CoreSchemaTable> CORE_TABLES;
+    public static final List<CoreSchemaTable> PRECORE_TABLES;
 
     static {
         PERSON_NAME_TYPE = new CoreSchemaTypeTable("PersonNameType", "NameTypeID")
@@ -81,6 +93,41 @@ public class RefData {
                 .addColumn(new CoreSchemaColumn("Country", "VARCHAR", 60).selectable())
                 .addColumn(new CoreSchemaColumn("FullArea", "VARCHAR", 255))
                 .addColumn(new CoreSchemaColumn("FullAddressLine", "VARCHAR", 255))
+                .addColumn(new CoreSchemaColumn("CreationTimestamp", "TIMESTAMP").notNull())
+                .addColumn(new CoreSchemaColumn("ModificationTimestamp", "TIMESTAMP"));
+
+        PERSON_ADDRESS_CORE = new CoreSchemaTable("PersonAddress", PERSON_ADDRESS_TYPE)
+                .addColumn(new CoreSchemaColumn("AddressID", "INTEGER").id())
+                .addColumn(new CoreSchemaColumn("HeaderID", "INTEGER").notNull().foreignKey(PERSON_HEADER))
+                .addColumn(new CoreSchemaColumn("HouseNumber", "VARCHAR", 10).selectable())
+                .addColumn(new CoreSchemaColumn("HouseNumberSuffix", "VARCHAR", 3).selectable())
+                .addColumn(new CoreSchemaColumn("StreetName", "VARCHAR", 30).selectable())
+                .addColumn(new CoreSchemaColumn("StreetType", "VARCHAR", 5).selectable())
+                .addColumn(new CoreSchemaColumn("StreetSuffix", "VARCHAR", 3).selectable())
+                .addColumn(new CoreSchemaColumn("PostalDelType", "VARCHAR", 12).selectable())
+                .addColumn(new CoreSchemaColumn("PostalDelNumber", "VARCHAR", 10).selectable())
+                .addColumn(new CoreSchemaColumn("PostalDelNumberSuffix", "VARCHAR", 3).selectable())
+                .addColumn(new CoreSchemaColumn("FloorType", "VARCHAR", 3).selectable())
+                .addColumn(new CoreSchemaColumn("FloorNumber", "VARCHAR", 10).selectable())
+                .addColumn(new CoreSchemaColumn("UnitType", "VARCHAR", 5).selectable())
+                .addColumn(new CoreSchemaColumn("UnitNumber", "VARCHAR", 10).selectable())
+                .addColumn(new CoreSchemaColumn("BuildingName", "VARCHAR", 30).selectable())
+                .addColumn(new CoreSchemaColumn("Suburb", "VARCHAR", 60).selectable())
+                .addColumn(new CoreSchemaColumn("Postcode", "VARCHAR", 10).selectable())
+                .addColumn(new CoreSchemaColumn("State", "VARCHAR", 30).selectable())
+                .addColumn(new CoreSchemaColumn("Country", "VARCHAR", 60).selectable())
+                .addColumn(new CoreSchemaColumn("CreationTimestamp", "TIMESTAMP").notNull())
+                .addColumn(new CoreSchemaColumn("ModificationTimestamp", "TIMESTAMP"));
+
+        PERSON_NAME_CORE = new CoreSchemaTable("PersonName", PERSON_NAME_TYPE)
+                .addColumn(new CoreSchemaColumn("NameID", "INTEGER").id())
+                .addColumn(new CoreSchemaColumn("HeaderID", "INTEGER").notNull().foreignKey(PERSON_HEADER))
+                .addColumn(new CoreSchemaColumn("Salutation", "VARCHAR", 30).selectable())
+                .addColumn(new CoreSchemaColumn("FirstName", "VARCHAR", 30).selectable())
+                .addColumn(new CoreSchemaColumn("MiddleName", "VARCHAR", 30).selectable())
+                .addColumn(new CoreSchemaColumn("Surname", "VARCHAR", 60).selectable())
+                .addColumn(new CoreSchemaColumn("Generation", "VARCHAR", 30).selectable())
+                .addColumn(new CoreSchemaColumn("Suffix", "VARCHAR", 30).selectable())
                 .addColumn(new CoreSchemaColumn("CreationTimestamp", "TIMESTAMP").notNull())
                 .addColumn(new CoreSchemaColumn("ModificationTimestamp", "TIMESTAMP"));
 
@@ -157,7 +204,45 @@ public class RefData {
                 .addColumn(new CoreSchemaColumn("CreationTimestamp", "TIMESTAMP").notNull())
                 .addColumn(new CoreSchemaColumn("ModificationTimestamp", "TIMESTAMP"));
 
-        CORE_SCHEMA = new CoreSchema()
+        CORE_TABLES = Arrays.asList(new CoreSchemaTable[]{PERSON_HEADER,
+                PERSON_PHONE,
+                PERSON_MARITAL_STATUS,
+                PERSON_OCCUPATION,
+                PERSON_LANGUAGE,
+                PERSON_GENDER,
+                PERSON_EXTERNAL_IDENTIFIER,
+                PERSON_EMAIL,
+                PERSON_ANNIVERSARY,
+                PERSON_NAME_CORE,
+                PERSON_ADDRESS_CORE});
+
+        PRECORE_TABLES = Arrays.asList(new CoreSchemaTable[]{
+                PERSON_HEADER,
+                PERSON_PHONE,
+                PERSON_MARITAL_STATUS,
+                PERSON_OCCUPATION,
+                PERSON_LANGUAGE,
+                PERSON_GENDER,
+                PERSON_EXTERNAL_IDENTIFIER,
+                PERSON_EMAIL,
+                PERSON_ANNIVERSARY,
+                PERSON_NAME,
+                PERSON_ADDRESS});
+
+        CORE_SCHEMA = new CoreSchema("Core")
+                .addTable(PERSON_HEADER)
+                .addTable(PERSON_PHONE)
+                .addTable(PERSON_MARITAL_STATUS)
+                .addTable(PERSON_OCCUPATION)
+                .addTable(PERSON_LANGUAGE)
+                .addTable(PERSON_GENDER)
+                .addTable(PERSON_EXTERNAL_IDENTIFIER)
+                .addTable(PERSON_EMAIL)
+                .addTable(PERSON_ANNIVERSARY)
+                .addTable(PERSON_NAME_CORE)
+                .addTable(PERSON_ADDRESS_CORE);
+
+        PRECORE_SCHEMA = new CoreSchema("Precore")
                 .addTable(PERSON_HEADER)
                 .addTable(PERSON_PHONE)
                 .addTable(PERSON_MARITAL_STATUS)

@@ -107,4 +107,15 @@ public class ColumnMapping extends Model {
     }
 
 
+    public String getCoreTableName() {
+        return coreTableName;
+    }
+
+    public String getCoreAttributeName() {
+        return coreAttributeName;
+    }
+
+    public String getCoreAttributeType() {
+        return coreAttributeType;
+    }
 }
