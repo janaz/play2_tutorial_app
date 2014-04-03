@@ -4,7 +4,7 @@ import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
 @Embeddable
-public class QSPassBlockDetailsKey {
+public class QSPassDetailsKey {
     @Column(name="DataSetID")
     public Integer dataSetID;
     @Column(name="PassID")
@@ -12,7 +12,7 @@ public class QSPassBlockDetailsKey {
     @Column(name="SortID")
     public Integer sortID;
 
-    public QSPassBlockDetailsKey(Integer dataSetID, Integer passID, Integer sortID) {
+    public QSPassDetailsKey(Integer dataSetID, Integer passID, Integer sortID) {
         this.dataSetID = dataSetID;
         this.passID = passID;
         this.sortID = sortID;
@@ -26,7 +26,7 @@ public class QSPassBlockDetailsKey {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final QSPassBlockDetailsKey other = (QSPassBlockDetailsKey) obj;
+        final QSPassDetailsKey other = (QSPassDetailsKey) obj;
         if ((this.dataSetID == null) ? (other.dataSetID != null) : !this.dataSetID.equals(other.dataSetID)) {
             return false;
         }

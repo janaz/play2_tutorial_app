@@ -6,8 +6,8 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
 @Entity
-@Table(name="QSPassBlockDetails")
-public class QSPassBlockDetails extends Model {
+@Table(name="QSPassMatchDetails")
+public class QSPassMatchDetails extends Model {
     @EmbeddedId
     public QSPassDetailsKey id;
 
@@ -31,12 +31,22 @@ public class QSPassBlockDetails extends Model {
     public String opType;
 
     @NotNull
-    @Column(name="AttributeID")
-    public Integer attributeID;
+    @Column(name="mProb")
+    public Float mProb;
 
-    public static Finder<QSPassDetailsKey, QSPassBlockDetails> find(final String serverName) {
-        return new Finder<QSPassDetailsKey, QSPassBlockDetails>(
-                serverName, QSPassDetailsKey.class, QSPassBlockDetails.class);
+    @NotNull
+    @Column(name="uProb")
+    public Float uProb;
+
+    @Column(name="Param1", length=30)
+    public String param1;
+
+    @Column(name="Param2", length=30)
+    public String param2;
+
+    public static Finder<QSPassDetailsKey, QSPassMatchDetails> find(final String serverName) {
+        return new Finder<QSPassDetailsKey, QSPassMatchDetails>(
+                serverName, QSPassDetailsKey.class, QSPassMatchDetails.class);
     }
 
 }

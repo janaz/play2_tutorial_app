@@ -17,9 +17,11 @@ public class MetadataSchema {
             File.class,
             DataColumn.class,
             QSPassKey.class,
-            QSPassBlockDetailsKey.class,
+            QSPassDetailsKey.class,
             QSPass.class,
-            QSPassBlockDetails.class
+            QSPassBlockDetails.class,
+            QSPassMatchDetails.class,
+            QSPassWeightDetails.class
     });
 
     private final Integer userId;
