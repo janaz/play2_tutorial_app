@@ -4,6 +4,7 @@ import play.data.format.Formats;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.List;
 
@@ -14,16 +15,20 @@ public class DataColumn extends Model {
     @Column(name="ID")
     public Integer id;
 
+    @NotNull
     @Column(name="ColumnName", length = 64)
     public String name;
 
-    @Column(name="ColumnDataType", length = 64)
+    @NotNull
+    @Column(name="ColumnDataType", length = 20)
     public String dataType;
 
+    @NotNull
     @Column(name="ColumnLength", length = 10)
     public String length;
 
     @ManyToOne
+    @NotNull
     @JoinColumn(name="DataSetID")
     public DataSet dataSet;
 

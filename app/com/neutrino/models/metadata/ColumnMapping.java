@@ -3,6 +3,7 @@ package com.neutrino.models.metadata;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.Map;
 
 @Entity
@@ -13,12 +14,16 @@ public class ColumnMapping extends Model {
     public Integer id;
 
     @ManyToOne
+    @NotNull
     @JoinColumn(name="DataSetID")
     public DataSet dataSet;
 
     @OneToOne
     @JoinColumn(name="DataColumnID")
     public DataColumn dataColumn;
+
+    @Column(name="MixedContentFlag")
+    public Boolean mixedContentFlag = false;
 
     @Column(name="CoreTableName", length=64)
     public String coreTableName;
@@ -29,17 +34,20 @@ public class ColumnMapping extends Model {
     @Column(name="CoreAttributeType", length=30)
     public String coreAttributeType;
 
+    @Column(name="MandatoryFlag")
+    public Boolean mandatoryFlag = false;
+
     @Column(name="Score")
     public Integer score;
 
     @Column(name="ConfidenceFlag")
-    public Boolean confidenceFlag;
+    public Boolean confidenceFlag = false;
 
     @Column(name="MaybeFlag")
-    public Boolean maybeFlag;
+    public Boolean maybeFlag = false;
 
     @Column(name="ManualOverrideFlag")
-    public Boolean manualOverrideFlag;
+    public Boolean manualOverrideFlag = false;
 
     public static Finder<Integer, ColumnMapping> find(final String serverName) {
         return new Finder<Integer, ColumnMapping>(

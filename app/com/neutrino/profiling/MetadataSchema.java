@@ -15,7 +15,12 @@ public class MetadataSchema {
             CoreModelStructure.class,
             DataSet.class,
             File.class,
-            DataColumn.class});
+            DataColumn.class,
+            QSPassKey.class,
+            QSPassBlockDetailsKey.class,
+            QSPass.class,
+            QSPassBlockDetails.class
+    });
 
     private final Integer userId;
 

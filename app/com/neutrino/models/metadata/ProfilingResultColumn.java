@@ -26,6 +26,7 @@ public class ProfilingResultColumn extends Model {
     @Column(name = "TableName", length = 64)
     public String tableName;
 
+    @NotNull
     @Column(name = "ColumnName", length = 64)
     public String columnName;
 
@@ -57,10 +58,10 @@ public class ProfilingResultColumn extends Model {
     @Column(name = "MaximumLength")
     public Integer maximumLength;
 
-    @Column(name = "MinimumValue", length = 512)
+    @Column(name = "MinimumValue", length = 256)
     public String minimumValue;
 
-    @Column(name = "MaximumValue", length = 512)
+    @Column(name = "MaximumValue", length = 256)
     public String maximumValue;
 
     @ManyToOne

@@ -22,9 +22,11 @@ public class ProfilingResultFormat extends Model {
     @Column(name="ProfilingTemplateID")
     public Integer profilingTemplateId;
 
+    @NotNull
     @Column(name="TableName", length = 64)
     public String tableName;
 
+    @NotNull
     @Column(name="ColumnName", length = 64)
     public String columnName;
 

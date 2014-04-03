@@ -52,7 +52,7 @@ public class DataSet extends Model {
     @Column(name="State", length=30)
     public State state;
 
-    @Column(name="Type", length=30)
+    @Column(name="Type", length=45)
     public Type type;
 
     @OneToMany(mappedBy="dataSet", cascade=CascadeType.ALL)
