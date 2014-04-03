@@ -17,11 +17,11 @@ public class File extends Model {
     public Integer id;
 
     @NotNull
-    @Column(name="OriginalFileName", length=255)
+    @Column(name="OriginalFileName", length=256)
     public String originalFileName;
 
     @NotNull
-    @Column(name="FileLocation", length=255)
+    @Column(name="FileLocation", length=512)
     public String fileLocation;
 
     @NotNull
@@ -32,7 +32,6 @@ public class File extends Model {
     @Column(name="Delimiter", length=1)
     public String delimiter;
 
-    @NotNull
     @Column(name="Quote", length=1)
     public String quote;
 
@@ -43,6 +42,7 @@ public class File extends Model {
     @OneToOne(optional = true)
     @NotNull
     @JoinColumn(name="DataSetID")
+    @Column(unique = true)
     public DataSet dataSet;
 
     @NotNull
