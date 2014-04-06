@@ -8,112 +8,115 @@ import play.db.ebean.Model;
 import javax.annotation.Nullable;
 import javax.persistence.*;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 import java.util.regex.Pattern;
 
 @Entity
 @Table(name = "MappingDiscoveryRule")
 public class MappingDiscoveryRule extends Model {
 
-	@Id
-    @Column(name="ID")
+    @Id
+    @Column(name = "ID")
     public Integer id;
 
-    @Column(name="CoreTable", length = 64)
+    @Column(name = "CoreTable", length = 64)
     public String coreTable;
 
-    @Column(name="CoreColumn", length = 64)
+    @Column(name = "CoreColumn", length = 64)
     public String coreColumn;
 
-    @Column(name="CoreType", length = 30)
+    @Column(name = "CoreType", length = 30)
     public String coreType;
 
-    @Column(name="MandatoryFlag")
+    @Column(name = "MandatoryFlag")
     public Boolean mandatoryFlag;
 
-    @Column(name="RefCode", length = 30)
+    @Column(name = "RefCode", length = 30)
     public String refCode;
 
-    @Column(name="RefFullScore")
+    @Column(name = "RefFullScore")
     public Integer refFullScore;
 
-    @Column(name="RefMinimumPercMatch", precision = 5, scale=2)
+    @Column(name = "RefMinimumPercMatch", precision = 5, scale = 2)
     public BigDecimal refMinimumPercMatch;
 
-    @Column(name="RefFullScorePercThresh", precision = 5, scale=2)
+    @Column(name = "RefFullScorePercThresh", precision = 5, scale = 2)
     public BigDecimal refFullScorePercThresh;
 
-    @Column(name="NullMinimumPerc", precision = 5, scale=2)
+    @Column(name = "NullMinimumPerc", precision = 5, scale = 2)
     public BigDecimal nullMinimumPerc;
 
-    @Column(name="NullMaximumPerc", precision = 5, scale=2)
+    @Column(name = "NullMaximumPerc", precision = 5, scale = 2)
     public BigDecimal nullMaximumPerc;
 
-    @Column(name="NullPenalty")
+    @Column(name = "NullPenalty")
     public Integer nullPenalty;
 
-    @Column(name="UniqueMinimumPerc", precision = 5, scale=2)
+    @Column(name = "UniqueMinimumPerc", precision = 5, scale = 2)
     public BigDecimal uniqueMinimumPerc;
 
-    @Column(name="UniqueMaximumPerc", precision = 5, scale=2)
+    @Column(name = "UniqueMaximumPerc", precision = 5, scale = 2)
     public BigDecimal uniqueMaximumPerc;
 
-    @Column(name="uniqueScore")
+    @Column(name = "uniqueScore")
     public Integer uniqueScore;
 
-    @Column(name="NamePatterns", length = 256)
+    @Column(name = "NamePatterns", length = 256)
     public String namePatterns;
 
-    @Column(name="NameScore")
+    @Column(name = "NameScore")
     public Integer nameScore;
 
-    @Column(name="MinimumValue", length = 30)
+    @Column(name = "MinimumValue", length = 30)
     public String minimumValue;
 
-    @Column(name="MaximumValue", length = 30)
+    @Column(name = "MaximumValue", length = 30)
     public String maximumValue;
 
-    @Column(name="AllowedExcPerc", precision = 5, scale=2)
+    @Column(name = "AllowedExcPerc", precision = 5, scale = 2)
     public BigDecimal allowedExcPerc;
 
-    @Column(name="ValScore")
+    @Column(name = "ValScore")
     public Integer valScore;
 
-    @Column(name="valPenalty")
+    @Column(name = "valPenalty")
     public Integer valPenalty;
 
-    @Column(name="FormatsCode", length = 30)
+    @Column(name = "FormatsCode", length = 30)
     public String formatsCode;
 
-    @Column(name="FormatsMinimumPercThresh", precision = 5, scale=2)
+    @Column(name = "FormatsMinimumPercThresh", precision = 5, scale = 2)
     public BigDecimal formatsMinimumPercThresh;
 
-    @Column(name="FormatsMetScore")
+    @Column(name = "FormatsMetScore")
     public Integer formatsMetScore;
 
-    @Column(name="RegexPattern", length = 256)
+    @Column(name = "RegexPattern", length = 256)
     public String regexPattern;
 
-    @Column(name="RegexMinimumPercThresh", precision = 5, scale=2)
+    @Column(name = "RegexMinimumPercThresh", precision = 5, scale = 2)
     public BigDecimal regexMinimumPercThresh;
 
-    @Column(name="RegexMetScore")
+    @Column(name = "RegexMetScore")
     public Integer regexMetScore;
 
-    @Column(name="DataTypes", length = 30)
+    @Column(name = "DataTypes", length = 30)
     public String dataTypes;
 
-    @Column(name="MaybePointsThresh")
+    @Column(name = "MaybePointsThresh")
     public Integer maybePointsThresh;
 
-    @Column(name="ConfPointsThresh")
+    @Column(name = "ConfPointsThresh")
     public Integer confPointsThresh;
 
-    @Column(name="CreationTimestamp")
+    @Column(name = "CreationTimestamp")
     @Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
     public Date creationTimestamp;
 
-    @Column(name="ModificationTimestamp")
+    @Column(name = "ModificationTimestamp")
     @Formats.DateTime(pattern = "yyyy-MM-dd HH:mm:ss")
     public Date modificationTimestamp;
 
@@ -124,6 +127,15 @@ public class MappingDiscoveryRule extends Model {
     private String _compiledFor_namePatterns;
     @Transient
     private List<Pattern> _namePatternsCompiled;
+
+    @Transient
+    private long minValueInt;
+
+    @Transient
+    private long maxValueInt;
+
+    @Transient
+    private Boolean minMaxIsInt;
 
     public Pattern regexPatternCompiled() {
         if (regexPattern == null || regexPattern.trim().isEmpty()) {
@@ -152,8 +164,31 @@ public class MappingDiscoveryRule extends Model {
         return _namePatternsCompiled;
     }
 
+    public boolean withinMinMax(String value) {
+        if (minMaxIsInt == null) {
+            minMaxIsInt = true;
+            try {
+                minValueInt = Long.parseLong(minimumValue);
+                maxValueInt = Long.parseLong(maximumValue);
+            } catch (Exception e) {
+                minMaxIsInt = false;
+            }
+        }
+        if (minMaxIsInt.booleanValue()) {
+            try {
+                long valueInt = Long.parseLong(value);
+                return valueInt >= minValueInt && valueInt <= maxValueInt;
+            } catch (Exception e) {
+                return false;
+            }
+        } else {
+            return value.compareTo(minimumValue) >= 0 &&
+                    value.compareTo(maximumValue) <= 0;
+        }
+    }
+
     public boolean isNameMatching(String name) {
-        for (Pattern p: namePatternsCompiled()) {
+        for (Pattern p : namePatternsCompiled()) {
             if (p.matcher(name).find()) {
                 return true;
             }

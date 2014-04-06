@@ -121,8 +121,7 @@ public class DataMapping {
                 }
 
                 if (rule.maximumValue != null && rule.minimumValue != null) {
-                    if (val.compareTo(rule.minimumValue) >= 0 &&
-                            val.compareTo(rule.maximumValue) <= 0) {
+                    if (rule.withinMinMax(val)) {
                         Integer minMaxCountInt = minMaxComplianceCount.get(ruleId);
                         int minMaxCount = (minMaxCountInt == null) ? 0 : minMaxCountInt.intValue();
                         minMaxCount += profilingResultValue.cardinality;
