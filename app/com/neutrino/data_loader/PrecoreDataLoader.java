@@ -1,148 +1,269 @@
 package com.neutrino.data_loader;
 
-import com.neutrino.models.core_common.CoreTable;
-import com.neutrino.models.core_common.PersonHeader;
-import com.neutrino.models.core_common.ReferenceData;
+import com.google.common.base.Joiner;
+import com.neutrino.datamappingdiscovery.CollectionUtils;
 import com.neutrino.models.metadata.ColumnMapping;
-import com.neutrino.models.metadata.DataColumn;
 import com.neutrino.models.metadata.DataSet;
-import com.neutrino.profiling.*;
-import play.db.ebean.Model;
+import com.neutrino.profiling.EbeanServerManager;
+import com.neutrino.profiling.MetadataSchema;
+import com.neutrino.profiling.PrecoreSchema;
+import com.neutrino.profiling.StagingSchema;
+import org.sql2o.Sql2o;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import javax.sql.DataSource;
+import java.util.*;
 
 public class PrecoreDataLoader {
     private final PrecoreSchema precoreSchema;
     private final int userId;
-    private final int dataSetId;
-    private final StagingSchema stagingSchema;
     private final MetadataSchema metadataSchema;
 
-    public PrecoreDataLoader(int userId, int dataSetId) {
-        this.dataSetId = dataSetId;
+    public PrecoreDataLoader(int userId) {
         this.userId = userId;
         this.precoreSchema = new PrecoreSchema(userId);
-        this.stagingSchema = new StagingSchema(userId, dataSetId);
         this.metadataSchema = new MetadataSchema(userId);
     }
 
-    public void populate() {
-        //populateSourceID();
-        populatePrecore();
-    }
-    private void populatePrecore() {
-        DataSet ds = DataSet.find(metadataSchema.server().getName()).byId(dataSetId);
-        List<ColumnMapping> mappings = ds.getMappings();
-        final Map<String, Map<String, ColumnMapping>> mapmap = new HashMap<>();
-        for (ColumnMapping mapping : mappings) {
-            Map<String, ColumnMapping> mc = mapmap.get(mapping.coreTableName);
-            if (mc == null) {
-                mc = new HashMap<>();
-                mapmap.put(mapping.coreTableName, mc);
-            }
-            mc.put(mapping.coreAttributeName, mapping);
+    private static class TableAttribute {
+        private final Map<String, String> data = new HashMap<>();
+
+        public TableAttribute(String tableName, String attrName) {
+            data.put("tableName", tableName);
+            data.put("attributeName", attrName);
         }
 
-        EbeanServerManager.getManager().executeQuery(null, new QueryCallable<Boolean>() {
+        public String getTableName() {
+            return data.get("tableName");
+        }
+
+        public String getAttributeName() {
+            return data.get("attributeName");
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            return (other instanceof TableAttribute) && (((TableAttribute) other).data.equals(data));
+        }
+
+        @Override
+        public int hashCode() {
+            return data.hashCode();
+        }
+    }
+
+    private static class TableType {
+        private final Map<String, String> data = new HashMap<>();
+
+        public TableType(String tableName, String attrType) {
+            data.put("tableName", tableName);
+            data.put("attrType", attrType);
+        }
+
+        public String getTableName() {
+            return data.get("tableName");
+        }
+
+        public String getAttributeType() {
+            return data.get("attrType");
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            return (other instanceof TableType) && (((TableType) other).data.equals(data));
+        }
+
+        @Override
+        public int hashCode() {
+            return data.hashCode();
+        }
+    }
+
+    private List<DataSet> dataSets() {
+        MetadataSchema mtd = new MetadataSchema(userId);
+        List<DataSet> dataSets = DataSet.find(mtd.server().getName()).where().eq("state", DataSet.State.AUTO_MAPPING_DONE).findList();
+        return dataSets;
+    }
+
+    private Map<TableAttribute, Collection<ColumnMapping>> columnMappingsForUser() {
+        List<ColumnMapping> mappings = new ArrayList<>();
+        for (DataSet ds : dataSets()) {
+            mappings.addAll(ds.getMappings());
+        }
+        Map<TableAttribute, Collection<ColumnMapping>> map = CollectionUtils.listAsMap(mappings, new CollectionUtils.ListToMapConverter<TableAttribute, ColumnMapping>() {
             @Override
-            public Boolean call(PreparedStatement pstmt) throws SQLException {
-                ResultSet rs = pstmt.executeQuery();
-                ResultSetMetaData met = rs.getMetaData();
-                int columnCount = met.getColumnCount();
-                Map<String, String> data = new HashMap<>();
-                while (rs.next()) {
-                    for (int i = 1; i <= columnCount; i++) {
-                        String name = met.getColumnName(i);
-                        data.put(name, rs.getString(i));
-                    }
-                    String srcName = mapmap.get("PersonHeader").get("SourceID").getDataColumn().getName();
-                    String srcVal = data.get(srcName);
-                    PersonHeader ph = new PersonHeader();
-                    ph.datasetId = dataSetId;
-                    ph.creationTimestamp = new Date();
-                    ph.sourceId = srcVal;
-                    ph.save(precoreSchema.server().getName());
-                    for (String tabName : mapmap.keySet()) {
-                        if (!"PersonHeader".equals(tabName)) {
-                            Map<String, Model> models = new HashMap<>();
-                            for (String attrName : mapmap.get(tabName).keySet()) {
-                                String type = mapmap.get(tabName).get(attrName).coreAttributeType;
-                                if (type == null) {
-                                    type = "NULL";
-                                }
+            public TableAttribute getKey(ColumnMapping item) {
+                return new TableAttribute(item.getCoreTableName(), item.getCoreAttributeName());
+            }
+        });
+        return map;
+    }
 
-                                Model m = models.get(type);
-                                if (m == null) {
-                                    m = ReferenceData.instantiatePrecoreModelClass(tabName);
-                                    models.put(type, m);
-                                    CoreTable iface = (CoreTable) m;
-                                    iface.setHeader(ph);
-                                    iface.setTypeByName(type, precoreSchema.server().getName());
-                                }
+    private Map<String, Collection<TableAttribute>> columnMappingByTableName() {
+        Map<TableAttribute, Collection<ColumnMapping>> map = columnMappingsForUser();
 
-                                String stgName = mapmap.get(tabName).get(attrName).getDataColumn().getName();
-                                String stgVal = data.get(stgName);
-                                ReferenceData.setValue(m, attrName, stgVal);
-                            }
-                            for (String type : models.keySet()) {
-                                models.get(type).save(precoreSchema.server().getName());
-                            }
+        return CollectionUtils.listAsMap(map.keySet(), new CollectionUtils.ListToMapConverter<String, TableAttribute>() {
+            @Override
+            public String getKey(TableAttribute item) {
+                return item.getTableName();
+            }
+        });
+
+    }
+
+    private DataSource getDataSource() {
+        return EbeanServerManager.dataSource();
+    }
+
+    private void createPrecoreSchema() {
+        Map<TableAttribute, Collection<ColumnMapping>> map = columnMappingsForUser();
+        Map<String, Collection<TableAttribute>> byTableName = columnMappingByTableName();
+
+        Map<String, CoreSchemaTable> tabByName = CollectionUtils.listAsUniqueMap(RefData.PRECORE_TABLES, new CollectionUtils.ListToMapConverter<String, CoreSchemaTable>() {
+            @Override
+            public String getKey(CoreSchemaTable item) {
+                return item.getName();
+            }
+        });
+        Map<String, CoreSchemaTable> coreTabByName = CollectionUtils.listAsUniqueMap(RefData.CORE_TABLES, new CollectionUtils.ListToMapConverter<String, CoreSchemaTable>() {
+            @Override
+            public String getKey(CoreSchemaTable item) {
+                return item.getName();
+            }
+        });
+        CoreSchema mySchema = new CoreSchema("Precore");
+        CoreSchema myCoreSchema = new CoreSchema("Core");
+        mySchema.addTable(RefData.PERSON_HEADER);
+        myCoreSchema.addTable(RefData.PERSON_HEADER);
+        for (String tabName : byTableName.keySet()) {
+            if (tabName == null) {
+                continue;
+            }
+            CoreSchemaTable table = tabByName.get(tabName);
+            CoreSchemaTable coreTable = coreTabByName.get(tabName);
+            System.out.println("Table for " + tabName + " : " + table);
+            if (!table.getName().equals(RefData.PERSON_HEADER.getName())) {
+                mySchema.addTable(table);
+                myCoreSchema.addTable(coreTable);
+            }
+        }
+        mySchema = mySchema.forUser(userId);
+        myCoreSchema = myCoreSchema.forUser(userId);
+        for (String tabName : byTableName.keySet()) {
+            if (tabName == null) {
+                continue;
+            }
+            CoreSchemaTable table = mySchema.getTable(tabName);
+            CoreSchemaTable coreTable = myCoreSchema.getTable(tabName);
+            for (TableAttribute key : byTableName.get(tabName)) {
+                String attributeName = key.getAttributeName();
+                if (attributeName == null) {
+                    table.selectAllColumns();
+
+                } else {
+                    table.selectColumn(attributeName);
+                    coreTable.selectColumn(attributeName);
+                    ColumnMapping maxLenMapping = Collections.max(map.get(key), new Comparator<ColumnMapping>() {
+                        @Override
+                        public int compare(ColumnMapping o1, ColumnMapping o2) {
+                            Integer max1 = o1.getDataColumn().getResultsColumns().get(0).getMaximumLength();
+                            Integer max2 = o2.getDataColumn().getResultsColumns().get(0).getMaximumLength();
+                            return max1.compareTo(max2);
                         }
-                    }
+                    });
+                    table.adjustColumnLength(attributeName, maxLenMapping.getDataColumn().getResultsColumns().get(0).getMaximumLength());
+                    coreTable.adjustColumnLength(attributeName, maxLenMapping.getDataColumn().getResultsColumns().get(0).getMaximumLength());
                 }
-                return true;
             }
-
-            @Override
-            public String getQuery() {
-                StringBuilder sb = new StringBuilder();
-                return sb.append("SELECT *")
-                        .append("FROM `").append(stagingSchema.databaseName()).append("`.`").append(stagingSchema.dataSetTableName()).append("`")
-                        .toString();
-            }
-
-            @Override
-            public void setup(PreparedStatement pstmt) throws SQLException {
-            }
-        });
-
+        }
+        mySchema.create(getDataSource());
+        myCoreSchema.create(getDataSource());
     }
 
-    private boolean populateSourceID() {
-        return EbeanServerManager.getManager().executeQuery(precoreSchema.server(), new QueryCallable<Boolean>() {
-            @Override
-            public Boolean call(PreparedStatement pstmt) throws SQLException {
-                return pstmt.execute();
-            }
+    public void populate() {
+        PrecoreSchema prec = new PrecoreSchema(userId);
+        com.neutrino.profiling.CoreSchema cor = new com.neutrino.profiling.CoreSchema(userId);
+        if (!prec.isCreated()) {
+            prec.createDatabase();
 
-            @Override
-            public String getQuery() {
-                DataSet ds = DataSet.find(metadataSchema.server().getName()).byId(dataSetId);
-                ColumnMapping cm = ColumnMapping.find(metadataSchema.server().getName()).where()
-                        .eq("dataSet", ds)
-                        .eq("coreTableName", "PersonHeader")
-                        .eq("CoreAttributeName", "SourceID").findUnique();
-                String stagingColumnName = cm.getDataColumn().getName();
-                StringBuilder sb = new StringBuilder();
-                return sb.append("INSERT INTO PersonHeader(DataSetID, SourceID, CreationTimestamp)")
-                        .append("SELECT ?, `").append(stagingColumnName).append("`, NOW()")
-                        .append("FROM `").append(stagingSchema.databaseName()).append("`.`").append(stagingSchema.dataSetTableName()).append("`")
-                        .toString();
+        }
+        if (!cor.isCreated()) {
+            cor.createDatabase();
+        }
+        for (DataSet ds : dataSets()) {
+            List<ColumnMapping> dsMappings = ds.getMappings();
+            Map<TableType, Collection<ColumnMapping>> byTableType = CollectionUtils.listAsMap(dsMappings, new CollectionUtils.ListToMapConverter<TableType, ColumnMapping>() {
+                @Override
+                public TableType getKey(ColumnMapping item) {
+                    return new TableType(item.getCoreTableName(), item.getCoreAttributeType());
+                }
+            });
+            TableType headerTabType = new TableType(RefData.PERSON_HEADER.getName(), null);
+            Collection<ColumnMapping> headerMappings = byTableType.get(headerTabType);
+            processTableType(ds, headerTabType, headerMappings, headerMappings);
+            for (TableType tabType : byTableType.keySet()) {
+                Collection<ColumnMapping> tabTypeMappings = byTableType.get(tabType);
+                processTableType(ds, tabType, headerMappings, tabTypeMappings);
             }
-
-            @Override
-            public void setup(PreparedStatement pstmt) throws SQLException {
-                pstmt.setInt(1, dataSetId);
-            }
-        });
+        }
     }
 
+    private void processTableType(DataSet ds, TableType tabType, Collection<ColumnMapping> headerMappings, Collection<ColumnMapping> tabTypeMappings) {
+        Map<String, String> attrNameToStgName = new HashMap<>();
+        List<String> attributes = new ArrayList<>();
+        List<String> values = new ArrayList<>();
+        for (ColumnMapping mapping : headerMappings) {
+            if (!tabType.getTableName().equals(mapping.getCoreTableName())) {
+                throw new RuntimeException("Table Name mismatch1!!!");
+            }
+            String attrName = mapping.getCoreAttributeName();
+            String stgName = mapping.getDataColumn().getName();
+            if (attrName == null) {
+                if (mapping.getCoreTableName().equals(RefData.PERSON_NAME.getName())) {
+                    attrName = RefData.FULL_NAME_COLUMN;
+                } else if (mapping.getCoreTableName().equals(RefData.PERSON_NAME.getName())) {
+                    attrName = RefData.FULL_ADDRESS_LINE_COLUMN;
+                } else {
+                    throw new RuntimeException("Attribute Name null for dataset " + ds.id + " table name" + mapping.getCoreTableName());
+                }
+            }
+            if (attrNameToStgName.get(attrName) != null) {
+                throw new RuntimeException("Column name not unique!");
+            }
+            attrNameToStgName.put(attrName, "s." + stgName);
+            attributes.add(attrName);
+            values.add("s." + stgName);
+        }
+        attributes.add("HeaderID");
+        values.add("h.HeaderID");
+        /*INSERT INTO Precore.PersonName(Attr1A, Attr1B, HeaderID, NameTypeID
+        SELECT s.Attr1, s.Attr2, s.Attr3, h.HeaderID ,'Type Value' from Staging005.DataSet0005 s, Precore005.PersonHeader h
+          where h.DataSetID=10 and h.SourceID=s.AttrX'
+         */
+        values.add("(SELECT AttHeaderID FROM PersonHeader WHERE DataSetID=" + ds.id + " AND SourceID='" + 1 + "'");
+        PrecoreSchema prec = new PrecoreSchema(userId);
+        CoreSchemaTable tab = RefData.PRECORE_SCHEMA.getTable(tabType.getTableName());
+        if (tab.getTypeTable() != null) {
+            if (tabType.getAttributeType() == null) {
+                throw new RuntimeException("Type expected but is null");
+            }
+            attributes.add(tab.getTypeTable().getIdColumnName());
+            values.add("" + tab.getTypeTable().getTypeId(tabType.getAttributeType()));
+        }
+        StagingSchema stagingSchema = new StagingSchema(userId, ds.id);
+        String sql = "INSERT INTO " + prec.databaseName() + "." + tabType.getTableName() +
+                "(" + Joiner.on(",").join(attributes) + ") SELECT " + Joiner.on(",").join(values) +
+                "FROM " + stagingSchema.databaseName() + "." + stagingSchema.dataSetTableName() + "s, " + RefData.PERSON_HEADER.getName() + "h";
+
+        if (tabType.getTableName().equals(RefData.PERSON_HEADER.getName())) {
+            StringBuilder sb = new StringBuilder();
+            sql = sb.append("INSERT INTO PersonHeader(DataSetID, SourceID, CreationTimestamp)")
+                    .append("SELECT ").append(ds.id).append(", `").append(headerMappings.iterator().next().getDataColumn().getName()).append("`, NOW()")
+                    .append("FROM `").append(stagingSchema.databaseName()).append("`.`").append(stagingSchema.dataSetTableName()).append("`")
+                    .toString();
+        }
+        System.out.println("Precore SQL \n" + sql);
+        Sql2o sql2o = new Sql2o(getDataSource());
+        sql2o.createQuery(sql).executeUpdate();
+    }
 
 }

@@ -5,14 +5,12 @@ import org.polyjdbc.core.schema.model.RelationBuilder;
 import org.polyjdbc.core.schema.model.Schema;
 
 import javax.sql.DataSource;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 public class CoreSchemaTable {
     private final String name;
+
     private final CoreSchemaTypeTable typeTable;
     private final Map<String, CoreSchemaColumn> columns = new HashMap<>();
     private final String dbName;
@@ -23,6 +21,10 @@ public class CoreSchemaTable {
 
     public CoreSchemaTable(String name, CoreSchemaTypeTable typeTable) {
         this(name, typeTable, null);
+    }
+
+    public CoreSchemaTypeTable getTypeTable() {
+        return typeTable;
     }
 
     protected CoreSchemaTable(String name, CoreSchemaTypeTable typeTable, String dbName) {
@@ -59,6 +61,9 @@ public class CoreSchemaTable {
         return this;
     }
 
+    public Collection<CoreSchemaColumn> getColumns() {
+        return columns.values();
+    }
     public String getName() {
         return name;
     }
@@ -75,7 +80,7 @@ public class CoreSchemaTable {
         RelationBuilder builder = schema.addRelation(tabName);
         for (String colName : columns.keySet()) {
             CoreSchemaColumn column = columns.get(colName);
-            if (column.isSelected()) {
+            if (column.isSelected() || allColumnSelected()) {
                 AttributeBuilder attributeBuilder = column.buildAttribute(builder);
                 if (attributeBuilder != null) {
                     System.out.println("attr builder " + tabName + "." + colName + " not null");
@@ -100,6 +105,11 @@ public class CoreSchemaTable {
         }
         builder.build();
         return retVal;
+    }
+
+    public boolean allColumnSelected() {
+        return getName().equals(RefData.PERSON_NAME.getName()) ||
+                getName().equals(RefData.PERSON_ADDRESS.getName());
     }
 
     public String fullTableName() {

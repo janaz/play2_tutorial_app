@@ -29,6 +29,7 @@ public class UploadedFile extends Secured {
     private static List<DataSet> currentUserFiles() {
         final User localUser = Application.getLocalUser(session());
         final MetadataSchema met = new MetadataSchema(localUser.id);
+        System.out.println("Metadata server="+met.server().getName());
         return DataSet.find(met.server().getName()).all();
 
     }

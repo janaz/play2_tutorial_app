@@ -2,16 +2,13 @@ package com.neutrino.models.core_common;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
-import com.neutrino.csv.parsers.DateTimeParser;
-import com.neutrino.profiling.CoreSchema;
-import com.neutrino.profiling.PrecoreSchema;
+import com.neutrino.data_loader.CoreSchemaColumn;
+import com.neutrino.data_loader.CoreSchemaTable;
+import com.neutrino.data_loader.RefData;
 import org.reflections.Reflections;
 import play.db.ebean.Model;
 
 import javax.annotation.Nullable;
-import javax.persistence.Column;
-import javax.persistence.Table;
-import java.lang.reflect.Field;
 import java.util.*;
 
 //-> and table_name not like '%Type'
@@ -33,48 +30,27 @@ public class ReferenceData {
     }
 
     public static ReferenceData forCore(int userId) {
-        return new ReferenceData(userId, (new CoreSchema(userId)).server().getName());
+        return new ReferenceData(userId, null);
     }
 
     public static ReferenceData forPrecore(int userId) {
-        return new ReferenceData(userId, (new PrecoreSchema(userId)).server().getName());
+        return new ReferenceData(userId, null);
     }
 
     static {
         globalOptions = new ArrayList<>();
 
-        final Reflections reflections = new Reflections("com.neutrino.models");
-
-        for (Class clz : reflections.getSubTypesOf(Model.class)) {
-            Table t = (Table) clz.getAnnotation(Table.class);
-            for (Field f : clz.getFields()) {
-                SelectableAttribute attr = f.getAnnotation(SelectableAttribute.class);
-                if (attr != null) {
-                    Column c = f.getAnnotation(Column.class);
-                    addOption(t.name(), c.name(), attr.type());
+        for (CoreSchemaTable tab : RefData.PRECORE_SCHEMA.getTables()) {
+            for (CoreSchemaColumn col : tab.getColumns()) {
+                if (col.isFull()) {
+                    addOption(tab.getName(), col.getName());
                 }
             }
-        }
-    }
-
-    public static Model instantiatePrecoreModelClass(String className) {
-        Class<Model> clz = getPrecoreModelClassByName(className);
-        try {
-            Model m = clz.newInstance();
-            return m;
-        } catch (InstantiationException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static Class<Model> getPrecoreModelClassByName(String className) {
-        Class<Model> retVal = getModelClassByName(className, "com.neutrino.models.precore");
-        if (retVal != null) {
-            return retVal;
-        } else {
-            return getModelClassByName(className, "com.neutrino.models.core_common");
+            for (CoreSchemaColumn col : tab.getColumns()) {
+                if (col.isSelectable()) {
+                    addOption(tab.getName(), col.getName());
+                }
+            }
         }
     }
 
@@ -115,10 +91,10 @@ public class ReferenceData {
         return options;
     }
 
-    public Map<String, Map<String, List<String>>> toJSON() {
-        Map<String, Map<String, List<String>>> map = new HashMap<>();
+    public Map<String, Map<String, Collection<String>>> toJSON() {
+        Map<String, Map<String, Collection<String>>> map = new HashMap<>();
         for (Option o : getOptions()) {
-            Map<String, List<String>> el = map.get(o.getTableName());
+            Map<String, Collection<String>> el = map.get(o.getTableName());
             if (el == null) {
                 el = new HashMap<>();
                 map.put(o.getTableName(), el);
@@ -128,123 +104,9 @@ public class ReferenceData {
         return map;
     }
 
-    private static void addOption(String tableName, String columnName, Class<? extends CoreType> coreTypeClz) {
-        globalOptions.add(new Option(tableName, columnName, coreTypeClz));
+    private static void addOption(String tableName, String columnName) {
+        globalOptions.add(new Option(tableName, columnName));
     }
 
 
-    private void createPersonNameType(Integer id, String type) {
-        PersonNameType t = new PersonNameType();
-        t.id = id;
-        t.type = type;
-        t.save(serverName);
-    }
-
-    private void createPersonExternalIdentifierType(Integer id, String type) {
-        PersonExternalIdentifierType t = new PersonExternalIdentifierType();
-        t.id = id;
-        t.type = type;
-        t.save(serverName);
-    }
-
-    private void createPersonAnniversaryType(Integer id, String type) {
-        PersonAnniversaryType t = new PersonAnniversaryType();
-        t.id = id;
-        t.type = type;
-        t.save(serverName);
-    }
-
-    private void createPersonPhoneType(Integer id, String type) {
-        PersonPhoneType t = new PersonPhoneType();
-        t.id = id;
-        t.type = type;
-        t.save(serverName);
-    }
-
-    private void createPersonAddressType(Integer id, String type) {
-        PersonAddressType t = new PersonAddressType();
-        t.id = id;
-        t.type = type;
-        t.save(serverName);
-    }
-
-    public void createReferenceData() {
-        createPersonNameType(1, "Legal Name");
-        createPersonNameType(2, "Preferred Name");
-        createPersonNameType(3, "Business Name");
-        createPersonNameType(4, "Alias Name");
-        createPersonNameType(5, "Maiden Name");
-
-        createPersonExternalIdentifierType(1, "Passport");
-        createPersonExternalIdentifierType(2, "Driver License");
-        createPersonExternalIdentifierType(3, "Photo ID");
-
-        createPersonAnniversaryType(1, "Date of Birth");
-        createPersonAnniversaryType(2, "Date of Death");
-        createPersonAnniversaryType(3, "Date of Join");
-
-        createPersonPhoneType(1, "Home phone");
-        createPersonPhoneType(2, "Mobile phone");
-        createPersonPhoneType(3, "Business phone");
-        createPersonPhoneType(4, "Fax");
-
-        createPersonAddressType(1, "Residential");
-        createPersonAddressType(2, "Postal");
-        createPersonAddressType(3, "Business");
-        createPersonAddressType(4, "Delivery");
-        createPersonAddressType(5, "Summer Residence");
-        createPersonAddressType(6, "PO Box");
-    }
-
-    public static void setValue(Model m, String attrName, String stgVal) {
-        for (Field f : m.getClass().getDeclaredFields()) {
-            Column colAnn = f.getAnnotation(Column.class);
-            if (colAnn != null && attrName.equals(colAnn.name())) {
-                Class clz = f.getType();
-                if (clz.equals(String.class)) {
-                    try {
-                        f.set(m, stgVal);
-                    } catch (IllegalAccessException e) {
-                        throw new RuntimeException(e);
-                    }
-                } else if (clz.equals(Date.class)) {
-                    Date val = new DateTimeParser().parse(stgVal).toDate();
-                    try {
-                        f.set(m, val);
-                    } catch (IllegalAccessException e) {
-                        throw new RuntimeException(e);
-                    }
-
-                }  else if (clz.equals(Short.class)) {
-                    Short val;
-                    try {
-                        val = Short.parseShort(stgVal);
-                    } catch (NumberFormatException e) {
-                        val = null;
-                    }
-                    try {
-                        f.set(m, val);
-                    } catch (IllegalAccessException e) {
-                        throw new RuntimeException(e);
-                    }
-
-                }  else if (clz.equals(Integer.class)) {
-                    Integer val;
-                    try {
-                        val = Integer.parseInt(stgVal);
-                    } catch (NumberFormatException e) {
-                        val = null;
-                    }
-                    try {
-                        f.set(m, val);
-                    } catch (IllegalAccessException e) {
-                        throw new RuntimeException(e);
-                    }
-                }  else {
-                    throw new RuntimeException("Unexpected type : " + clz.getName() + " for " + attrName);
-                }
-            }
-
-        }
-    }
 }

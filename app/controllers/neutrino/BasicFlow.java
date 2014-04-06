@@ -2,8 +2,10 @@ package controllers.neutrino;
 
 import com.jolbox.bonecp.BoneCPDataSource;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
+import com.neutrino.data_loader.PrecoreDataLoader;
 import com.neutrino.data_loader.RefData;
 import com.neutrino.datamappingdiscovery.DataMapping;
+import com.neutrino.profiling.MetadataSchema;
 import org.polyjdbc.core.PolyJDBC;
 import org.polyjdbc.core.dialect.Dialect;
 import org.polyjdbc.core.dialect.DialectRegistry;
@@ -111,6 +113,12 @@ public class BasicFlow extends Controller {
         }
     }
 
+    private static void test3() {
+        MetadataSchema mtd = new MetadataSchema(433);
+        mtd.createDatabase();
+        mtd.createTables();
+    }
+
     private static void test2() {
         BoneCPDataSource ds = new BoneCPDataSource();
         ds.setDriverClass("com.mysql.jdbc.Driver");
@@ -126,8 +134,10 @@ public class BasicFlow extends Controller {
 
     }
     public static Result index() {
-        DataMapping.createPrecoreSchema(8);
+        //DataMapping.createPrecoreSchema(8);
         //test("Staging008.StgTest07");
+        //test3();
+        //new PrecoreDataLoader(199).populate();
         return ok(views.html.neutrino.index.render());
     }
 

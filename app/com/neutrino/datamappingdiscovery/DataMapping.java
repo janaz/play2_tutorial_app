@@ -2,10 +2,6 @@ package com.neutrino.datamappingdiscovery;
 
 import com.avaje.ebean.Query;
 import com.avaje.ebean.QueryListener;
-import com.jolbox.bonecp.BoneCPDataSource;
-import com.neutrino.data_loader.CoreSchema;
-import com.neutrino.data_loader.CoreSchemaTable;
-import com.neutrino.data_loader.RefData;
 import com.neutrino.models.configuration.DataFormat;
 import com.neutrino.models.configuration.MappingDiscoveryRule;
 import com.neutrino.models.configuration.ReferenceData;
@@ -23,104 +19,6 @@ public class DataMapping {
     private final Map<String, Set<String>> formats;
     private final Map<Integer, Pattern> regexPatterns;
 
-
-    public static Map<List<String>, Collection<ColumnMapping>> columnMappingsForUser(int userId) {
-        MetadataSchema mtd = new MetadataSchema(userId);
-        List<ColumnMapping> mappings = new ArrayList<>();
-        List<DataSet> dataSets = DataSet.find(mtd.server().getName()).where().eq("state", DataSet.State.AUTO_MAPPING_DONE).findList();
-        for (DataSet ds : dataSets) {
-            mappings.addAll(ds.getMappings());
-        }
-        Map<List<String>, Collection<ColumnMapping>> map = CollectionUtils.listAsMap(mappings, new CollectionUtils.ListToMapConverter<List<String>, ColumnMapping>() {
-            @Override
-            public List<String> getKey(ColumnMapping item) {
-                List<String> ret = new ArrayList<>();
-                ret.add(item.getCoreTableName());
-                ret.add(item.getCoreAttributeName());
-                ret.add(item.getCoreAttributeType());
-                return ret;
-            }
-        });
-        return map;
-    }
-
-    public static void createPrecoreSchema(int userId) {
-        Map<List<String>, Collection<ColumnMapping>> map = columnMappingsForUser(userId);
-        Map<String, Collection<List<String>>> byTableName = CollectionUtils.listAsMap(map.keySet(), new CollectionUtils.ListToMapConverter<String, List<String>>() {
-            @Override
-            public String getKey(List<String> item) {
-                return item.get(0);
-            }
-        });
-        Map<String, CoreSchemaTable> tabByName = CollectionUtils.listAsUniqueMap(RefData.PRECORE_TABLES, new CollectionUtils.ListToMapConverter<String, CoreSchemaTable>() {
-            @Override
-            public String getKey(CoreSchemaTable item) {
-                return item.getName();
-            }
-        });
-        Map<String, CoreSchemaTable> coreTabByName = CollectionUtils.listAsUniqueMap(RefData.CORE_TABLES, new CollectionUtils.ListToMapConverter<String, CoreSchemaTable>() {
-            @Override
-            public String getKey(CoreSchemaTable item) {
-                return item.getName();
-            }
-        });
-        CoreSchema mySchema = new CoreSchema("Precore");
-        CoreSchema myCoreSchema = new CoreSchema("Core");
-        mySchema.addTable(RefData.PERSON_HEADER);
-        myCoreSchema.addTable(RefData.PERSON_HEADER);
-        for (String tabName : byTableName.keySet()) {
-            if (tabName == null) {
-                continue;
-            }
-            CoreSchemaTable table = tabByName.get(tabName);
-            CoreSchemaTable coreTable = coreTabByName.get(tabName);
-            System.out.println("Table for " + tabName + " : " + table);
-            if (!table.getName().equals(RefData.PERSON_HEADER.getName())) {
-                mySchema.addTable(table);
-                myCoreSchema.addTable(coreTable);
-            }
-        }
-        mySchema = mySchema.forUser(217);
-        myCoreSchema = myCoreSchema.forUser(217);
-        for (String tabName : byTableName.keySet()) {
-            if (tabName == null) {
-                continue;
-            }
-            CoreSchemaTable table = mySchema.getTable(tabName);
-            CoreSchemaTable coreTable = myCoreSchema.getTable(tabName);
-            for (List<String> key : byTableName.get(tabName)) {
-                String attributeName = key.get(1);
-                if (attributeName == null) {
-                    table.selectAllColumns();
-
-                } else {
-                    table.selectColumn(attributeName);
-                    coreTable.selectColumn(attributeName);
-                    ColumnMapping maxLenMapping = Collections.max(map.get(key), new Comparator<ColumnMapping>() {
-                        @Override
-                        public int compare(ColumnMapping o1, ColumnMapping o2) {
-                            Integer max1 = o1.getDataColumn().getResultsColumns().get(0).getMaximumLength();
-                            Integer max2 = o2.getDataColumn().getResultsColumns().get(0).getMaximumLength();
-                            return max1.compareTo(max2);
-                        }
-                    });
-                    table.adjustColumnLength(attributeName, maxLenMapping.getDataColumn().getResultsColumns().get(0).getMaximumLength());
-                    coreTable.adjustColumnLength(attributeName, maxLenMapping.getDataColumn().getResultsColumns().get(0).getMaximumLength());
-                }
-            }
-        }
-        BoneCPDataSource ds = new BoneCPDataSource();
-        ds.setDriverClass("com.mysql.jdbc.Driver");
-        ds.setJdbcUrl("jdbc:mysql://localhost:3306/mysql?useUnicode=yes&characterEncoding=UTF8&sessionVariables=storage_engine=InnoDB");
-        ds.setUsername("root");
-        ds.setPassword("");
-        ds.setMinConnectionsPerPartition(5);
-        ds.setMaxConnectionsPerPartition(10);
-        ds.setPartitionCount(1);
-
-        mySchema.create(ds);
-        myCoreSchema.create(ds);
-    }
 
     public DataMapping(DataSet dataSet) {
         this.dataSet = dataSet;
@@ -223,8 +121,7 @@ public class DataMapping {
                 }
 
                 if (rule.maximumValue != null && rule.minimumValue != null) {
-                    if (val.compareTo(rule.minimumValue) >= 0 &&
-                            val.compareTo(rule.maximumValue) <= 0) {
+                    if (rule.withinMinMax(val)) {
                         Integer minMaxCountInt = minMaxComplianceCount.get(ruleId);
                         int minMaxCount = (minMaxCountInt == null) ? 0 : minMaxCountInt.intValue();
                         minMaxCount += profilingResultValue.cardinality;

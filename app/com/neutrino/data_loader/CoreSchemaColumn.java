@@ -17,6 +17,7 @@ public class CoreSchemaColumn{
     private int length;
     private CoreSchemaTable foreignKey;
     private boolean selected;
+    private boolean full;
 
     public CoreSchemaColumn(String name, String type) {
         this(name, type, -1);
@@ -54,7 +55,18 @@ public class CoreSchemaColumn{
     }
 
     public CoreSchemaColumn selectable() {
+        if (this.full) {
+            throw new RuntimeException("Can't be full and selectable");
+        }
         selectable = true;
+        return this;
+    }
+
+    public CoreSchemaColumn full() {
+        if (this.selectable) {
+            throw new RuntimeException("Can't be full and selectable");
+        }
+        full = true;
         return this;
     }
 
@@ -118,6 +130,7 @@ public class CoreSchemaColumn{
         nc.selectable = selectable;
         nc.foreignKey = foreignKey;
         nc.selected = selected;
+        nc.full = full;
         return nc;
     }
 
@@ -133,5 +146,13 @@ public class CoreSchemaColumn{
 
     public void adjustLength(int length) {
         this.length = length;
+    }
+
+    public boolean isFull() {
+        return this.full;
+    }
+
+    public boolean isSelectable() {
+        return selectable;
     }
 }

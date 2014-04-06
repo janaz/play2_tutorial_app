@@ -85,6 +85,11 @@ public class ColumnMapping extends Model {
         String newTable = jsonMapping.get("table_name");
         String newAttr = jsonMapping.get("attribute_name");
         String newType = jsonMapping.get("attribute_type");
+        if (newTable.isEmpty()) {
+            newTable = null;
+            newAttr = null;
+            newType = null;
+        }
         if (!newTable.equals(coreTableName) || !newAttr.equals(coreAttributeName)) {
             //we have an override
             setCoreTableName(newTable);

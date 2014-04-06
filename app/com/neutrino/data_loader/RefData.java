@@ -1,7 +1,5 @@
 package com.neutrino.data_loader;
 
-import com.google.common.collect.Lists;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -29,10 +27,13 @@ public class RefData {
     public static final CoreSchemaTable PERSON_MARITAL_STATUS;
     public static final CoreSchemaTable PERSON_OCCUPATION;
     public static final CoreSchemaTable PERSON_PHONE;
-
+    public static final String FULL_NAME_COLUMN = "FullName";
+    public static final String FULL_ADDRESS_LINE_COLUMN = "FullAddressLine";
+    public static final String FULL_AREA_COLUMN = "FullArea";
 
     public static final List<CoreSchemaTable> CORE_TABLES;
     public static final List<CoreSchemaTable> PRECORE_TABLES;
+
 
     static {
         PERSON_NAME_TYPE = new CoreSchemaTypeTable("PersonNameType", "NameTypeID")
@@ -91,8 +92,8 @@ public class RefData {
                 .addColumn(new CoreSchemaColumn("Postcode", "VARCHAR", 10).selectable())
                 .addColumn(new CoreSchemaColumn("State", "VARCHAR", 30).selectable())
                 .addColumn(new CoreSchemaColumn("Country", "VARCHAR", 60).selectable())
-                .addColumn(new CoreSchemaColumn("FullArea", "VARCHAR", 255))
-                .addColumn(new CoreSchemaColumn("FullAddressLine", "VARCHAR", 255))
+                .addColumn(new CoreSchemaColumn(FULL_AREA_COLUMN, "VARCHAR", 255))
+                .addColumn(new CoreSchemaColumn(FULL_ADDRESS_LINE_COLUMN, "VARCHAR", 255).full())
                 .addColumn(new CoreSchemaColumn("CreationTimestamp", "TIMESTAMP").notNull())
                 .addColumn(new CoreSchemaColumn("ModificationTimestamp", "TIMESTAMP"));
 
@@ -140,7 +141,7 @@ public class RefData {
                 .addColumn(new CoreSchemaColumn("Surname", "VARCHAR", 60).selectable())
                 .addColumn(new CoreSchemaColumn("Generation", "VARCHAR", 30).selectable())
                 .addColumn(new CoreSchemaColumn("Suffix", "VARCHAR", 30).selectable())
-                .addColumn(new CoreSchemaColumn("FullName", "VARCHAR", 120))
+                .addColumn(new CoreSchemaColumn(FULL_NAME_COLUMN, "VARCHAR", 120).full())
                 .addColumn(new CoreSchemaColumn("CreationTimestamp", "TIMESTAMP").notNull())
                 .addColumn(new CoreSchemaColumn("ModificationTimestamp", "TIMESTAMP"));
 

@@ -41,7 +41,6 @@ public class ManualMapping extends Secured {
     }
 
     public static Result update() {
-        final ReferenceData ref =  ReferenceData.forCore(currentUser().id);
         final ObjectNode result = Json.newObject();
         JsonNode reqNode = request().body().asJson();
 

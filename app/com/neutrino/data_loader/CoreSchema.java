@@ -90,4 +90,8 @@ public class CoreSchema {
         }
         return null;
     }
+
+    public List<CoreSchemaTable> getTables() {
+        return tables;
+    }
 }

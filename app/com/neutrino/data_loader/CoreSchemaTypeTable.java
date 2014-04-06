@@ -8,6 +8,7 @@ import org.polyjdbc.core.query.QueryFactory;
 import org.polyjdbc.core.schema.model.Schema;
 
 import javax.sql.DataSource;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +42,19 @@ public class CoreSchemaTypeTable {
 
     public String getValue(int id) {
         return values.get(id);
+    }
+
+    public Collection<String> getValues() {
+        return values.values();
+    }
+
+    public Integer getTypeId(String val) {
+        for (Integer id : values.keySet()) {
+            if (values.get(id).equals(val)) {
+                return id;
+            }
+        }
+        return null;
     }
 
     public String getName() {

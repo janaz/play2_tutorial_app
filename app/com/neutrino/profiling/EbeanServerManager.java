@@ -101,7 +101,10 @@ public class EbeanServerManager {
             schemaManager.ddl(DDLQuery.ddl("CREATE DATABASE `" + dbName + "`"));
             schemaManager.ddl(DDLQuery.ddl("ALTER DATABASE `" + dbName + "` DEFAULT CHARACTER SET = 'UTF8'"));
             return true;
-        } finally {
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            return false;
+        }  finally {
             polyjdbc.close(schemaManager);
         }
     }

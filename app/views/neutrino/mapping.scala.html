@@ -40,6 +40,7 @@
                     </td>
                     <td>
                         <select name="mapping_@{mapping.id}" id="mapping_@{mapping.id}" class="form-control main-select" data-selected-type="@{mapping.coreAttributeType}" data-mapping-id="@{mapping.id}" >
+                        <option data-core-table="" data-core-attribute="" value="null">Ignore</option>
                         @for(option <- options.sortBy(row => (row.getTableName(), row.getColumnName()))) {
                             @defining(
                                 if (option.matches(mapping)) {
