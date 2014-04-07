@@ -81,6 +81,15 @@ public class ColumnMapping extends Model {
         }
     }
 
+    private boolean areEqual(Object o1, Object o2) {
+        if (o1 == null) {
+            return (o2==null);
+        } else if (o2 ==null) {
+            return false;
+        } else {
+            return o1.equals(o2);
+        }
+    }
     public void updateFromJson(Map<String, String> jsonMapping, String serverName) {
         String newTable = jsonMapping.get("table_name");
         String newAttr = jsonMapping.get("attribute_name");
@@ -90,7 +99,7 @@ public class ColumnMapping extends Model {
             newAttr = null;
             newType = null;
         }
-        if (!newTable.equals(coreTableName) || !newAttr.equals(coreAttributeName)) {
+        if (!areEqual(newTable, coreTableName) || !areEqual(newAttr, coreAttributeName)) {
             //we have an override
             setCoreTableName(newTable);
             setCoreAttributeName(newAttr);
