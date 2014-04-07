@@ -2,6 +2,8 @@ package com.neutrino.models.configuration;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+import com.neutrino.csv.parsers.DateTimeParser;
+import org.pojava.datetime.DateTime;
 import play.data.format.Formats;
 import play.db.ebean.Model;
 
@@ -130,12 +132,16 @@ public class MappingDiscoveryRule extends Model {
 
     @Transient
     private long minValueInt;
-
     @Transient
     private long maxValueInt;
-
     @Transient
     private Boolean minMaxIsInt;
+    @Transient
+    private Boolean minMaxIsDate;
+    @Transient
+    private DateTime minValueDate;
+    @Transient
+    private DateTime maxValueDate;
 
     public Pattern regexPatternCompiled() {
         if (regexPattern == null || regexPattern.trim().isEmpty()) {
@@ -174,6 +180,11 @@ public class MappingDiscoveryRule extends Model {
                 minMaxIsInt = false;
             }
         }
+        if (minMaxIsDate == null) {
+            minValueDate = DateTimeParser.instance().parse(minimumValue);
+            maxValueDate = DateTimeParser.instance().parse(minimumValue);
+            minMaxIsDate = (minValueDate != null) && (maxValueDate != null);
+        }
         if (minMaxIsInt.booleanValue()) {
             try {
                 long valueInt = Long.parseLong(value);
@@ -181,6 +192,10 @@ public class MappingDiscoveryRule extends Model {
             } catch (Exception e) {
                 return false;
             }
+        } else if (minMaxIsDate.booleanValue()) {
+            DateTime valueDate = DateTimeParser.instance().parse(value);
+            return valueDate.compareTo(minValueDate) >= 0 &&
+                    valueDate.compareTo(maxValueDate) <= 0;
         } else {
             return value.compareTo(minimumValue) >= 0 &&
                     value.compareTo(maximumValue) <= 0;
