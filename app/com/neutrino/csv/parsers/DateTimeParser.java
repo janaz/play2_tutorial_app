@@ -4,7 +4,18 @@ import org.pojava.datetime.DateTime;
 import org.pojava.datetime.DateTimeConfig;
 
 public class DateTimeParser implements DataCategoryParser {
+    private final static DateTimeParser INSTANCE = new DateTimeParser();
     private static final DateTime REF_DT = DateTime.parse("1000-10-10");
+
+    private DateTimeParser() {
+
+    }
+
+    public static DateTimeParser instance() {
+        return INSTANCE;
+    }
+
+
     @Override
     public DateTime parse(String value) {
         if (value == null || value.isEmpty()) {
@@ -29,7 +40,7 @@ public class DateTimeParser implements DataCategoryParser {
         if (o == null) {
             return null;
         }
-        DateTime dt = (DateTime)o;
+        DateTime dt = (DateTime) o;
         return dt.toString("yyyy-MM-dd HH:mm:ss");
     }
 }
