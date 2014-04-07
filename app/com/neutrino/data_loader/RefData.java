@@ -67,7 +67,7 @@ public class RefData {
                 .addColumn(new CoreSchemaColumn("HeaderID", "INTEGER").id())
                 .addColumn(new CoreSchemaColumn("DataSetID", "INTEGER").notNull())
                 .addColumn(new CoreSchemaColumn("SourceID", "VARCHAR", 60).selectable().notNull())
-                .addColumn(new CoreSchemaColumn("CreationTimestamp", "TIMESTAMP").selectable().notNull())
+                .addColumn(new CoreSchemaColumn("CreationTimestamp", "TIMESTAMP").notNull())
                 .addColumn(new CoreSchemaColumn("MatchType", "VARCHAR", 3))
                 .addColumn(new CoreSchemaColumn("MatchWeight", "DECIMAL(5,2)"))
                 .addColumn(new CoreSchemaColumn("MatchSetID", "INTEGER"));
