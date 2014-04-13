@@ -137,7 +137,7 @@ public class BasicFlow extends Controller {
         //DataMapping.createPrecoreSchema(8);
         //test("Staging008.StgTest07");
         //test3();
-        //new PrecoreDataLoader(199).populate();
+        new PrecoreDataLoader(12).populate();
         return ok(views.html.neutrino.index.render());
     }
 

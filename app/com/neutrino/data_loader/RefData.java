@@ -30,6 +30,7 @@ public class RefData {
     public static final String FULL_NAME_COLUMN = "FullName";
     public static final String FULL_ADDRESS_LINE_COLUMN = "FullAddressLine";
     public static final String FULL_AREA_COLUMN = "FullArea";
+    public static final String PERSON_HEADER_TABLE_NAME = "PersonHeader";
 
     public static final List<CoreSchemaTable> CORE_TABLES;
     public static final List<CoreSchemaTable> PRECORE_TABLES;
@@ -63,7 +64,7 @@ public class RefData {
                 .addValue(5, "Summer Residence")
                 .addValue(6, "PO Box");
 
-        PERSON_HEADER = new CoreSchemaTable("PersonHeader")
+        PERSON_HEADER = new CoreSchemaTable(PERSON_HEADER_TABLE_NAME)
                 .addColumn(new CoreSchemaColumn("HeaderID", "INTEGER").id())
                 .addColumn(new CoreSchemaColumn("DataSetID", "INTEGER").notNull())
                 .addColumn(new CoreSchemaColumn("SourceID", "VARCHAR", 60).selectable().notNull())

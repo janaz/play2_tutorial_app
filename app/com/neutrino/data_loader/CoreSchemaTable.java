@@ -103,6 +103,11 @@ public class CoreSchemaTable {
                 }
             }
         }
+        //special handling of PersonHeader table
+        if (getName().equals(RefData.PERSON_HEADER_TABLE_NAME)) {
+            String q = "ALTER TABLE " + tabName + " ADD UNIQUE INDEX dataSetSourceIdIdx(DataSetID, SourceID)";
+            retVal.add(q);
+        }
         builder.build();
         return retVal;
     }

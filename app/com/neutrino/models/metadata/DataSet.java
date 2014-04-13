@@ -15,6 +15,10 @@ import java.util.List;
 @Entity
 @Table(name="DataSet")
 public class DataSet extends Model {
+    public Integer getId() {
+        return id;
+    }
+
     public enum Type {
         @EnumValue("FILE")
         FILE,

@@ -90,7 +90,7 @@ public class ColumnMapping extends Model {
             return o1.equals(o2);
         }
     }
-    public void updateFromJson(Map<String, String> jsonMapping, String serverName) {
+    public void updateFromJson(Map<String, String> jsonMapping) {
         String newTable = jsonMapping.get("table_name");
         String newAttr = jsonMapping.get("attribute_name");
         String newType = jsonMapping.get("attribute_type");
@@ -109,7 +109,6 @@ public class ColumnMapping extends Model {
             //change of type
             setCoreAttributeType(newType);
         }
-        save(serverName);
     }
 
     public void setCoreTableName(String coreTableName) {

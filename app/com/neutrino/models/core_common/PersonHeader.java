@@ -24,7 +24,7 @@ public class PersonHeader extends Model {
 
     @NotNull
     @SelectableAttribute
-    @Column(name="SourceID", length = 60, unique = true)
+    @Column(name="SourceID", length = 60)
     public String sourceId;
 
     @NotNull

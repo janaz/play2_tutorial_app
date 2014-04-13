@@ -35,17 +35,24 @@ Mapping = function (options) {
                 type: "POST",
                 url: that.getUpdateUrl(),
                 data: JSON.stringify(data),
+                dataType: 'json',
                 contentType: "application/json; charset=utf-8",
-                success: function(data, textStatus, jqXHR) {
+                success: function(d, textStatus, jqXHR) {
                     console.log('ajax success');
                     console.log(jqXHR);
                     console.log(textStatus);
                     console.log(jqXHR);
                     $('.info-alert').removeClass('hidden').removeClass('alert-danger').addClass('alert-success').html('Mapping saved successfully').slideDown();
                 },
-                error: function(data, textStatus, jqXHR) {
-                    $('.info-alert').removeClass('hidden').removeClass('alert-success').addClass('alert-danger').html('Error saving mapping').slideDown();
-
+                error: function(d, textStatus, jqXHR) {
+                    var msg = "Unknown error";
+                    var resp = $.parseJSON(d.responseText);
+                    console.log(resp);
+                    if (resp && resp.error) {
+                        msg = resp.error;
+                    }
+                    $('.info-alert').removeClass('hidden').removeClass('alert-success').addClass('alert-danger').html('Error saving mapping: '+msg).slideDown();
+                    //$('body').scrollTo('.info-alert');
                 }
             });
            // ev.preventDefault();

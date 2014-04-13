@@ -172,7 +172,8 @@ public class DataMapping {
         cm.confidenceFlag = false;
         cm.maybeFlag = false;
         cm.manualOverrideFlag = false;
-
+        cm.mandatoryFlag = false;
+        cm.mixedContentFlag = false;
         for (MappingDiscoveryRule rule : rules) {
             double score = 0.0f;
 
@@ -273,14 +274,18 @@ public class DataMapping {
                 cm.coreAttributeName = rule.coreColumn;
                 cm.coreAttributeType = rule.coreType;
                 cm.coreTableName = rule.coreTable;
+                cm.mandatoryFlag = rule.mandatoryFlag;
                 cm.score = (int) score;
                 cm.confidenceFlag = true;
+                cm.maybeFlag = false;
+
                 System.out.println("Confidence match found for " + dataColumn.name + "rule: " + rule.coreTable + ":" + rule.coreColumn + "\tthreshold: " + rule.confPointsThresh + "\tscore:" + score);
                 break; // found confidence match
             } else if (rule.maybePointsThresh.doubleValue() <= score) {
                 cm.coreAttributeName = rule.coreColumn;
                 cm.coreAttributeType = rule.coreType;
                 cm.coreTableName = rule.coreTable;
+                cm.mandatoryFlag = rule.mandatoryFlag;
                 cm.score = (int) score;
                 cm.maybeFlag = true;
                 cm.confidenceFlag = false;
