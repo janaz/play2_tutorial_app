@@ -10,6 +10,7 @@ import com.neutrino.models.metadata.ColumnMapping;
 import com.neutrino.models.metadata.DataSet;
 import com.neutrino.profiling.MetadataSchema;
 import controllers.Application;
+import jobs.DataLoaderJob;
 import play.libs.Json;
 import play.mvc.Result;
 
@@ -135,8 +136,8 @@ public class ManualMapping extends Secured {
         }
 
         result.put("data_count", data.size());
+        DataLoaderJob.runDataLoader(currentUser().id);
         return ok(result);
     }
-
 
 }
