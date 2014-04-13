@@ -16,7 +16,7 @@ libraryDependencies ++= Seq(
   "org.apache.httpcomponents" % "httpclient" % "4.3",
   "org.mindrot" % "jbcrypt" % "0.3m",
   "org.apache.commons" % "commons-exec" % "1.2",
-  "org.apache.commons" % "commons-lang3" % "3.2.1",
+  "org.apache.commons" % "commons-lang3" % "3.3.1",
   "com.typesafe" %% "play-plugins-mailer" % "2.2.0",
   "com.amazonaws" % "aws-java-sdk" % "1.6.2",
   "com.google.guava" % "guava" % "r09",
