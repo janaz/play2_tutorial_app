@@ -22,10 +22,14 @@ public class DateTimeParser implements DataCategoryParser {
             return null;
         }
         DateTimeConfig.globalEuropeanDateFormat();
-        DateTime dt = DateTime.parse(value.trim());
-        if (dt.compareTo(REF_DT) > 0) {
-            return dt;
-        } else {
+        try {
+            DateTime dt = DateTime.parse(value.trim());
+            if (dt.compareTo(REF_DT) > 0) {
+                return dt;
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
             return null;
         }
     }
