@@ -150,7 +150,7 @@ public class PrecoreDataLoader {
                 return item.getName();
             }
         });
-        CoreSchema mySchema = new CoreSchema("Precore");
+        CoreSchema mySchema = new CoreSchema("PreCore");
         CoreSchema myCoreSchema = new CoreSchema("Core");
         mySchema.addTable(RefData.PERSON_HEADER);
         myCoreSchema.addTable(RefData.PERSON_HEADER);

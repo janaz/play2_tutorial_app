@@ -43,6 +43,7 @@ Mapping = function (options) {
                     console.log(textStatus);
                     console.log(jqXHR);
                     $('.info-alert').removeClass('hidden').removeClass('alert-danger').addClass('alert-success').html('Mapping saved successfully').slideDown();
+                    $('body').animate({scrollTop:0}, '500');
                 },
                 error: function(d, textStatus, jqXHR) {
                     var msg = "Unknown error";
@@ -53,6 +54,7 @@ Mapping = function (options) {
                     }
                     $('.info-alert').removeClass('hidden').removeClass('alert-success').addClass('alert-danger').html('Error saving mapping: '+msg).slideDown();
                     //$('body').scrollTo('.info-alert');
+                    $('body').animate({scrollTop:0}, '500');
                 }
             });
            // ev.preventDefault();

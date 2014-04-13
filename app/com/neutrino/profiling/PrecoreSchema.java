@@ -8,7 +8,7 @@ public class PrecoreSchema {
     }
 
     public String databaseName() {
-        return String.format("Precore%03d", this.userId);
+        return String.format("PreCore%03d", this.userId);
     }
 
     public boolean isCreated() {

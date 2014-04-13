@@ -244,7 +244,7 @@ public class RefData {
                 .addTable(PERSON_NAME_CORE)
                 .addTable(PERSON_ADDRESS_CORE);
 
-        PRECORE_SCHEMA = new CoreSchema("Precore")
+        PRECORE_SCHEMA = new CoreSchema("PreCore")
                 .addTable(PERSON_HEADER)
                 .addTable(PERSON_PHONE)
                 .addTable(PERSON_MARITAL_STATUS)
