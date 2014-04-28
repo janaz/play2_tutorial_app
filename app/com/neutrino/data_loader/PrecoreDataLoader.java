@@ -241,7 +241,11 @@ public class PrecoreDataLoader {
     private void processTableType(DataSet ds, TableType tabType, Collection<ColumnMapping> headerMappings, Collection<ColumnMapping> tabTypeMappings) {
         Map<String, String> attrNameToStgName = new HashMap<>();
         List<String> attributes = new ArrayList<>();
-        List<String> values = new ArrayList<>();
+        List<String> values1 = new ArrayList<>();
+        List<String> values2 = new ArrayList<>();
+        List<String> values3 = new ArrayList<>();
+        List<String> values4 = new ArrayList<>();
+        List<String> froms = new ArrayList<>();
         for (ColumnMapping mapping : tabTypeMappings) {
             if (!tabType.getTableName().equals(mapping.getCoreTableName())) {
                 throw new RuntimeException("Table Name mismatch1!!! " + tabType.getTableName() + "<->" + mapping.getCoreTableName());
@@ -262,7 +266,10 @@ public class PrecoreDataLoader {
             }
             attrNameToStgName.put(attrName, "s." + stgName);
             attributes.add(attrName);
-            values.add("s." + stgName);
+            values1.add("upper(trim(s." + stgName+")) as " + stgName);
+            values2.add(stgName);
+            values3.add(stgName);
+            values4.add(stgName);
         }
         /*INSERT INTO Precore.PersonName(Attr1A, Attr1B, HeaderID, NameTypeID
         SELECT s.Attr1, s.Attr2, s.Attr3, h.HeaderID ,'Type Value' from Staging005.DataSet0005 s, Precore005.PersonHeader h
@@ -270,24 +277,36 @@ public class PrecoreDataLoader {
          */
         PrecoreSchema prec = new PrecoreSchema(userId);
         attributes.add("HeaderID");
-        values.add("(SELECT HeaderID FROM "+prec.databaseName() +"."+ RefData.PERSON_HEADER.getName() +" WHERE DataSetID=" + ds.id + " AND SourceID=s." +headerMappings.iterator().next().getDataColumn().getName()  + ")");
+        values1.add("(SELECT HeaderID FROM "+prec.databaseName() +"."+ RefData.PERSON_HEADER.getName() +" WHERE DataSetID=" + ds.id + " AND SourceID=s." +headerMappings.iterator().next().getDataColumn().getName()  + ") as _HeaderID");
+        values2.add("_HeaderID");
+        values3.add("_HeaderID");
+        values4.add("_HeaderID");
         CoreSchemaTable tab = RefData.PRECORE_SCHEMA.getTable(tabType.getTableName());
         if (tab.getTypeTable() != null) {
             if (tabType.getAttributeType() == null) {
                 throw new RuntimeException("Type expected but is null");
             }
             attributes.add(tab.getTypeTable().getIdColumnName());
-            values.add("" + tab.getTypeTable().getTypeId(tabType.getAttributeType()));
+            values1.add("" + tab.getTypeTable().getTypeId(tabType.getAttributeType()) + " as _TypeId");
+            values2.add("_TypeId");
+            values3.add("_TypeId");
+            values4.add("_TypeId");
         }
         StagingSchema stagingSchema = new StagingSchema(userId, ds.id);
-        String sql = "INSERT INTO " + prec.databaseName() + "." + tabType.getTableName() +
-                "(" + Joiner.on(",").join(attributes) + ") SELECT " + Joiner.on(",").join(values) +
-                " FROM " + stagingSchema.databaseName() + "." + stagingSchema.dataSetTableName() + " s";
-
+        froms.add(stagingSchema.databaseName() + "." + stagingSchema.dataSetTableName() + " s");
+        String insertInto = "INSERT INTO " + prec.databaseName() + "." + tabType.getTableName() +
+                "(" + Joiner.on(",\n").join(attributes) + ")\n";
+        String select1 = " SELECT " + Joiner.on(",\n").join(values1) +
+                " FROM " + Joiner.on(",\n").join(froms);
+        String select2 = " SELECT " + Joiner.on(",\n").join(values2) + " FROM (" + select1 +") a \n";
+        String select3 = " SELECT " + Joiner.on(",\n").join(values3) + " FROM (" + select2 +") b \n";
+        String select4 = " SELECT " + Joiner.on(",\n").join(values4) + " FROM (" + select3 +") c \n";
+        String sql = insertInto + select4;
+        System.out.println(sql);
         if (tabType.getTableName().equals(RefData.PERSON_HEADER.getName())) {
             StringBuilder sb = new StringBuilder();
-            sql = sb.append("INSERT INTO "+prec.databaseName() +"."+ RefData.PERSON_HEADER.getName() +"(DataSetID, SourceID, CreationTimestamp)")
-                    .append("SELECT ").append(ds.id).append(", `").append(headerMappings.iterator().next().getDataColumn().getName()).append("`, NOW()")
+            sql = sb.append("INSERT INTO "+prec.databaseName() +"."+ RefData.PERSON_HEADER.getName() +"(DataSetID, SourceID, CreationTimestamp) ")
+                    .append("SELECT ").append(ds.id).append(", `").append(headerMappings.iterator().next().getDataColumn().getName()).append("`, NOW() ")
                     .append("FROM `").append(stagingSchema.databaseName()).append("`.`").append(stagingSchema.dataSetTableName()).append("`")
                     .toString();
         }
