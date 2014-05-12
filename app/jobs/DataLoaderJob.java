@@ -3,6 +3,8 @@ package jobs;
 import akka.actor.Cancellable;
 import com.google.common.base.Joiner;
 import com.neutrino.data_loader.PrecoreDataLoader;
+import com.neutrino.models.metadata.DataSet;
+import com.neutrino.profiling.MetadataSchema;
 import play.libs.Akka;
 import scala.concurrent.duration.Duration;
 

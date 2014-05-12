@@ -210,11 +210,17 @@ public class PrecoreDataLoader {
             cor.createDatabase();
             createPrecoreSchema();
         }
+        MetadataSchema met = new MetadataSchema(userId);
         for (DataSet ds : dataSets()) {
+            ds.setState(DataSet.State.DATA_LOADING_STARTED);
+            ds.save(met.server().getName());
             List<ColumnMapping> dsMappings = ds.getMappings();
             if (dsMappings.isEmpty()) {
+                ds.setState(DataSet.State.DATA_LOADING_DONE);
+                ds.save(met.server().getName());
                 continue;
             }
+
             Map<TableType, Collection<ColumnMapping>> byTableType = CollectionUtils.listAsMap(dsMappings, new CollectionUtils.ListToMapConverter<TableType, ColumnMapping>() {
                 @Override
                 public TableType getKey(ColumnMapping item) {
@@ -235,6 +241,9 @@ public class PrecoreDataLoader {
                 Collection<ColumnMapping> tabTypeMappings = byTableType.get(tabType);
                 processTableType(ds, tabType, headerMappings, tabTypeMappings);
             }
+            ds.setState(DataSet.State.DATA_LOADING_DONE);
+            ds.save(met.server().getName());
+
         }
     }
 
@@ -246,6 +255,9 @@ public class PrecoreDataLoader {
         List<String> values3 = new ArrayList<>();
         List<String> values4 = new ArrayList<>();
         List<String> froms = new ArrayList<>();
+        StagingSchema stagingSchema = new StagingSchema(userId, ds.id);
+        froms.add(stagingSchema.databaseName() + "." + stagingSchema.dataSetTableName() + " s");
+        int subTabCount = 0;
         for (ColumnMapping mapping : tabTypeMappings) {
             if (!tabType.getTableName().equals(mapping.getCoreTableName())) {
                 throw new RuntimeException("Table Name mismatch1!!! " + tabType.getTableName() + "<->" + mapping.getCoreTableName());
@@ -265,11 +277,42 @@ public class PrecoreDataLoader {
                 throw new RuntimeException("Column name not unique! "+attrName);
             }
             attrNameToStgName.put(attrName, "s." + stgName);
-            attributes.add(attrName);
             values1.add("upper(trim(s." + stgName+")) as " + stgName);
-            values2.add(stgName);
-            values3.add(stgName);
-            values4.add(stgName);
+            if (attrName.equals(RefData.EMAIL_ADDRESS_COLUMN)) {
+                attributes.add(attrName);
+                String colExp = "if (" + stgName + " regexp '^[A-Z0-9._%+-]+@[A-Z0-9.-]+[.][A-Z]{2,}$' = 1, "+stgName+", null)";
+                values2.add(colExp + " as " + stgName);
+                values3.add(stgName);
+                values4.add(stgName);
+            } else if (attrName.endsWith("Date")) {
+                subTabCount++;
+                String subTabName = "t"+subTabCount;
+                String firstTwoDigName = "FirstTwoDigits"+subTabCount;
+                String lastTwoDigName = "LastTwoDigits"+subTabCount;
+                String formatName = "Format"+subTabCount;
+                String subTab = "(select " +
+                        "       max(substr(trim(" + stgName+"), 1, 2)) as FirstTwoDigits,\n" +
+                        "       max(substr(trim(" + stgName+"), CHAR_LENGTH(trim(" + stgName+ ")) - 1, 2)) as LastTwoDigits\n" +
+                        "     from "+stagingSchema.databaseName() + "." + stagingSchema.dataSetTableName()+") "+subTabName;
+                froms.add(subTab);
+                attributes.add(attrName);
+                values1.add(subTabName+".FirstTwoDigits as "+firstTwoDigName);
+                values1.add(subTabName+".LastTwoDigits as "+lastTwoDigName);
+                values2.add(stgName);
+                values2.add(firstTwoDigName);
+                values2.add(lastTwoDigName);
+                values2.add(Cleansing.FORMAT_VALUE_EXPR_LEVEL_2.replaceAll("%COLUMN_NAME%", stgName) + " as " +formatName);
+                values3.add(Cleansing.DATE_VALUE_EXPR_LEVEL_3.replaceAll("%FORMAT%", formatName).
+                        replaceAll("%LAST_TWO_DIGITS%", lastTwoDigName).
+                        replaceAll("%FIRST_TWO_DIGITS%", firstTwoDigName).
+                        replaceAll("%COLUMN_NAME%", stgName) +" as " + stgName);
+                values4.add(stgName);
+            } else {
+                attributes.add(attrName);
+                values2.add(stgName);
+                values3.add(stgName);
+                values4.add(stgName);
+            }
         }
         /*INSERT INTO Precore.PersonName(Attr1A, Attr1B, HeaderID, NameTypeID
         SELECT s.Attr1, s.Attr2, s.Attr3, h.HeaderID ,'Type Value' from Staging005.DataSet0005 s, Precore005.PersonHeader h
@@ -292,8 +335,6 @@ public class PrecoreDataLoader {
             values3.add("_TypeId");
             values4.add("_TypeId");
         }
-        StagingSchema stagingSchema = new StagingSchema(userId, ds.id);
-        froms.add(stagingSchema.databaseName() + "." + stagingSchema.dataSetTableName() + " s");
         String insertInto = "INSERT INTO " + prec.databaseName() + "." + tabType.getTableName() +
                 "(" + Joiner.on(",\n").join(attributes) + ")\n";
         String select1 = " SELECT " + Joiner.on(",\n").join(values1) +

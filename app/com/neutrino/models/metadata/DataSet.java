@@ -42,7 +42,11 @@ public class DataSet extends Model {
         @EnumValue("AUTO_MAPPING_ERROR")
         AUTO_MAPPING_ERROR,
         @EnumValue("MANUAL_MAPPING_DONE")
-        MANUAL_MAPPING_DONE
+        MANUAL_MAPPING_DONE,
+        @EnumValue("DATA_LOADING_STARTED")
+        DATA_LOADING_STARTED,
+        @EnumValue("DATA_LOADING_DONE")
+        DATA_LOADING_DONE
     }
 
     @Id

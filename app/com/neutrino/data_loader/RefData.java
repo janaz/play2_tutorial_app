@@ -30,6 +30,7 @@ public class RefData {
     public static final String FULL_NAME_COLUMN = "FullName";
     public static final String FULL_ADDRESS_LINE_COLUMN = "FullAddressLine";
     public static final String FULL_AREA_COLUMN = "FullArea";
+    public static final String EMAIL_ADDRESS_COLUMN ="EmailAddress";
     public static final String PERSON_HEADER_TABLE_NAME = "PersonHeader";
 
     public static final List<CoreSchemaTable> CORE_TABLES;
@@ -156,7 +157,7 @@ public class RefData {
         PERSON_EMAIL = new CoreSchemaTable("PersonEmail")
                 .addColumn(new CoreSchemaColumn("EmailID", "INTEGER").id())
                 .addColumn(new CoreSchemaColumn("HeaderID", "INTEGER").notNull().foreignKey(PERSON_HEADER))
-                .addColumn(new CoreSchemaColumn("EmailAddress", "VARCHAR", 128).selectable())
+                .addColumn(new CoreSchemaColumn(EMAIL_ADDRESS_COLUMN, "VARCHAR", 128).selectable())
                 .addColumn(new CoreSchemaColumn("CreationTimestamp", "TIMESTAMP").notNull())
                 .addColumn(new CoreSchemaColumn("ModificationTimestamp", "TIMESTAMP"));
 
