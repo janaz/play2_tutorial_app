@@ -114,6 +114,7 @@ public class CoreSchemaTable {
 
     public boolean allColumnSelected() {
         return getName().equals(RefData.PERSON_NAME.getName()) ||
+                getName().equals(RefData.PERSON_PHONE.getName()) ||
                 getName().equals(RefData.PERSON_ADDRESS.getName());
     }
 

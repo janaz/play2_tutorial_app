@@ -2,11 +2,13 @@ package com.neutrino.datamappingdiscovery;
 
 import com.avaje.ebean.Query;
 import com.avaje.ebean.QueryListener;
+import com.neutrino.csv.parsers.DateTimeParser;
 import com.neutrino.models.configuration.DataFormat;
 import com.neutrino.models.configuration.MappingDiscoveryRule;
 import com.neutrino.models.configuration.ReferenceData;
 import com.neutrino.models.metadata.*;
 import com.neutrino.profiling.MetadataSchema;
+import org.pojava.datetime.DateTime;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -93,6 +95,11 @@ public class DataMapping {
             if (val == null || val.isEmpty()) {
                 return;
             }
+            DateTime valueDate = DateTimeParser.instance().parse(val);
+            if (valueDate != null) {
+                //System.out.println("Got datetime value for "+val+" / "+profilingResultValue.columnName);
+                return;
+            }
             String[] tokens = val.split("\\s");
             //go through the config
             for (MappingDiscoveryRule rule : rules) {
@@ -155,6 +162,25 @@ public class DataMapping {
         }
     }
 
+    private double getMultiplier(long refMatchCount, double totalPopulated, double minThresh, double fullScoreThresh) {
+        double multiplier;
+        if (totalPopulated < 0.1) {
+            multiplier = 0.0;
+        } else if (fullScoreThresh < 0.001) {
+            multiplier = 1.0;
+        } else {
+            double zeroMatchCount = totalPopulated * minThresh;
+            double oneMatchCount = totalPopulated * fullScoreThresh;
+            multiplier = (refMatchCount - zeroMatchCount)/(oneMatchCount - zeroMatchCount);
+        }
+        if (multiplier > 1) {
+            multiplier = 1.0;
+        } else if (multiplier < 0) {
+            multiplier = 0.0;
+        }
+        return multiplier;
+    }
+
     public void processColumn(DataColumn dataColumn) {
         ProfilingResultValueListener valueListener = new ProfilingResultValueListener();
         ProfilingResultFormatListener formatListener = new ProfilingResultFormatListener();
@@ -188,17 +214,7 @@ public class DataMapping {
             int refMatchCountInt = (refMatchCount == null) ? 0 : refMatchCount.intValue();
             double totalPopulated = profilingColRes.percentagePopulated.doubleValue() * 0.01 * profilingColRes.totalCount;
             if (rule.refFullScorePercThresh != null && rule.refFullScore != null && rule.refMinimumPercMatch != null && ((float) refMatchCountInt >= totalPopulated * rule.refMinimumPercMatch.floatValue())) {
-                double multiplier;
-                if (totalPopulated < 0.1) {
-                    multiplier = 0;
-                } else if (rule.refFullScorePercThresh.equals(new BigDecimal("0.0"))) {
-                    multiplier = 1;
-                } else {
-                    multiplier = ((float) refMatchCountInt - totalPopulated * rule.refMinimumPercMatch.floatValue()) / (totalPopulated * rule.refFullScorePercThresh.floatValue());
-                }
-                if (multiplier > 1) {
-                    multiplier = 1;
-                }
+                double multiplier = getMultiplier(refMatchCountInt, totalPopulated, rule.refMinimumPercMatch.doubleValue(), rule.refFullScorePercThresh.doubleValue());
                 System.out.println("totalPopulated: " + totalPopulated);
                 System.out.println("percentagePopulated: " + profilingColRes.percentagePopulated.doubleValue());
                 System.out.println("refMatchCountInt: " + refMatchCountInt);

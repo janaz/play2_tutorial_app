@@ -32,10 +32,17 @@ public class RefData {
     public static final String FULL_AREA_COLUMN = "FullArea";
     public static final String EMAIL_ADDRESS_COLUMN ="EmailAddress";
     public static final String PERSON_HEADER_TABLE_NAME = "PersonHeader";
+    public static final String PHONE_NUMBER_COLUMN = "PhoneNumber";
 
     public static final List<CoreSchemaTable> CORE_TABLES;
     public static final List<CoreSchemaTable> PRECORE_TABLES;
 
+
+    public static final String COUNTRY_CODE_COLUMN = "CountryCode";
+
+    public static final String AREA_CODE_COLUMN = "AreaCode";
+
+    public static final String EXTENSION_COLUMN = "Extension";
 
     static {
         PERSON_NAME_TYPE = new CoreSchemaTypeTable("PersonNameType", "NameTypeID")
@@ -94,7 +101,7 @@ public class RefData {
                 .addColumn(new CoreSchemaColumn("Postcode", "VARCHAR", 10).selectable())
                 .addColumn(new CoreSchemaColumn("State", "VARCHAR", 30).selectable())
                 .addColumn(new CoreSchemaColumn("Country", "VARCHAR", 60).selectable())
-                .addColumn(new CoreSchemaColumn(FULL_AREA_COLUMN, "VARCHAR", 255))
+                .addColumn(new CoreSchemaColumn(FULL_AREA_COLUMN, "VARCHAR", 255).full())
                 .addColumn(new CoreSchemaColumn(FULL_ADDRESS_LINE_COLUMN, "VARCHAR", 255).full())
                 .addColumn(new CoreSchemaColumn("CreationTimestamp", "TIMESTAMP").notNull())
                 .addColumn(new CoreSchemaColumn("ModificationTimestamp", "TIMESTAMP"));
@@ -200,10 +207,10 @@ public class RefData {
         PERSON_PHONE = new CoreSchemaTable("PersonPhone", PERSON_PHONE_TYPE)
                 .addColumn(new CoreSchemaColumn("PhoneID", "INTEGER").id())
                 .addColumn(new CoreSchemaColumn("HeaderID", "INTEGER").notNull().foreignKey(PERSON_HEADER))
-                .addColumn(new CoreSchemaColumn("CountryCode", "TINYINT").selectable())
-                .addColumn(new CoreSchemaColumn("AreaCode", "TINYINT").selectable())
-                .addColumn(new CoreSchemaColumn("PhoneNumber", "BIGINT").selectable())
-                .addColumn(new CoreSchemaColumn("Extension", "INTEGER").selectable())
+                .addColumn(new CoreSchemaColumn(COUNTRY_CODE_COLUMN, "TINYINT").selectable())
+                .addColumn(new CoreSchemaColumn(AREA_CODE_COLUMN, "TINYINT").selectable())
+                .addColumn(new CoreSchemaColumn(PHONE_NUMBER_COLUMN, "BIGINT").selectable())
+                .addColumn(new CoreSchemaColumn(EXTENSION_COLUMN, "INTEGER").selectable())
                 .addColumn(new CoreSchemaColumn("CreationTimestamp", "TIMESTAMP").notNull())
                 .addColumn(new CoreSchemaColumn("ModificationTimestamp", "TIMESTAMP"));
 

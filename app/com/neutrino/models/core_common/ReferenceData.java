@@ -78,6 +78,19 @@ public class ReferenceData {
         return null;
     }
 
+    public boolean isUniqueMapping(String tableName, String columnName) {
+        for (CoreSchemaTable tab : RefData.PRECORE_SCHEMA.getTables()) {
+            if (tab.getName().equals(tableName)) {
+                for (CoreSchemaColumn col : tab.getColumns()) {
+                    if (col.getName().equals(columnName)) {
+                        return !col.isFull();
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
     public List<Option> getOptions() {
         if (options == null) {
             options = Lists.newArrayList(Lists.transform(globalOptions, new Function<Option, Option>() {

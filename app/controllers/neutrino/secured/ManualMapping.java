@@ -2,6 +2,7 @@ package controllers.neutrino.secured;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.neutrino.data_loader.CoreSchema;
 import com.neutrino.datamappingdiscovery.CollectionUtils;
 import com.neutrino.models.configuration.MappingDiscoveryRule;
 import com.neutrino.models.configuration.User;
@@ -43,6 +44,8 @@ public class ManualMapping extends Secured {
     }
 
     public static Result update() {
+        ReferenceData ref =  ReferenceData.forCore(currentUser().id);
+
         final ObjectNode result = Json.newObject();
         JsonNode reqNode = request().body().asJson();
 
@@ -90,7 +93,8 @@ public class ManualMapping extends Secured {
                         .append(mapping.getCoreAttributeName()).append("/")
                         .append(mapping.getCoreAttributeType()).append("/")
                         .toString();
-                if (uniqueMappings.contains(setKey)) {
+                boolean forceUnique = ref.isUniqueMapping(mapping.getCoreTableName(), mapping.getCoreAttributeName());
+                if (uniqueMappings.contains(setKey) && forceUnique) {
                     String msg = "Mapping not unique for " +ds.getFile().getOriginalFileName()+ ": " +setKey;
                     result.put("error", msg);
                     return badRequest(result);
